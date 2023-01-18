@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2022-10-07T12:13:20+0200
-## Last-Updated: 2023-01-11T18:53:21+0100
+## Last-Updated: 2023-01-18T14:53:44+0100
 ################
 ## Combine multiple Monte Carlo chains
 ################
@@ -130,6 +130,12 @@ longrunprobsamples <- vapply(nlrsamples, function(asample){
     }, numeric(npsamples))
     ## rows: within longrunsample, cols: across longrunsamples
 ##)
-saveRDS(longrunprobsamples, paste0('longrunprobsamples',npsamples,'.rds'))
+###saveRDS(longrunprobsamples, paste0('longrunprobsamples',npsamples,'.rds'))
+
+
+npsamples <- 1024
+longrunprobsamples <- readRDS(paste0('_longrunprobsamples',npsamples,'.rds'))
+
+
 
 print('done')
