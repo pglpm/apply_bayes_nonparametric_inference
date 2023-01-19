@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2022-10-07T12:13:20+0200
-## Last-Updated: 2023-01-09T10:56:59+0100
+## Last-Updated: 2023-01-19T09:13:03+0100
 ################
 ## Combine multiple Monte Carlo chains
 ################
@@ -407,6 +407,42 @@ text(y=subsett, x=meanprobAD2[ordering][subsett],
 dev.off()
 
 
+
+
+set.seed(500)
+npsamples <- 1024
+probsamples2 <- foreach(asample=t(mcsamples), .combine=cbind)%dorng%{
+    asample <- t(asample)
+    datasamples <- t(generateVariates(Ynames=c(predictors,predictands), X=NULL,
+                                      mcsamples=asample, varinfo=varinfo,
+                                      n=npsamples)[,,1])
+    yvals <- datasamples[,predictands,drop=F]
+    out <- c(samplesFDistribution2(Y=yvals,
+                                X=datasamples[,predictors,drop=F],
+                                mcsamples=asample, varinfo=varinfo,
+                                jacobian=TRUE, fn=identity))
+    cbind(out,
+          c(samplesFDistribution2(Y=yvals,
+                                X=NULL,
+                                mcsamples=asample, varinfo=varinfo,
+                                jacobian=TRUE, fn=identity)),
+          (c(yvals)==1) * out + (c(yvals)==0) * (1-out)
+          )
+}
+attr(probsamples, 'rng') <- NULL
+attr(probsamples, 'doRNG_version') <- NULL
+dim(probsamples) <- c(nrow(probsamples),3,ncol(probsamples)/3)
+dimnames(probsamples) <- list(NULL,c('p(Y|X)','p(Y)','p(1|X)'),NULL)
+probsamples <- aperm(probsamples)
+## dim1: mcsamples, dim2:p/Yvalue, dim3: samples given lim-freq
+##saveRDS(probsamples, '_probsamples.rds')
+
+
+
+
+
+
+
 set.seed(500)
 npsamples <- 4096
 probsamples <- foreach(asample=t(mcsamples), .combine=cbind)%dorng%{
@@ -481,16 +517,16 @@ apply(alltreatdistr,1, tquant, prob=c(5,95)/100)*100
 
 
 pgrid <- seq(0,1,by=0.02)
-pgrid2 <- pgrid[-1]-diff(pgrid)
-longrunprobs <- apply(probsamples,1,function(xxx){
-thist(xxx['p(1|X)',], n=pgrid)$count
+pgrid2 <- pgrid[-1]-diff(pgrid)/2
+longrunprobs <- apply((probsamples),1,function(xxx){
+thist(xxx['p(1|X)',], n=pgrid)$density*diff(pgrid)[1]
 })
 
 statlongrunprobs <- apply(longrunprobs,1,function(xxx){
 c(tquant(xxx, c(8*2.5/100,1,2,4,6,7,8*97.5/100)/8), mean=mean(xxx))
-})/dim(longrunprobs)[2]
+})
 
-pdff('distribution_prognostic_probs',paper='a4p')
+pdff('distribution_prognostic_probs2',paper='a4p')
 tplot(pgrid2,t(statlongrunprobs), col='white',
       xlab=expression(italic(P):~'probability of conversion'~'(2% bins)'),
       ylab=expression('fraction of population prognosed with'~italic(P)),
@@ -503,7 +539,9 @@ plotquantiles(pgrid2,t(statlongrunprobs[c(1,7),]), col=5,alpha=0.75)
 plotquantiles(pgrid2,t(statlongrunprobs[c(2,6),]), col=5,alpha=0.75)
 plotquantiles(pgrid2,t(statlongrunprobs[c(3,5),]), col=5,alpha=0.75)
 tplot(pgrid2,statlongrunprobs['50%',],add=T)
-tplot(pgrid2,statlongrunprobs['mean',],lty=2,lwd=2,add=T)
+tplot(pgrid2,thist(origp,n=pgrid)$density*diff(pgrid)[1],lty=2,lwd=2,add=T)
+##
+tplot(pgrid2,statlongrunprobs['mean',],lty=3,lwd=2,add=T)
 legend('topleft',legend=c('median','mean',
                            '50% uncertainty','75% uncertainty','95% uncertainty'),
        col=c(1,1,

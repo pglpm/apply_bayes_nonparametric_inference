@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2022-10-07T12:13:20+0200
-## Last-Updated: 2023-01-18T23:43:53+0100
+## Last-Updated: 2023-01-19T08:13:53+0100
 ################
 ## Combine multiple Monte Carlo chains
 ################
@@ -197,16 +197,15 @@ shortnamesacc <- c(
 )
 names(shortnamesacc) <- names(Xlist)
 
-newpatientprobso <- readRDS('_newpatientMI_16384.rds')
-newpatients <- readRDS('_points_newpatientMI_16384.rds')
-
+newpatientprobso <- readRDS('_newpatientMI_32768.rds')
+newpatients <- readRDS('_points_newpatientMI_32768.rds')
 newpatientprobs <- newpatientprobso
 
 meansnpp <- colMeans(newpatientprobs)
 accus <- apply(newpatientprobs,2,function(xxx){
     mean((xxx>0.5)+0.5*(xxx==0.5))
 })
-orderv <- round(accus*100*1,1)/1
+orderv <- accus
 ord <- order(orderv, decreasing=T)
 ord <- ord[-which(ord==which(names(orderv)=='all'))]
 ##
@@ -219,7 +218,7 @@ pdff('newpatient_probcorrect')
 for(apred in colnames(histos)[ord]){
     apredn <- shortnamesacc[apred]
 ymax <- max(histos[,c('all',apred)])*1.05
-tplot(x=pgrid[-1]-diff(pgrid)[1]/2,y=histos[,'all'], 
+tplot(x=pgrid[-1]-diff(pgrid)/2,y=histos[,'all'], 
       ylab='density',
       xlab=paste0('probability for true predictand, given predictor: ',apredn), cex.lab=1.4,
 ylim=c(0,ymax), col=1,
@@ -235,10 +234,10 @@ tplot(x=pgrid[-1]-diff(pgrid)[1]/2,y=histos[,apred],
 }
 dev.off()
 
-newpatientprobs <- newpatientprobso[,'all']*(newpatients[,predictands]==1)+(1-newpatientprobso[,'all'])*(newpatients[,predictands]==0)
-
+origp <- newpatientprobso[,'all']*(newpatients[,predictands]==1)+(1-newpatientprobso[,'all'])*(newpatients[,predictands]==0)
+##
 pdff('plotnextpatientprob',paper='a4p')
-tplot(x=pgrid[-1]-diff(pgrid)[1]/2,y=thist(newpatientprobs,n=pgrid)$density, 
+tplot(x=pgrid[-1]-diff(pgrid)/2,y=thist(origp,n=pgrid)$density, 
       ylab='density',
       xlab=paste0('probability of conversion'), cex.lab=1.4,
 ylim=c(0,NA), col=1,
