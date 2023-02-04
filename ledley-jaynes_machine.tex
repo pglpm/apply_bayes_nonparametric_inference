@@ -1,7 +1,7 @@
 \pdfoutput=1
 %% Author: PGL  Porta Mana
 %% Created: 2015-05-01T20:53:34+0200
-%% Last-Updated: 2023-01-16T06:33:10+0100
+%% Last-Updated: 2023-02-05T00:05:59+0100
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newif\ifarxiv
 \arxivfalse
@@ -19,10 +19,11 @@ british%
 \newcommand*{\firstdraft}{15 January 2023}
 \newcommand*{\firstpublished}{\firstdraft}
 \newcommand*{\updated}{\ifarxiv***\else\today\ [draft]\fi}
-\newcommand*{\propertitle}{\large Reasoning Foundations of Medical Diagnosis II\\(Personalized prognosis \amp\ treatment using Ledley-Jaynes machines)%
+\newcommand*{\propertitle}{\large Foundations of inference under symmetry:\\
+{\normalsize A derivation of algorithms for non-parametric density inference}% 
 }% title uses LARGE; set Large for smaller
 \newcommand*{\pdftitle}{\propertitle}
-\newcommand*{\headtitle}{Ledley-Jaynes machine}
+\newcommand*{\headtitle}{}
 \newcommand*{\pdfauthor}{M. Koci\'nski, A. Lundervold\, A. J. Lundervold, A. S. Lundervold, P.G.L.  Porta Mana, I. Rye, A.~Vik}
 \newcommand*{\headauthor}{Porta Mana \etal}
 \newcommand*{\reporthead}{\ifarxiv\else Open Science Framework \href{https://doi.org/10.31219/osf.io/***}{\textsc{doi}:10.31219/osf.io/***}\fi}% Report number
@@ -334,6 +335,9 @@ bioRxiv \doi{10.1101/#1}%
 \newcommand*{\osfeprint}[1]{%
 Open Science Framework \doi{10.31219/osf.io/#1}%
 }
+\newcommand*{\osfproj}[1]{%
+Open Science Framework \doi{10.17605/osf.io/#1}%
+}
 
 \usepackage{graphicx}
 
@@ -527,12 +531,7 @@ Open Science Framework \doi{10.31219/osf.io/#1}%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \title{\propertitle}
 \author{%
-\hspace*{\stretch{1}}%
-%% uncomment if additional authors present
-% \parbox{0.5\linewidth}%\makebox[0pt][c]%
-% {\protect\centering ***\\%
-% \footnotesize\epost{\email{***}{***}}}%
-% \hspace*{\stretch{1}}%
+\iffalse\hspace*{\stretch{1}}%
 \parbox{0.33\linewidth}%\makebox[0pt][c]%
 {\protect\centering M. Koci\'nski %\href{https://orcid.org/0000-0002-6070-0784}{\protect\includegraphics[scale=0.16]{orcid_32x32.png}}
 \\\footnotesize
@@ -560,14 +559,14 @@ Open Science Framework \doi{10.31219/osf.io/#1}%
 %Western Norway University of Applied Sciences\quad%
 \epost{\email{***}{***}}}%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\hspace*{\stretch{1}}%
+\fi\hspace*{\stretch{1}}%
 \parbox{0.33\linewidth}%\makebox[0pt][c]%
 {\protect\centering P.G.L.  Porta Mana  \href{https://orcid.org/0000-0002-6070-0784}{\protect\includegraphics[scale=0.16]{orcid_32x32.png}}\\\footnotesize
 %Western Norway University of Applied Sciences\quad%
 \epost{\email{pgl}{portamana.org}}}%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \hspace*{\stretch{1}}%
-\parbox{0.33\linewidth}%\makebox[0pt][c]%
+\iffalse\parbox{0.33\linewidth}%\makebox[0pt][c]%
 {\protect\centering I. Rye %\href{https://orcid.org/0000-0002-6070-0784}{\protect\includegraphics[scale=0.16]{orcid_32x32.png}}
 \\\footnotesize
 %Western Norway University of Applied Sciences\quad%
@@ -582,7 +581,7 @@ Open Science Framework \doi{10.31219/osf.io/#1}%
 % Mohn Medical Imaging and Visualization Centre, Dept of Computer science, Electrical Engineering and Mathematical Sciences, Western Norway University of Applied Sciences, Bergen, Norway
 \hspace*{\stretch{1}}%
 \medskip\par{\scriptsize(listed alphabetically)}%
-}
+\fi}
 
 %\date{Draft of \today\ (first drafted \firstdraft)}
 \date{\firstpublished; updated \updated}
@@ -729,7 +728,7 @@ Open Science Framework \doi{10.31219/osf.io/#1}%
 % \newcommand{\explanation}[4][t]{%\setlength{\tabcolsep}{-1ex}
 % %\smash{
 % \begin{tabular}[#1]{c}#2\\[0.5\jot]\rule{1pt}{#3}\\#4\end{tabular}}%}
-% \newcommand*{\ptext}[1]{\text{\small #1}}
+\newcommand*{\prop}[1]{\enquote{\textsf{#1}}}% for propositions
 %\DeclareMathOperator*{\argsup}{arg\,sup}
 \newcommand*{\dob}{degree of belief}
 \newcommand*{\dobs}{degrees of belief}
@@ -786,8 +785,20 @@ Open Science Framework \doi{10.31219/osf.io/#1}%
 %%% BEGINNING OF MAIN TEXT
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\section{***}
-\label{sec:***}
+\setcounter{section}{-1}
+\section{A warning on notation}
+\label{sec:intro}
+
+The probability calculus, being a generalization of the propositional calculus, concerns propositions or statements. In the expression \enquote{$\P(A \| B)$}, $A$ and $B$ thus stand for statements or compositions of statements. In scientific applications most statements of interest are of the form \prop{Measurement of the quantity $X$ yields outcome $x$} or \prop{The quantity $X$ is set to the value $x$}, implicitly or explicitly accompanied by other statements expressing contextual information, for instance \prop{The measurement is made at time~\textellipsis\ in laboratory~\textellipsis\ under conditions~\textellipsis}.
+
+Writing full statements such as these within probability formulae would take an impractical amount of space. This impracticality is solved by an abuse of notation: outside a probability formula, a symbol like $X$ may denote a quantity; but within a probability formula, say $\p(X \| \dotso)$, it instead denotes a full statement such as \prop{Measurement of the quantity $X$ yields outcome $x$}; sometimes the latter is written \prop{$X\mo x$} when the value $x$ is not generic or needs to be explicit.
+
+To limit the confusion that can arise from this notation abuse, I use a convention similar to Jaynes's \parencites*[\sect\,2.5 p.~43]{jaynes1994_r2003}: the probability symbol \enquote{$\P$} is only used when the symbols in its arguments univocally denote statements; the symbol \enquote{$\p$} is used instead to warn that some of the symbols in its arguments are abused. For example, if the quantity $N$ denotes the number of people satisfying some condition, $A\defd{}$\prop{Measurement of $N$ yields $101$ people}, and $B$ denotes some contextual statement, then these three expressions have the same meaning:
+\begin{equation*}
+  \P(A\|B) = 0.3 \ , \qquad
+  \p(N \| B) = 0.3 \ ,\qquad
+  \p(N\mo 101 \| B) = 0.3 \ .
+\end{equation*}
 
 % \[ \color{bluepurple}\bm{a} \color{redpurple}\mathbin{\bm{\land}}\color{bluepurple} \bm{b} \]
 

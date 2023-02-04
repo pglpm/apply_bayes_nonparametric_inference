@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2022-10-07T12:13:20+0200
-## Last-Updated: 2023-01-19T09:13:03+0100
+## Last-Updated: 2023-01-25T10:41:37+0100
 ################
 ## Combine multiple Monte Carlo chains
 ################
@@ -61,7 +61,7 @@ setwd(outputdir)
 origdir <- '../'
 source(paste0(origdir,functionsfile)) # load functions for post-MCMC
 
-varinfofile <- list.files(pattern='^_varinfo.*\\.rds')
+varinfofile <- list.files(pattern='^varinfo\\.rds')
 if(length(varinfofile) !=1){stop('Problems with varinfo file')}
 varinfo <- readRDS(varinfofile)
 ##
@@ -609,12 +609,12 @@ thist(Olongrunprobs['mean',],plot=T)
 
 
 
-
+set.seed(673)
 basepointsa <- rbeta(n=10, 2,2)-0.5
 basepointsb <- rbeta(n=10, 3,3)-0.5
 basepointsc <- rbeta(n=10, 2,2)-0.5
 basepointsd <- rbeta(n=10, 3,3)-0.5
-
+##
 impdatax <- cbind(
     c(basepointsa-1, basepointsb+0.25),
     c(basepointsa-1, basepointsb+0.25)
@@ -624,10 +624,10 @@ impdatay <- cbind(
     c(basepointsd+0.25, (basepointsc)-1)
 )
 ##
-pdff('example_importance_context',asp=1)
+pdff('example_importance_context3',asp=1)
 tplot(x=impdatax,y=impdatay, type='p', pch=c(1,2),
       xlim=c(-2,0.75), ylim=c(-2,0.75),
-      xticks=NA, yticks=NA,xlab=expression(italic(X)), ylab=expression(italic(Y)),
+      xticks=NA, yticks=NA,xlab=expression(italic(X)[1]), ylab=expression(italic(X)[2]),
       mar=c(NA,3.5,1,1), ly=2)
 tplot(x=impdatax,y=t(t(impdatay*0)-c(1.95,2.05)), type='p',, pch=c(1,2),
       cex=1,
@@ -644,12 +644,113 @@ dev.off()
 
 
 
-
-
-
-
-
 savedataOABC <- readRDS('datapatientsOABC.rds')
+
+var <- 'LRHHC_n_long'
+xgrid <- cbind(seq(varinfo$plotmin[var], varinfo$plotmax[var], by=max(varinfo$delta[var], (varinfo$plotmax[var]-varinfo$plotmin[var])/256)))
+colnames(xgrid) <- var
+yvals <- (samplesFDistribution(Y=xgrid, X=rbind(savedataOABC['curtis',-which(colnames(savedataOABC)==var)]),
+                             mcsamples=mcsamples, varinfo=varinfo,
+                             jacobian=TRUE))
+yvals3 <- (samplesFDistribution(Y=xgrid, X=NULL,
+                             mcsamples=mcsamples, varinfo=varinfo,
+                             jacobian=TRUE))
+
+##
+samplesyvals <- c(generateVariates(Ynames='LRHHC_n_long', X=rbind(savedataOABC['curtis',-which(colnames(savedataOABC)==var)]),
+                                mcsamples=mcsamples, varinfo=varinfo,
+                                n=nrow(mcsamples)))
+cove <- round(tquant(samplesyvals, c(2.5,50,97.5)/100)*1e3,1)
+
+pdff(paste0('curtis_distr_',allshortnames[var]))
+tplot(x=xgrid*1e3,
+      y=cbind(rowMeans(yvals),rowMeans(yvals3)),
+      ylim=c(0,NA),
+      lty=c(1,5), col=c(3,7), alpha=c(0,0.125), lwd=c(4,4),
+      xlab=paste0("Curtis's HV"),
+      ylab=paste0('probability',if(varinfo$n[var]==Inf){' density'})
+      )
+legend('topright',
+       legend=c('Curtis', 'Whole population'),
+       ## legend=c(paste0('Curtis (median: ',cove['50%'],
+       ##                     ',\n95% coverage: [',cove[1],', ',cove[3],'])'),
+       ##                     'Whole population'),
+       lty=c(1,2), col=c(3,7), lwd=c(4,3),
+       bty='n')
+dev.off()
+
+yvals2 <- (samplesFDistribution(Y=predictandvalues['cAD',,drop=F], X=rbind(savedataOABC['olivia',]),
+                             mcsamples=mcsamples, varinfo=varinfo,
+                             jacobian=TRUE))
+
+tquant(yvals2, c(2.5,50,97.5)/100)
+##     2.5%      50%    97.5% 
+## 0.193682 0.299063 0.426756 
+
+var <- 'LRHHC_n_long'
+xgrid <- cbind(seq(varinfo$plotmin[var], varinfo$plotmax[var], by=max(varinfo$delta[var], (varinfo$plotmax[var]-varinfo$plotmin[var])/256)))
+colnames(xgrid) <- var
+xvalues <- t(sapply(xgrid,function(xxx){temp <- savedataOABC['curtis',]; temp[var] <- xxx; temp}))
+yvals1 <- (samplesFDistribution(Y=predictandvalues['cAD',,drop=F],
+                                X=xvalues,
+                             mcsamples=mcsamples, varinfo=varinfo,
+                             jacobian=TRUE))
+##
+
+plotss <- round(seq(1,ncol(yvals1),length.out=100))
+pdff(paste0('curtis_prob_conversion_',allshortnames[var]))
+tplot(x=xgrid*(if(var=='LRHHC_n_long'){1e3}else{1}),
+      y=yvals1[,plotss],
+      ylim=c(0,1),
+      lty=1, col=7, alpha=0.5, lwd=1,
+      xlab=paste0("Curtis's unknown HV"),
+      ylab=paste0("Curtis's probability of conversion to AD")
+      )
+tplot(x=xgrid*(if(var=='LRHHC_n_long'){1e3}else{1}),
+      y=rowMeans(yvals1),
+      lty=1, col=8, alpha=0.5, lwd=3,
+      add=T)
+## legend('topright', legend=c('will convert to AD', 'stable MCI'),
+##        lty=c(2,1), col=c(2,5), lwd=3,
+##        bty='n')
+dev.off()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+temp <- thist(yvals2,n=seq(0,1,by=0.02))
+tplot(x=temp$breaks,y=temp$density)
+
+
+
+
+
+
+
+
+
+tplot(x=xgrid*1e3,
+      y=cbind(rowMeans(yvals),rowMeans(yvals2),rowMeans(yvals3)),
+      ylim=c(0,NA),
+      lty=1,  alpha=0, lwd=4,
+      xlab=paste0("Curtis's HV"),
+      ylab=paste0('probability',if(varinfo$n[var]==Inf){' density'})
+      )
+
+
+
 
 
 predictand0 <- cbind(0)
@@ -986,3 +1087,125 @@ testd <-samplesFDistribution(Y=vgrid, X=NULL,
 testh <- thist(testp[,v],n=40)#,n=seq(varinfo[['plotmin']][v]-1e-4, varinfo[['plotmax']][v]+1e-4, length.out=min(128, varinfo[['n']][v])))
 tplot(x=list(vgrid,testh$breaks), y=list(testd, testh$density/max(testh$density)*max(testd)),
       ylim=c(0,NA),xlab=v)
+
+
+allshortnames <- readRDS('variatenames.rds')
+
+var <- names(allshortnames)[allshortnames=='RAVLT-del']
+xgrid <- cbind(seq(varinfo$plotmin[var], varinfo$plotmax[var], length.out=min(varinfo$n[var],256)))
+colnames(xgrid) <- var
+yvals1 <- (samplesFDistribution(Y=xgrid, X=predictandvalues['cAD',,drop=F],
+                             mcsamples=mcsamples, varinfo=varinfo,
+                             jacobian=TRUE))
+yvals0 <- (samplesFDistribution(Y=xgrid, X=predictandvalues['sMCI',,drop=F],
+                             mcsamples=mcsamples, varinfo=varinfo,
+                             jacobian=TRUE))
+##
+plotss <- round(seq(1,ncol(yvals1),length.out=100))
+pdff(paste0('population_distr_',allshortnames[var]))
+tplot(x=xgrid,
+      y=matrix(rbind(yvals1[,plotss],yvals0[,plotss]), nrow=length(xgrid)),
+      ylim=c(0,NA),
+      lty=1, col=c(2,5), alpha=0.9, lwd=1,
+      xlab=allshortnames[var],
+      ylab='population frequency'
+      )
+tplot(x=xgrid,
+      y=cbind(rowMeans(yvals1),rowMeans(yvals0)),
+      lty=c(2,1), col=c(6,1), alpha=0.5, lwd=3,
+      add=T)
+dev.off()
+
+
+var <- names(allshortnames)[allshortnames=='HV']
+
+
+#### plot marginal distributions
+
+for(var in variatenames){
+    print(var)
+xgrid <- cbind(seq(varinfo$plotmin[var], varinfo$plotmax[var], by=max(varinfo$delta[var], (varinfo$plotmax[var]-varinfo$plotmin[var])/256)))
+colnames(xgrid) <- var
+yvals1 <- (samplesFDistribution(Y=xgrid, X=predictandvalues['cAD',,drop=F],
+                             mcsamples=mcsamples, varinfo=varinfo,
+                             jacobian=TRUE))
+yvals0 <- (samplesFDistribution(Y=xgrid, X=predictandvalues['sMCI',,drop=F],
+                             mcsamples=mcsamples, varinfo=varinfo,
+                             jacobian=TRUE))
+##
+plotss <- round(seq(1,ncol(yvals1),length.out=100))
+    breaks <- if(varinfo$n[var]==Inf){
+                  seq(min(xgrid),max(xgrid),length.out=32)
+              }else{c(xgrid[1]-varinfo$delta[var]/2, xgrid+varinfo$delta[var]/2)}
+    histog0 <- thist(c(data.matrix(data0[Subgroup_num_==0,..var])), n=breaks)
+    histog1 <- thist(c(data.matrix(data0[Subgroup_num_==1,..var])), n=breaks)
+ymax <- max(histog0$density, histog1$density,yvals1[,plotss],yvals0[,plotss])
+##
+    pdff(paste0('population_distr_scat_',allshortnames[var]))
+    tplot(x=histog0$mids*(if(var=='LRHHC_n_long'){1e3}else{1}), y=histog0$density, type='b', cex=0.75, col=3, alpha=0.65, lwd=1,
+                ylim=c(0,ymax),
+      xlab=allshortnames[var],
+      ylab=paste0('population frequency',if(varinfo$n[var]==Inf){' density'})
+)
+    tplot(x=histog1$mids*(if(var=='LRHHC_n_long'){1e3}else{1}), y=histog1$density, type='b', pch=2, cex=0.75, col=4, alpha=0.75, lwd=1,
+          add=T)
+    tplot(x=xgrid*(if(var=='LRHHC_n_long'){1e3}else{1}),
+      y=matrix(rbind(yvals1[,plotss],yvals0[,plotss]), nrow=length(xgrid)),
+      lty=1, col=c(2,5), alpha=0.9, lwd=1,
+      add=T)
+tplot(x=xgrid*(if(var=='LRHHC_n_long'){1e3}else{1}),
+      y=cbind(rowMeans(yvals1),rowMeans(yvals0)),
+      lty=c(2,1), col=c(6,1), alpha=0.5, lwd=3,
+      add=T)
+legend('topright', legend=c('will convert to AD','data histogram','', 'stable MCI','data histogram'),
+       lty=c(2,NA,NA,1,NA), pch=c(NA,2,NA,NA,1), col=c(2,4,NA,5,3), lwd=c(3,1,NA,3,1),
+       bty='n')
+dev.off()
+}
+
+
+for(var in variatenames){
+    print(var)
+xgrid <- cbind(seq(varinfo$plotmin[var], varinfo$plotmax[var], by=max(varinfo$delta[var], (varinfo$plotmax[var]-varinfo$plotmin[var])/256)))
+colnames(xgrid) <- var
+yvals1 <- (samplesFDistribution(X=xgrid, Y=predictandvalues['cAD',,drop=F],
+                             mcsamples=mcsamples, varinfo=varinfo,
+                             jacobian=TRUE))
+##
+plotss <- round(seq(1,ncol(yvals1),length.out=100))
+pdff(paste0('prob_conversion_',allshortnames[var]))
+tplot(x=xgrid*(if(var=='LRHHC_n_long'){1e3}else{1}),
+      y=yvals1[,plotss],
+      ylim=c(0,1),
+      lty=1, col=7, alpha=0.5, lwd=1,
+      xlab=allshortnames[var],
+      ylab=paste0('population frequency of conversion to AD')
+      )
+tplot(x=xgrid*(if(var=='LRHHC_n_long'){1e3}else{1}),
+      y=rowMeans(yvals1),
+      lty=1, col=8, alpha=0.5, lwd=3,
+      add=T)
+## legend('topright', legend=c('will convert to AD', 'stable MCI'),
+##        lty=c(2,1), col=c(2,5), lwd=3,
+##        bty='n')
+dev.off()
+}
+
+
+## varinfo$delta <- sapply(1:length(varinfo$n),function(i){
+##         if(varinfo$n[i] < Inf){
+##             c((varinfo$max[i]-varinfo$min[i])/(varinfo$n[i]-1))
+##             }else{1/varinfo$n[i]}
+##         })
+
+
+
+countna <- apply(data0,1,function(xxx){sum(is.na(xxx))})
+countna[countna > 0]
+sum(countna > 0)
+which(countna > 0)
+
+data0[367,]
+
+data0[which(countna > 0)]
+

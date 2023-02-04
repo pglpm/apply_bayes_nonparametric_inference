@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2022-10-07T12:13:20+0200
-## Last-Updated: 2023-01-19T08:13:53+0100
+## Last-Updated: 2023-01-21T18:24:29+0100
 ################
 ## Combine multiple Monte Carlo chains
 ################
@@ -177,7 +177,7 @@ shortnames <- c(
 'TMTA',
 'TMTB',
 'Age',
-'HC',
+'HV',
 'APOE4',
 'Sex',
 'ANART',
@@ -196,6 +196,10 @@ shortnamesacc <- c(
     'all'
 )
 names(shortnamesacc) <- names(Xlist)
+
+allshortnames <- c(Subgroup_num_='cAD', shortnamesacc)
+
+saveRDS(allshortnames, 'variatenames.rds')
 
 newpatientprobso <- readRDS('_newpatientMI_32768.rds')
 newpatients <- readRDS('_points_newpatientMI_32768.rds')
