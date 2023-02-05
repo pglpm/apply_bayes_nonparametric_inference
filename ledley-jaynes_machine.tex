@@ -1,7 +1,7 @@
 \pdfoutput=1
 %% Author: PGL  Porta Mana
 %% Created: 2015-05-01T20:53:34+0200
-%% Last-Updated: 2023-02-05T17:58:57+0100
+%% Last-Updated: 2023-02-05T20:13:16+0100
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newif\ifarxiv
 \arxivfalse
@@ -732,6 +732,8 @@ Open Science Framework \doi{10.17605/osf.io/#1}%
 %\DeclareMathOperator*{\argsup}{arg\,sup}
 \newcommand*{\dob}{degree of belief}
 \newcommand*{\dobs}{degrees of belief}
+\newcommand*{\Ix}{I}
+\newcommand*{\Ic}{I_{\textrm{c}}}
 %%% Custom macros end @@@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -919,25 +921,110 @@ This mathematical representation has an intuitive interpretation. The weight dis
 The symmetry or \enquote{exchangeability} requirement does not determine specific numeric values for the joint probability~\eqref{eq:deFinetti_integral}, but greatly restrict our freedom in assigning such values. The only freedom we have left is in the specification of the density $\p(\di F \|I)$. This specification will depend on the particular inference problem and on the nature of the units and variates. The intuitive interpretation of $\p(\di F \|I)$ as our uncertainty about the \enquote{long-run frequencies} can greatly help in this specification. De~Finetti's theorem has moreover an important consequence in this respect: as the values of more and more units become available, the initial numerical choice of density $\p(\di F \|I)$ affects further inferences less and less. Let us discuss these further inferences.
 
 Once the joint probability distribution~\eqref{eq:deFinetti_integral} has been numerically assigned, through specification of $\p(\di F \|I)$, all other marginal and conditional distributions concerning units and variates are also numerically fully determined by repeated application of the rules~\eqref{eq:Prules}. Some examples:
-\begin{align}
-  \label{eq:further_infs}
-  \p(Y^{2}\mo y^{2} \|I) &=
-  \int
-  \sum_{x}F(y^{2},x)\,\p(\di F \|I) \ ,
-  \\[\jot]
-  \p(Y^{2}\mo y^{2} \| X^{2}\mo x^{2}, I) &=
-  \frac{\int F(y^{2},x^{2})\ \p(\di F \|I)}{
-    \int \sum_{x}F(y^{2},x)\ \p(\di F \|I)
-  } \ ,
-  \\[\jot]
-  \p(Y^{2}\mo y^{2} \| X^{1}\mo x^{1}, I) &=
-  \frac{\int \sum_{x}F(y^{2},x)\, \sum_{y}F(y,x^{1})\  \p(\di F \|I)}{
-    \int \sum_{y}F(y,x^{1})\  \p(\di F \|I)
-  } \ .
-\end{align}
+\begin{subequations}
+    \label{eq:further_infs}
+  \begin{align}
+    \p(Y^{2}\mo y^{2} \|I) &=
+    \int
+    \sum_{x}F(y^{2},x)\,\p(\di F \|I) \ ,
+    \\[\jot]
+    \p(Y^{2}\mo y^{2} \| X^{2}\mo x^{2}, I) &=
+    \frac{\int F(y^{2},x^{2})\ \p(\di F \|I)}{
+      \int \sum_{x}F(y^{2},x)\ \p(\di F \|I)
+    } \ ,
+    \\[\jot]
+    \p(Y^{2}\mo y^{2} \| X^{1}\mo x^{1}, I) &=
+    \frac{\int \sum_{x}F(y^{2},x)\, \sum_{y}F(y,x^{1})\  \p(\di F \|I)}{
+      \int \sum_{y}F(y,x^{1})\  \p(\di F \|I)
+    } \ .
+  \end{align}
+\end{subequations}
+
 
 \section{Inferences about unit $0$}
 \label{sec:unit0}
+
+Any inferences about any variates of any units for which the joint probability distribution~\eqref{eq:deFinetti_integral} is defined can now be probabilistically answered.
+
+Let us consider inferences about a unit, with index $i=0$, about which we have some additional information $I^{0}$.
+
+If $\Ix^{0}$ amounts to saying that the symmetry underlying the probabilities~\eqref{eq:deFinetti_integral} also includes unit $0$, then any probabilities are uniquely determined, as in the examples~\eqref{eq:further_infs}. For instance, our main probability~\eqref{eq:general_prob} is given by
+\begin{multline}
+  \label{eq:general_prob_fullexch}
+  \p(Y^{0}\mo y^{0} \|
+  X^{0}\mo x^{0},\: Y^{1}\mo y^{1},X^{1}\mo x^{1},\dotsc,\: \Ix^{0},I)
+  =
+{}\\[\jot]
+  \frac{
+    \int F(y^{0},x^{0})\, F(y^{1},x^{1})\,\dotsm\  \p(\di F \|I)
+  }{
+    \int \sum_{y}F(y,x^{0})\, F(y^{1},x^{1})\,\dotsm\  \p(\di F \|I)
+  } \ .
+\end{multline}
+
+
+\medskip
+
+A more interesting kind of additional information $\Ic^{0}$ may amount to saying that there is an informational symmetry involving unit~$0$ an the other units, but only with regard to the $Y$ variates, and only with units sharing the same values $x^{*}$ of the $X$ variates. Using a different terminology, this would be a symmetry restricted to a subpopulation of units which is defined by particular $X$ values. Mathematically,
+\begin{multline}
+  \label{eq:exchangpartial}
+  \p(Y^{0}\mo y^{0}, Y^{1}\mo y^{1}, Y^{2}\mo y^{2}
+  \|
+  X^{0}\mo x^{*}, X^{1}\mo x^{*},X^{2}\mo x^{*},
+  \dotsc,\  \Ic^{0},I) =
+  {}\\
+\shoveright{  \p(Y^{0}\mo y^{r(0)}, Y^{1}\mo y^{r(1)}, Y^{2}\mo y^{r(2)}
+  \|
+  X^{0}\mo x^{*}, X^{1}\mo x^{*},X^{2}\mo x^{*},
+  \dotsc,\  \Ic^{0},I)
+}
+  \\
+  \text{for all permutations $r$ and all allowed values $y,x$.}
+\end{multline}
+If the number of units is large enough, a variant of de~Finetti's theorem \autocites[\sect~4.6; their presentation is in terms of the integral~\eqref{eq:deFinetti_integral_partialcond}.]{bernardoetal1994_r2000} proves that such a joint probability distribution must then have the following mathematical form:
+\begin{subequations}
+  \begin{multline}
+    \label{eq:deFinetti_integral_partial}
+    \p(Y^{0}\mo y^{0}, Y^{1}\mo y^{1}, Y^{2}\mo y^{2}
+    \|
+    X^{0}\mo x^{*}, X^{1}\mo x^{*},X^{2}\mo x^{*},
+    \dotsc,\  \Ic^{0},I) =
+    {}\\
+    \int
+    \frac{F(y^{0},x^{*})}{\sum_{y}F(y,x^{*})}\,
+    \frac{F(y^{1},x^{*})}{\sum_{y}F(y,x^{*})}\,
+    \frac{F(y^{2},x^{*})}{\sum_{y}F(y,x^{*})}
+    \,\dotsm\ \p(\di F \|I) \ .
+  \end{multline}
+
+  This representation has an intuitive interpretation similar to~\eqref{eq:deFinetti_integral}; the difference is that a term like $\frac{F(y^{0},x^{*})}{\sum_{y}F(y,x^{*})}$ now corresponds to the long-run \emph{conditional} frequency $F(y^{0} \| x^{*})$. Our conditional probabilities would be equal to these conditional frequencies if they were known. The uncertainty about the latter leads again to a convex mixture of these conditional probabilities, from the rules~\eqref{eq:Prules}. With a change of variables we could represent the joint frequency $F(y,x)$ as the pair of conditional and marginal frequencies $\bigl(F_{Y\|X}(y\|x), F_{X}(x)\bigr)$. The formula above then simplifies, by marginalization over $\di F_{X}$, to
+  \begin{multline}
+    \label{eq:deFinetti_integral_partialcond}
+    \p(Y^{0}\mo y^{0}, Y^{1}\mo y^{1}, Y^{2}\mo y^{2}
+    \|
+    X^{0}\mo x^{*}, X^{1}\mo x^{*},X^{2}\mo x^{*},
+    \dotsc,\  \Ic^{0},I) =
+    {}\\
+    \int 
+    F(y^{0} \|x^{*})\,   F(y^{1} \|x^{*})\,  F(y^{2} \|x^{*})
+    \,\dotsm\ \p(\di F_{Y\|X} \|I) \ .
+  \end{multline}
+\end{subequations}
+
+Under this kind of auxiliary information $\Ic^{0}$, our main probability~\eqref{eq:general_prob} is given by
+\begin{multline}
+  \label{eq:general_prob_partialexch}
+  \p(Y^{0}\mo y^{0} \|
+  X^{0}\mo x^{0},\: Y^{1}\mo y^{1},X^{1}\mo x^{1},\dotsc,\: \Ic^{0},I)
+  =
+{}\\[\jot]
+  \frac{
+    \int \frac{F(y^{0},x^{0})}{\sum_{y}F(y,x^{0})}\, F(y^{1},x^{1})\,\dotsm\  \p(\di F \|I)
+  }{
+    \int F(y^{1},x^{1})\,\dotsm\  \p(\di F \|I)
+  } \ .
+\end{multline}
+
 
 
 
