@@ -1,7 +1,7 @@
 \pdfoutput=1
 %% Author: PGL  Porta Mana
 %% Created: 2015-05-01T20:53:34+0200
-%% Last-Updated: 2023-02-05T20:13:16+0100
+%% Last-Updated: 2023-02-05T20:23:27+0100
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newif\ifarxiv
 \arxivfalse
@@ -732,8 +732,9 @@ Open Science Framework \doi{10.17605/osf.io/#1}%
 %\DeclareMathOperator*{\argsup}{arg\,sup}
 \newcommand*{\dob}{degree of belief}
 \newcommand*{\dobs}{degrees of belief}
-\newcommand*{\Ix}{I}
-\newcommand*{\Ic}{I_{\textrm{c}}}
+\newcommand*{\Iyx}{I}
+\newcommand*{\Ix}{I_{\textrm{x}}}
+\newcommand*{\Iy}{I_{\textrm{y}}}
 %%% Custom macros end @@@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -948,11 +949,14 @@ Any inferences about any variates of any units for which the joint probability d
 
 Let us consider inferences about a unit, with index $i=0$, about which we have some additional information $I^{0}$.
 
-If $\Ix^{0}$ amounts to saying that the symmetry underlying the probabilities~\eqref{eq:deFinetti_integral} also includes unit $0$, then any probabilities are uniquely determined, as in the examples~\eqref{eq:further_infs}. For instance, our main probability~\eqref{eq:general_prob} is given by
+\subsection{Full symmetry}
+\label{sec:unit0_full}
+
+If $\Iyx^{0}$ amounts to saying that the symmetry underlying the probabilities~\eqref{eq:deFinetti_integral} also includes unit $0$, then any probabilities are uniquely determined, as in the examples~\eqref{eq:further_infs}. For instance, our main probability~\eqref{eq:general_prob} is given by
 \begin{multline}
   \label{eq:general_prob_fullexch}
   \p(Y^{0}\mo y^{0} \|
-  X^{0}\mo x^{0},\: Y^{1}\mo y^{1},X^{1}\mo x^{1},\dotsc,\: \Ix^{0},I)
+  X^{0}\mo x^{0},\: Y^{1}\mo y^{1},X^{1}\mo x^{1},\dotsc,\: \Iyx^{0},I)
   =
 {}\\[\jot]
   \frac{
@@ -962,21 +966,21 @@ If $\Ix^{0}$ amounts to saying that the symmetry underlying the probabilities~\e
   } \ .
 \end{multline}
 
+\subsection{Symmetry conditional on $X$ variates}
+\label{sec:unit0_condX}
 
-\medskip
-
-A more interesting kind of additional information $\Ic^{0}$ may amount to saying that there is an informational symmetry involving unit~$0$ an the other units, but only with regard to the $Y$ variates, and only with units sharing the same values $x^{*}$ of the $X$ variates. Using a different terminology, this would be a symmetry restricted to a subpopulation of units which is defined by particular $X$ values. Mathematically,
+A more interesting kind of additional information $\Ix^{0}$ may amount to saying that there is an informational symmetry involving unit~$0$ an the other units, but only with regard to the $Y$ variates, and only with units sharing the same values $x^{*}$ of the $X$ variates. Using a different terminology, this would be a symmetry restricted to a subpopulation of units which is defined by particular $X$ values. Mathematically,
 \begin{multline}
   \label{eq:exchangpartial}
   \p(Y^{0}\mo y^{0}, Y^{1}\mo y^{1}, Y^{2}\mo y^{2}
   \|
   X^{0}\mo x^{*}, X^{1}\mo x^{*},X^{2}\mo x^{*},
-  \dotsc,\  \Ic^{0},I) =
+  \dotsc,\  \Ix^{0},I) =
   {}\\
 \shoveright{  \p(Y^{0}\mo y^{r(0)}, Y^{1}\mo y^{r(1)}, Y^{2}\mo y^{r(2)}
   \|
   X^{0}\mo x^{*}, X^{1}\mo x^{*},X^{2}\mo x^{*},
-  \dotsc,\  \Ic^{0},I)
+  \dotsc,\  \Ix^{0},I)
 }
   \\
   \text{for all permutations $r$ and all allowed values $y,x$.}
@@ -988,7 +992,7 @@ If the number of units is large enough, a variant of de~Finetti's theorem \autoc
     \p(Y^{0}\mo y^{0}, Y^{1}\mo y^{1}, Y^{2}\mo y^{2}
     \|
     X^{0}\mo x^{*}, X^{1}\mo x^{*},X^{2}\mo x^{*},
-    \dotsc,\  \Ic^{0},I) =
+    \dotsc,\  \Ix^{0},I) =
     {}\\
     \int
     \frac{F(y^{0},x^{*})}{\sum_{y}F(y,x^{*})}\,
@@ -1003,7 +1007,7 @@ If the number of units is large enough, a variant of de~Finetti's theorem \autoc
     \p(Y^{0}\mo y^{0}, Y^{1}\mo y^{1}, Y^{2}\mo y^{2}
     \|
     X^{0}\mo x^{*}, X^{1}\mo x^{*},X^{2}\mo x^{*},
-    \dotsc,\  \Ic^{0},I) =
+    \dotsc,\  \Ix^{0},I) =
     {}\\
     \int 
     F(y^{0} \|x^{*})\,   F(y^{1} \|x^{*})\,  F(y^{2} \|x^{*})
@@ -1011,11 +1015,11 @@ If the number of units is large enough, a variant of de~Finetti's theorem \autoc
   \end{multline}
 \end{subequations}
 
-Under this kind of auxiliary information $\Ic^{0}$, our main probability~\eqref{eq:general_prob} is given by
+Under this kind of auxiliary information $\Ix^{0}$, our main probability~\eqref{eq:general_prob} is given by
 \begin{multline}
   \label{eq:general_prob_partialexch}
   \p(Y^{0}\mo y^{0} \|
-  X^{0}\mo x^{0},\: Y^{1}\mo y^{1},X^{1}\mo x^{1},\dotsc,\: \Ic^{0},I)
+  X^{0}\mo x^{0},\: Y^{1}\mo y^{1},X^{1}\mo x^{1},\dotsc,\: \Ix^{0},I)
   =
 {}\\[\jot]
   \frac{
@@ -1024,6 +1028,11 @@ Under this kind of auxiliary information $\Ic^{0}$, our main probability~\eqref{
     \int F(y^{1},x^{1})\,\dotsm\  \p(\di F \|I)
   } \ .
 \end{multline}
+
+\subsection{Symmetry conditional on $Y$ variates}
+\label{sec:unit0_condY}
+
+Yet another kind of auxiliary information $\Iy^{0}$ is be similar to $\Ix^{0}$, but with the variates $X$ and $Y$ exchanged.
 
 
 
