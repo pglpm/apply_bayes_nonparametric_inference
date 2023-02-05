@@ -1,7 +1,7 @@
 \pdfoutput=1
 %% Author: PGL  Porta Mana
 %% Created: 2015-05-01T20:53:34+0200
-%% Last-Updated: 2023-02-05T00:05:59+0100
+%% Last-Updated: 2023-02-05T13:54:35+0100
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newif\ifarxiv
 \arxivfalse
@@ -19,8 +19,8 @@ british%
 \newcommand*{\firstdraft}{15 January 2023}
 \newcommand*{\firstpublished}{\firstdraft}
 \newcommand*{\updated}{\ifarxiv***\else\today\ [draft]\fi}
-\newcommand*{\propertitle}{\large Foundations of inference under symmetry:\\
-{\normalsize A derivation of algorithms for non-parametric density inference}% 
+\newcommand*{\propertitle}{\Large Foundations of inference under symmetry:\\
+{\large A derivation of algorithms for non-parametric density inference}% 
 }% title uses LARGE; set Large for smaller
 \newcommand*{\pdftitle}{\propertitle}
 \newcommand*{\headtitle}{}
@@ -261,7 +261,7 @@ british%
 \usepackage{microtype}
 
 \usepackage[backend=biber,mcite,%subentry,
-citestyle=authoryear-comp,bibstyle=pglpm-authoryear,autopunct=false,sorting=ny,sortcites=false,natbib=false,maxcitenames=2,maxbibnames=8,minbibnames=8,giveninits=true,uniquename=false,uniquelist=false,maxalphanames=1,block=space,hyperref=true,defernumbers=false,useprefix=true,sortupper=false,language=british,parentracker=false]{biblatex}
+citestyle=authoryear-comp,bibstyle=pglpm-authoryear,autopunct=false,sorting=ny,sortcites=false,natbib=false,maxcitenames=2,maxbibnames=8,minbibnames=8,giveninits=true,uniquename=false,uniquelist=false,maxalphanames=1,block=space,hyperref=true,defernumbers=false,useprefix=true,sortupper=false,language=british,parentracker=false,autocite=footnote]{biblatex}
 \DeclareSortingTemplate{ny}{\sort{\field{sortname}\field{author}\field{editor}}\sort{\field{year}}}
 \DeclareFieldFormat{postnote}{#1}
 \iffalse\makeatletter%%% replace parenthesis with brackets
@@ -789,7 +789,7 @@ Open Science Framework \doi{10.17605/osf.io/#1}%
 \section{A warning on notation}
 \label{sec:intro}
 
-The probability calculus, being a generalization of the propositional calculus, concerns propositions or statements. In the expression \enquote{$\P(A \| B)$}, $A$ and $B$ thus stand for statements or compositions of statements. In scientific applications most statements of interest are of the form \prop{Measurement of the quantity $X$ yields outcome $x$} or \prop{The quantity $X$ is set to the value $x$}, implicitly or explicitly accompanied by other statements expressing contextual information, for instance \prop{The measurement is made at time~\textellipsis\ in laboratory~\textellipsis\ under conditions~\textellipsis}.
+The probability calculus, being a generalization of the propositional truth-calculus, concerns propositions or statements. In the expression \enquote{$\P(A \| B)$}, $A$ and $B$ thus stand for statements or compositions of statements. In scientific applications most statements of interest are of the form \prop{Measurement of the quantity $X$ yields outcome $x$} or \prop{The quantity $X$ is set to the value $x$}, implicitly or explicitly accompanied by other statements expressing contextual information, for instance \prop{The measurement is made at time~\textellipsis\ in laboratory~\textellipsis\ under conditions~\textellipsis}.
 
 Writing full statements such as these within probability formulae would take an impractical amount of space. This impracticality is solved by an abuse of notation: outside a probability formula, a symbol like $X$ may denote a quantity; but within a probability formula, say $\p(X \| \dotso)$, it instead denotes a full statement such as \prop{Measurement of the quantity $X$ yields outcome $x$}; sometimes the latter is written \prop{$X\mo x$} when the value $x$ is not generic or needs to be explicit.
 
@@ -799,6 +799,61 @@ To limit the confusion that can arise from this notation abuse, I use a conventi
   \p(N \| B) = 0.3 \ ,\qquad
   \p(N\mo 101 \| B) = 0.3 \ .
 \end{equation*}
+
+We take the logical connectives $\lnot$ (not), $\lor$ (or), $\land$ (and) as a functionally complete (redundant) base set. A comma \enquote{,} is interchangeably used for $\land$ in probability formulae. The probability-calculus rules for the base connectives are
+\begin{equation}
+  \begin{gathered}
+\P(\lnot A\|H) + \P(A \|H) = 1
+\\
+\P(A\land B \|H) - \P(A\|B\land H) \, \P(B\| H)= 0
+  \\
+ \P(A\lor B \|H) + \P(A\land B \|H) -\P(A\|H)-  \P(B\| H)=0
+\end{gathered}
+\tag{0}\label{eq:Prules}
+\end{equation}
+which can be used in different guises, for example \autocites[Compare with the inference rules for sequent calculus, \eg][\chap~1]{huthetal2000_r2004}[\sect~I.2]{prawitz1965}[see also][]{boricic2020}
+\begin{equation*}
+\textstyle  \frac{\P(A\|H) = x}{\P(\lnot A \|H) = 1-x}
+  \qquad
+ \frac{\P(A\|B\land H) = x \quad \P(B\| H)=y}{\P(A\land B \|H) = x y}
+  \qquad
+ \frac{\P(A\|H) = x \quad \P(B\| H)=y \quad
+  \P(A\land B \|H)=z}{\P(A\lor B \|H) = x+y-z}
+\end{equation*}
+
+\section{Inference problem}
+\label{sec:inference}
+
+The general context of our inference problem is the following. There is a collection of \enquote{units}, each of which has an associated set of measurable quantities $X_{1},X_{2},\dotsc,Y_{1},Y_{2},\dotsc$, which we call \enquote{variates} according to statistics terminology. The collection of variates $X_{1},X_{2},\dotsc$ is denoted $X$, and similarly for $Y$. % For one or more units we would like to infer the value of some of these variates, say $Y_{1},Y_{2},\dotsc$, given:
+% \begin{enumerate*}[label=(\alph*)]
+% \item knowledge of some of the remaining ones $X_{1},X_{2},\dotsc$; \item knowledge of some of these variates for other units; \item possibly some additional knowledge specific to the units of interest.
+% \end{enumerate*}
+Examples: These \enquote{units} could be mechanical gadgets coming out of a production line; the $X$ variates, some of their mechanical properties; the $Y$ variates, other hidden properties or future events such as mechanical failure. Or the units could be clinical patients; the $X$ variates, outcomes of clinical tests performed on these patients; the $Y$ variates, medical conditions or future events such as life length or occurrence of some disease. Our inference context is thus quite general indeed. The units can be labelled with some index $i$, but the values of this index and their ordering have no informational relevance. The variate $X_{1}$ specific to unit $i$ is denoted by $X^{i}_{1}$, and similarly for the other variates.
+
+Our general goal is to make inferences about some of the variates for some of the units, given knowledge about other variates units.
+
+One specific and frequently occurring inference is about the values of the variates $Y^{0}$ for some unit, call it $i=0$, given:
+\begin{itemize}%[label=(\alph*)]
+\item the values of the variates $X^{0}$ for the same unit; \item the values of the $X,Y$ variates for other units $i=1,2,\dotsc$; \item some auxiliary information $I^{0}$ for the unit $0$; \item all remaining relevant information, denoted $I$.
+\end{itemize}
+
+The most general inference gives probabilities to the possible values of $Y^{0}$. Completely certain inference (deduction) is included as a special case with 0 or 1 probabilities.
+
+Thus in mathematical notation we want to determine the distribution of probability
+\begin{equation}
+  \label{eq:general_prob}
+  \p(Y^{0} \| X^{0},\: Y^{1},X^{1},Y^{2},X^{2},\dotsc,\: I^{0},I)
+\end{equation}
+over the possible values of $Y^{0}$ (more precisely, over statements such as \prop{Measurement of $Y$ for unit $0$ yields $y$}).
+
+Variations of this specific inference are also of interest. For instance, some of the $X$ or $Y$ variate values maybe be unknown for some units; or we want to infer about more than one unit; and similar variations. In the following we show the steps to specifically calculate the probabilities~\eqref{eq:general_prob}; variations of this calculation will be discussed later.
+
+\section{Initial probabilities}
+\label{sec:initial_probs}
+
+The propositional truth-calculus allows us to calculate the truth-values of non-tautological statements only if we give the truth-values of some other, related, non-tautological statements, usually called \enquote{premises}. Likewise, the probability calculus allows us to calculate probability-values of non-tautological statements only if we give the probability-values of some other, related, non-tautological statements. These are usually called \enquote{prior} or \enquote{initial} probabilities (these adjectives do \emph{not} imply that these probabilities concern statements about chronologically earlier events).
+
+We must therefore set the probability values of some statements, which can lead us to the probabilities~\eqref{eq:general_prob} through the rules of the probability~\eqref{eq:Prules}.
 
 % \[ \color{bluepurple}\bm{a} \color{redpurple}\mathbin{\bm{\land}}\color{bluepurple} \bm{b} \]
 
