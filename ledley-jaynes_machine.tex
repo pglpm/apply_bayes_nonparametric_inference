@@ -1,7 +1,7 @@
 \pdfoutput=1
 %% Author: PGL  Porta Mana
 %% Created: 2015-05-01T20:53:34+0200
-%% Last-Updated: 2023-02-05T13:54:35+0100
+%% Last-Updated: 2023-02-05T16:03:05+0100
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newif\ifarxiv
 \arxivfalse
@@ -853,7 +853,43 @@ Variations of this specific inference are also of interest. For instance, some o
 
 The propositional truth-calculus allows us to calculate the truth-values of non-tautological statements only if we give the truth-values of some other, related, non-tautological statements, usually called \enquote{premises}. Likewise, the probability calculus allows us to calculate probability-values of non-tautological statements only if we give the probability-values of some other, related, non-tautological statements. These are usually called \enquote{prior} or \enquote{initial} probabilities (these adjectives do \emph{not} imply that these probabilities concern statements about chronologically earlier events).
 
-We must therefore set the probability values of some statements, which can lead us to the probabilities~\eqref{eq:general_prob} through the rules of the probability~\eqref{eq:Prules}.
+Therefore we must first assign the probability values of some statements which can lead us to the probabilities~\eqref{eq:general_prob} through the rules~\eqref{eq:Prules}.
+
+There are several prior-probability assignments appropriate to our inference problem. All of them express observations of informational symmetry. Their analysis goes under the name of \enquote{exchangeability} \autocites[For a detailed account with references see][]{bernardoetal1994_r2000}[for a shorter summary,][]{dawid2013}[important references and variations are in][(Appendix on eduction)]{johnson1924}[\sects~4.2--4.3]{johnson1932c}{definetti1930,definetti1937,ericson1969,heathetal1976,diaconis1977,diaconisetal1980,diaconisetal1980b,lindleyetal1981}[especially around \sects~7.3, 8.6]{lindley2006_r2014}. Let us start with the most important.
+
+\medskip
+
+Consider the set of units $i=1,2,\dotsc$, excluding $i=0$
+According to our information $I$, we have no reason a priori to assign special probabilities to particular units, before we know their variate values $Y^{1},X^{1},Y^{2},X^{2},\dotsc$. This is reflected in the irrelevance of any possible permutation of their indices. This informational symmetry is expressed by the equality of all joint probabilities for sets of values that can be obtained from one another by permutations of the index $i$:
+\begin{multline}
+  \label{eq:exchang12}
+  \p(Y^{1}\mo y^{1},X^{1}\mo x^{1},\ 
+  Y^{2}\mo y^{2},X^{2}\mo x^{2},\ 
+  Y^{3}\mo y^{3},X^{3}\mo x^{3},\dotsc
+  \|I) =
+  {}\\
+\shoveright{  \p(Y^{1}\mo y^{r(1)},X^{1}\mo x^{r(1)},\ 
+  Y^{2}\mo y^{r(2)},X^{2}\mo x^{r(2)},\ 
+  Y^{3}\mo y^{r(3)},X^{3}\mo x^{r(3)},\dotsc
+  \|I)
+}  \\
+  \text{for all permutations $r$ and all allowed values $y,x$.}
+\end{multline}
+
+If the number of units is large enough, de~Finetti's theorem proves that such a joint probability distribution must then have the following mathematical form:
+\begin{multline}
+  \label{eq:deFinetti_integral}
+  \p(Y^{1}\mo y^{1},X^{1}\mo x^{1},\ 
+  Y^{2}\mo y^{2},X^{2}\mo x^{2},\dotsc
+  \|I) =
+  {}\\
+  \int
+  F(y^{1},x^{1})\, F(y^{2},x^{2})\,\dotsm
+\,\p(\di F \|I)
+\end{multline}
+the integral being over all positive, normalized weight distributions $F(y,x)$ over the variables $y,x$. The term $\p(\di F \|I)$ is a positive measure over such distributions.
+
+
 
 % \[ \color{bluepurple}\bm{a} \color{redpurple}\mathbin{\bm{\land}}\color{bluepurple} \bm{b} \]
 
