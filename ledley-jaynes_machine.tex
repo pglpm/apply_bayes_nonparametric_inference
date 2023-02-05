@@ -1,7 +1,7 @@
 \pdfoutput=1
 %% Author: PGL  Porta Mana
 %% Created: 2015-05-01T20:53:34+0200
-%% Last-Updated: 2023-02-05T16:03:05+0100
+%% Last-Updated: 2023-02-05T17:58:57+0100
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newif\ifarxiv
 \arxivfalse
@@ -811,15 +811,40 @@ We take the logical connectives $\lnot$ (not), $\lor$ (or), $\land$ (and) as a f
 \end{gathered}
 \tag{0}\label{eq:Prules}
 \end{equation}
-which can be used in different guises, for example \autocites[Compare with the inference rules for sequent calculus, \eg][\chap~1]{huthetal2000_r2004}[\sect~I.2]{prawitz1965}[see also][]{boricic2020}
+which can be used in different guises, for example
 \begin{equation*}
-\textstyle  \frac{\P(A\|H) = x}{\P(\lnot A \|H) = 1-x}
-  \qquad
- \frac{\P(A\|B\land H) = x \quad \P(B\| H)=y}{\P(A\land B \|H) = x y}
-  \qquad
- \frac{\P(A\|H) = x \quad \P(B\| H)=y \quad
+  \begin{gathered}
+    \textstyle
+    \frac{\P(A\|H) = x}{\P(\lnot A \|H) = 1-x}
+  \\[\jot]
+    \textstyle
+  \frac{\P(\lnot A\|H) = x}{\P(A \|H) = 1-x}
+\end{gathered}\qquad
+  \begin{gathered}
+  \textstyle
+  \frac{\P(A\|B\land H) = x \quad \P(B\| H)=y}{\P(A\land B \|H) = x y}
+  \\[\jot]
+  \textstyle
+ \frac{\P(A\|B\land H) = x \quad \P(A\land B \|H)=y}{\P(B\| H)=y/x}
+\\[\jot]
+  \textstyle
+ \frac{\P(B\| H) = x \quad \P(A\land B \|H)=y}{\P(A\| B\land H)=y/x}
+\end{gathered}\qquad
+  \begin{gathered}
+\textstyle
+  \frac{\P(A\|H) = x \quad \P(B\| H)=y \quad
   \P(A\land B \|H)=z}{\P(A\lor B \|H) = x+y-z}
+\\[\jot]
+\textstyle
+  \frac{\P(A\|H) = x \quad \P(B\| H)=y \quad
+  \P(A\lor B \|H)=z}{\P(A\land B \|H) = x+y-z}
+\\[\jot]
+\textstyle
+  \frac{\P(A\|H) = x \quad \P(A\land B \|H) = y\quad 
+  \P(A\lor B \|H)=z }{\P(B\| H)=y+z-x}
+\end{gathered}
 \end{equation*}
+Compare with the inference rules for sequent calculi.\autocites[\eg][\chap~1]{huthetal2000_r2004}[App.~A]{prawitz1965}[see also][]{boricic2020}
 
 \section{Inference problem}
 \label{sec:inference}
@@ -855,7 +880,7 @@ The propositional truth-calculus allows us to calculate the truth-values of non-
 
 Therefore we must first assign the probability values of some statements which can lead us to the probabilities~\eqref{eq:general_prob} through the rules~\eqref{eq:Prules}.
 
-There are several prior-probability assignments appropriate to our inference problem. All of them express observations of informational symmetry. Their analysis goes under the name of \enquote{exchangeability} \autocites[For a detailed account with references see][]{bernardoetal1994_r2000}[for a shorter summary,][]{dawid2013}[important references and variations are in][(Appendix on eduction)]{johnson1924}[\sects~4.2--4.3]{johnson1932c}{definetti1930,definetti1937,ericson1969,heathetal1976,diaconis1977,diaconisetal1980,diaconisetal1980b,lindleyetal1981}[especially around \sects~7.3, 8.6]{lindley2006_r2014}. Let us start with the most important.
+There are several prior-probability assignments appropriate to our inference problem. All of them express observations of informational symmetry. Their analysis goes under the name of \enquote{exchangeability} \autocites[For a detailed account with references see][]{bernardoetal1994_r2000}[for a shorter summary,][]{dawid2013}[important references and variations are in][(Appendix on eduction)]{johnson1924}[\sects~4.2--4.3]{johnson1932c}{definetti1930,definetti1937,hewittetal1955,ericson1969,heathetal1976,diaconis1977,diaconisetal1980,diaconisetal1980b,lindleyetal1981}[especially around \sects~7.3, 8.6]{lindley2006_r2014}. Let us start with the most important.
 
 \medskip
 
@@ -876,7 +901,7 @@ According to our information $I$, we have no reason a priori to assign special p
   \text{for all permutations $r$ and all allowed values $y,x$.}
 \end{multline}
 
-If the number of units is large enough, de~Finetti's theorem proves that such a joint probability distribution must then have the following mathematical form:
+If the number of units is large enough, de~Finetti's theorem\ibid\ proves that such a joint probability distribution must then have the following mathematical form:
 \begin{multline}
   \label{eq:deFinetti_integral}
   \p(Y^{1}\mo y^{1},X^{1}\mo x^{1},\ 
@@ -885,9 +910,34 @@ If the number of units is large enough, de~Finetti's theorem proves that such a 
   {}\\
   \int
   F(y^{1},x^{1})\, F(y^{2},x^{2})\,\dotsm
-\,\p(\di F \|I)
+\ \p(\di F \|I)
 \end{multline}
-the integral being over all positive, normalized weight distributions $F(y,x)$ over the variables $y,x$. The term $\p(\di F \|I)$ is a positive measure over such distributions.
+the integral being over all normalized, positive weight distributions $F(y,x)$ over the variables $y,x$. The term $\p(\di F \|I)$ is a positive measure over such distributions.
+
+This mathematical representation has an intuitive interpretation. The weight distribution $F(y,x)$ can be interpreted as the frequency distribution of the values $y,x$ among all units. If we knew this frequency distribution, then by symmetry we would assign the probability $F(y,x)$ to measuring $y,x$ on an unsystematically chosen unit, exactly as in sampling from an urn \autocites[\chap~3]{jaynes1994_r2003}. Observations on further units would have probabilities according to \enquote{sampling without replacement}; however, if the total number of units is large and the observed units are few, these probabilities would approximately equal those for \enquote{sampling with replacement} \autocites{heathetal1976}[for error bounds see][]{diaconisetal1980}. These probabilities correspond to the term $F(y^{1},x^{1})\, F(y^{2},x^{2})\,\dotsm$ in the integral. If the frequency distribution $F$ is unknown and we assign a probability density $\p(\di F\|I)$ to it, then the resulting probability for the observations is a convex mixture of the sampling-with-replacement probabilities, weighted by this probability density. This last step follows from the law of total probability, a consequence of the rules~\eqref{eq:Prules}. The integral above corresponds to this convex mixture.
+
+The symmetry or \enquote{exchangeability} requirement does not determine specific numeric values for the joint probability~\eqref{eq:deFinetti_integral}, but greatly restrict our freedom in assigning such values. The only freedom we have left is in the specification of the density $\p(\di F \|I)$. This specification will depend on the particular inference problem and on the nature of the units and variates. The intuitive interpretation of $\p(\di F \|I)$ as our uncertainty about the \enquote{long-run frequencies} can greatly help in this specification. De~Finetti's theorem has moreover an important consequence in this respect: as the values of more and more units become available, the initial numerical choice of density $\p(\di F \|I)$ affects further inferences less and less. Let us discuss these further inferences.
+
+Once the joint probability distribution~\eqref{eq:deFinetti_integral} has been numerically assigned, through specification of $\p(\di F \|I)$, all other marginal and conditional distributions concerning units and variates are also numerically fully determined by repeated application of the rules~\eqref{eq:Prules}. Some examples:
+\begin{align}
+  \label{eq:further_infs}
+  \p(Y^{2}\mo y^{2} \|I) &=
+  \int
+  \sum_{x}F(y^{2},x)\,\p(\di F \|I) \ ,
+  \\[\jot]
+  \p(Y^{2}\mo y^{2} \| X^{2}\mo x^{2}, I) &=
+  \frac{\int F(y^{2},x^{2})\ \p(\di F \|I)}{
+    \int \sum_{x}F(y^{2},x)\ \p(\di F \|I)
+  } \ ,
+  \\[\jot]
+  \p(Y^{2}\mo y^{2} \| X^{1}\mo x^{1}, I) &=
+  \frac{\int \sum_{x}F(y^{2},x)\, \sum_{y}F(y,x^{1})\  \p(\di F \|I)}{
+    \int \sum_{y}F(y,x^{1})\  \p(\di F \|I)
+  } \ .
+\end{align}
+
+\section{Inferences about unit $0$}
+\label{sec:unit0}
 
 
 
