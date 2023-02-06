@@ -1,7 +1,7 @@
 \pdfoutput=1
 %% Author: PGL  Porta Mana
 %% Created: 2015-05-01T20:53:34+0200
-%% Last-Updated: 2023-02-06T17:18:06+0100
+%% Last-Updated: 2023-02-06T17:37:14+0100
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newif\ifarxiv
 \arxivfalse
@@ -1106,7 +1106,7 @@ Our next task is to calculate this term.
 
 In order to specify the probability densities $\p(\di F \| I)$ and $\p(\di F \| D, I)$ we need a mathematical representation of the possible joint distributions $F(y,x)$ and of their space; from a differential-geometric point of view \autocites[III.A, VII.A]{choquetbruhatetal1977_r1996}, we want a coordinate system on the manifold of distributions $\set{F}$. It would be an advantage if this mathematical representation would also let us easily compute conditional and marginal distributions such as $F(y\| x)$ and $F(x)$, as we need these to calculate our main probability from formulae~\eqref{eq:general_prob_partialexch} or \eqref{eq:indepYfromdata}.
 
-A very clever representation is discussed by \textcites{dunsonetal2011}\autocites[see also][]{bhattacharyaetal2012,rossi2014}; it is an evolution of representations based on Dirichlet-process mixtures \autocites[\eg][]{antoniak1974,ferguson1983,escobaretal1995,rasmussen1999}. It expresses a particular $F(y,x)$ as an in-principle infinite convex sum of products of parametric distributions $K(\dotso \| \dotso)$:
+A very clever representation is discussed by \textcites{dunsonetal2011}\autocites[see also][]{bhattacharyaetal2012,rossi2014}; it is an evolution of representations based on Dirichlet-process mixtures \autocites[\eg][]{antoniak1974,ferguson1983,escobaretal1995,muelleretal1996,rasmussen1999}. It expresses a particular $F(y,x)$ as an in-principle infinite convex sum of products of parametric distributions $K(\dotso \| \dotso)$:
 \begin{multline}
   \label{eq:F_repres}
   F(y_{1},y_{2}, \dotsc,\ x_{1}, x_{2}, \dotsc) ={}\\
@@ -1139,36 +1139,37 @@ Although the sum in the representation~\eqref{eq:F_repres} is in principle infin
 
 \medskip
 
-The representation~\eqref{eq:F_repres} can in turn be embedded in a larger space; this may be convenient for computing the posterior density $\p(\di F \| D,I)$ of \eqn~\eqref{eq:common_density}. Consider a distribution $F$ represented by variables $(w, \upsilon, \xi)$, and the product of its values at specific variate values $y^{1},y^{2},\dotsc,x^{1},x^{2},\dotsc$. We may write this as
-\begin{multline}
-  \label{eq:product_F}
-  F(y^{1},x^{1}\| w,\upsilon,\xi)\,
-  F(y^{2},x^{2}\| w,\upsilon,\xi)\, \dotsm
-  ={}\\
-  \Bigl[\sum_{c} w^{c}\, K(y^{1} \| \upsilon^{c})\, K(x^{1} \| \xi^{c})\Bigr]\ 
-  \Bigl[\sum_{c} w^{c}\, K(y^{2} \| \upsilon^{c})\, K(x^{2} \| \xi^{c})\Bigr]\ \dotsm
-  \equiv{}\\
-  \prod_{i}
-  \Bigl[\sum_{c^{i}} w^{c^{i}}\,
-  K(y^{i} \| \upsilon^{c^{i}})\, K(x^{i} \| \xi^{c^{i}})\Bigr]
-  \equiv{}\\
-  \sum_{c^{1}}\sum_{c^{2}}\dotso
-\bigl[  w^{c^{1}}\,
-  K(y^{1} \| \upsilon^{c^{1}})\, K(x^{1} \| \xi^{c^{1}})\ 
-  w^{c^{2}}\,
-  K(y^{2} \| \upsilon^{c^{2}})\, K(x^{2} \| \xi^{c^{2}})\ 
-\dotsm \bigr] \ .
-\end{multline}
-In the last term we have as many sums and running indices $c^{i}$ as units $i=1,2,\dotsc$, and corresponding terms within the product. This last expression can be interpreted as the marginalization over variables $c^{1}, c^{2}, \dotsc$ of a distribution $G$ defined as
-\begin{multline}
+The representation~\eqref{eq:F_repres} can in turn be embedded in a larger space; this may be convenient for computing the posterior density $\p(\di F \| D,I)$ of \eqn~\eqref{eq:common_density}. The sum over the running index $c$ in the representation~\eqref{eq:F_repres} can be interpreted as the marginalization over the integer variable $c$ of a new distribution $G$ defined as
+\begin{equation}
   \label{eq:distr_with_c}
-  G(c^{1},y^{1},x^{1},\ c^{2},y^{2},x^{2},\dotsc \| w,\upsilon,\xi) \defd{}\\
-  w^{c^{1}}\,
-  K(y^{1} \| \upsilon^{c^{1}})\, K(x^{1} \| \xi^{c^{1}})\ 
-  w^{c^{2}}\,
-  K(y^{2} \| \upsilon^{c^{2}})\, K(x^{2} \| \xi^{c^{2}})\ 
-\dotsm
-\end{multline}
+  G(c,y,x\| w,\upsilon,\xi) \defd
+  w^{c}\,
+  K(y \| \upsilon^{c})\, K(x \| \xi^{c}) \ .
+\end{equation}
+By construction this distribution is indeed normalized in $c$.
+
+
+% Consider a distribution $F$ represented by variables $(w, \upsilon, \xi)$, and the product of its values at specific variate values $y^{1},y^{2},\dotsc,x^{1},x^{2},\dotsc$. We may write this as
+% \begin{multline}
+%   \label{eq:product_F}
+%   F(y^{1},x^{1}\| w,\upsilon,\xi)\,
+%   F(y^{2},x^{2}\| w,\upsilon,\xi)\, \dotsm
+%   ={}\\
+%   \Bigl[\sum_{c} w^{c}\, K(y^{1} \| \upsilon^{c})\, K(x^{1} \| \xi^{c})\Bigr]\ 
+%   \Bigl[\sum_{c} w^{c}\, K(y^{2} \| \upsilon^{c})\, K(x^{2} \| \xi^{c})\Bigr]\ \dotsm
+%   \equiv{}\\
+%   \prod_{i}
+%   \Bigl[\sum_{c^{i}} w^{c^{i}}\,
+%   K(y^{i} \| \upsilon^{c^{i}})\, K(x^{i} \| \xi^{c^{i}})\Bigr]
+%   \equiv{}\\
+%   \sum_{c^{1}}\sum_{c^{2}}\dotso
+% \bigl[  w^{c^{1}}\,
+%   K(y^{1} \| \upsilon^{c^{1}})\, K(x^{1} \| \xi^{c^{1}})\ 
+%   w^{c^{2}}\,
+%   K(y^{2} \| \upsilon^{c^{2}})\, K(x^{2} \| \xi^{c^{2}})\ 
+% \dotsm \bigr] \ .
+% \end{multline}
+% In the last term we have as many sums and running indices $c^{i}$ as units $i=1,2,\dotsc$, and corresponding terms within the product. This last expression can be interpreted as the marginalization over variables $c^{1}, c^{2}, \dotsc$ of a product of distributions $G$ defined as
 
 
 \subsection{Representation of the densities}
