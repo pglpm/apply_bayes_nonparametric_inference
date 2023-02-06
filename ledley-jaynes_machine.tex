@@ -1,7 +1,7 @@
 \pdfoutput=1
 %% Author: PGL  Porta Mana
 %% Created: 2015-05-01T20:53:34+0200
-%% Last-Updated: 2023-02-05T20:23:27+0100
+%% Last-Updated: 2023-02-06T11:35:49+0100
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newif\ifarxiv
 \arxivfalse
@@ -806,15 +806,19 @@ To limit the confusion that can arise from this notation abuse, I use a conventi
 We take the logical connectives $\lnot$ (not), $\lor$ (or), $\land$ (and) as a functionally complete (redundant) base set. A comma \enquote{,} is interchangeably used for $\land$ in probability formulae. The probability-calculus rules for the base connectives are
 \begin{equation}
   \begin{gathered}
+\P(A\|A \land H) = 1
+\qquad
 \P(\lnot A\|H) + \P(A \|H) = 1
 \\
 \P(A\land B \|H) - \P(A\|B\land H) \, \P(B\| H)= 0
   \\
- \P(A\lor B \|H) + \P(A\land B \|H) -\P(A\|H)-  \P(B\| H)=0
+  \P(A\lor B \|H) + \P(A\land B \|H) -\P(A\|H)-  \P(B\| H)=0
+  \\
+  \text{for any atomic or composite statements $A,B,H$.}
 \end{gathered}
 \tag{0}\label{eq:Prules}
 \end{equation}
-which can be used in different guises, for example
+The rules ca be used in different guises, for example
 \begin{equation*}
   \begin{gathered}
     \textstyle
@@ -969,7 +973,7 @@ If $\Iyx^{0}$ amounts to saying that the symmetry underlying the probabilities~\
 \subsection{Symmetry conditional on $X$ variates}
 \label{sec:unit0_condX}
 
-A more interesting kind of additional information $\Ix^{0}$ may amount to saying that there is an informational symmetry involving unit~$0$ an the other units, but only with regard to the $Y$ variates, and only with units sharing the same values $x^{*}$ of the $X$ variates. Using a different terminology, this would be a symmetry restricted to a subpopulation of units which is defined by particular $X$ values. Mathematically,
+A more interesting kind of additional information $\Ix^{0}$  amounts to saying that there is an informational symmetry involving unit~$0$ an the other units, but only with regard to the $Y$ variates, and only with units sharing the same values $x^{*}$ of the $X$ variates. Using a different terminology, this would be a symmetry restricted to a subpopulation of units which is defined by particular $X$ values. Mathematically,
 \begin{multline}
   \label{eq:exchangpartial}
   \p(Y^{0}\mo y^{0}, Y^{1}\mo y^{1}, Y^{2}\mo y^{2}
@@ -1032,7 +1036,53 @@ Under this kind of auxiliary information $\Ix^{0}$, our main probability~\eqref{
 \subsection{Symmetry conditional on $Y$ variates}
 \label{sec:unit0_condY}
 
-Yet another kind of auxiliary information $\Iy^{0}$ is be similar to $\Ix^{0}$, but with the variates $X$ and $Y$ exchanged.
+Yet another kind of auxiliary information, $\Iy^{0}$, is the one similar to $\Ix^{0}$ but with the variates $X$ and $Y$ swapped; that is, symmetry under permutation of $X$ values for a subpopulation sharing the same $Y$ values. The discussion proceeds analogously to the previous section up to the representation
+  \begin{multline}
+    \label{eq:deFinetti_integral_partialY}
+    \p(X^{0}\mo x^{0}, X^{1}\mo x^{1}, X^{2}\mo x^{2}
+    \|
+    Y^{0}\mo y^{*}, Y^{1}\mo y^{*},Y^{2}\mo y^{*},
+    \dotsc,\  \Iy^{0},I) =
+    {}\\
+    \int
+    \frac{F(x^{0},y^{*})}{\sum_{x}F(x,y^{*})}\,
+    \frac{F(x^{1},y^{*})}{\sum_{x}F(x,y^{*})}\,
+    \frac{F(x^{2},y^{*})}{\sum_{x}F(x,y^{*})}
+    \,\dotsm\ \p(\di F \|I) \ .
+  \end{multline}
+
+  In this case, however, the main probability~\eqref{eq:general_prob} is \emph{not} determined by the probability rules once $\p(\di F\|I)$ has been assigned. We arrive at the following relation, where the proportionality constant can be found by normalizing over $Y^{0}$:
+\begin{multline}
+  \label{eq:relation_exchY}
+  \p(Y^{0}\mo y^{0} \|
+  X^{0}\mo x^{0},\: Y^{1}\mo y^{1},X^{1}\mo x^{1},\dotsc,\: \Iy^{0},I)
+  \propto
+{}\\[2\jot]
+  \p(Y^{0}\mo y^{0} \|
+  Y^{1}\mo y^{1},X^{1}\mo x^{1},\dotsc,\: \Iy^{0},I) \times{}\\
+  \frac{
+    \int \frac{F(x^{0},y^{0})}{\sum_{x}F(x,y^{0})}\, F(x^{1},y^{1})\,\dotsm\  \p(\di F \|I)
+  }{
+    \int F(x^{1},y^{1})\,\dotsm\  \p(\di F \|I)
+  } \ .
+\end{multline}
+The probability in the second row, $\p(Y^{0}\mo y^{0} \| Y^{1}\mo y^{1},X^{1}\mo x^{1},\dotsc,\: \Iy^{0},I)$, must still be assigned \autocites{lindleyetal1981}. This assignment depends strongly on the circumstances. In clinical applications, for example, it is typically further assumed that the units $i=1,2,\dotsc$ are irrelevant for this probability:
+\begin{equation}
+  \label{eq:indepYfromdata}
+    \p(Y^{0}\mo y^{0} \|
+  Y^{1}\mo y^{1},X^{1}\mo x^{1},\dotsc,\: \Iy^{0},I) =
+    \p(Y^{0}\mo y^{0} \| \Iy^{0},I)
+\end{equation}
+and $\p(Y^{0}\mo y^{0} \| \Iy^{0},I)$ is taken to be equal to a \emph{base rate}\autocites{barhillel1980,jennyetal2018,sprengeretal2021,matthews1996}, through exchangeability arguments analogous to those of \sect~\ref{sec:unit0} but without $X$ variates and referred to a \emph{different} sets of units having $Y$ variates.
+
+\subsection{Other symmetries}
+\label{sec:other_symm}
+
+It is possible to consider also symmetries for only some of the $X$ variates or some of the $Y$ variates or both, with analyses similar to those of the previous subsections. Finally, it is also possible to consider situations with no symmetries; then the theorems based on exchangeability are not available and one have to assign initial probabilities by different arguments.
+
+\section{Mathematical representation of the density $\p(\di F \| I)$}
+\label{sec:repr_density_F}
+
 
 
 
