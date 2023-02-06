@@ -1,7 +1,7 @@
 \pdfoutput=1
 %% Author: PGL  Porta Mana
 %% Created: 2015-05-01T20:53:34+0200
-%% Last-Updated: 2023-02-06T11:35:49+0100
+%% Last-Updated: 2023-02-06T15:20:06+0100
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newif\ifarxiv
 \arxivfalse
@@ -642,7 +642,7 @@ Open Science Framework \doi{10.17605/osf.io/#1}%
 %\newcommand*{\con}{\mathbin{:}}%scal prod of tensors
 %\newcommand*{\equi}{\sim}%equivalent to 
 \renewcommand*{\asymp}{\simeq}%equivalent to 
-%\newcommand*{\corr}{\mathrel{\hat{=}}}%corresponds to
+\newcommand*{\corr}{\mathrel{\hat{=}}}%corresponds to
 %\providecommand{\varparallel}{\ensuremath{\mathbin{/\mkern-7mu/}}}%parallel (tentative symbol)
 \renewcommand*{\le}{\leqslant}%less or equal
 \renewcommand*{\ge}{\geqslant}%greater or equal
@@ -1083,9 +1083,46 @@ It is possible to consider also symmetries for only some of the $X$ variates or 
 \section{Mathematical representation of the density $\p(\di F \| I)$}
 \label{sec:repr_density_F}
 
+In order to specify the probability density $\p(\di F \| I)$ we need a mathematical representation of the possible joint distributions $F(y,x)$ and of their space; from a differential-geometric point of view \autocites[III.A, VII.A]{choquetbruhatetal1977_r1996}, we want a coordinate system on the manifold of distributions $\set{F}$. It would be an advantage if this mathematical representation would also let us easily compute conditional and marginal distributions such as $F(y\| x)$ and $F(x)$, because we need these to calculate our main probability from formulae~\eqref{eq:general_prob_partialexch} or \eqref{eq:indepYfromdata}.
 
+A very clever representation is discussed by \textcites{dunsonetal2011}\autocites[see also][]{bhattacharyaetal2012,rossi2014}; it is an evolution of representations based on Dirichlet-process mixtures \autocites[\eg][]{antoniak1974,ferguson1983,escobaretal1995,rasmussen1999}. It expresses a particular $F(y,x)$ as an in-principle infinite convex sum of products of parametric distributions $K(\dotso \| \dotso)$:
+\begin{multline}
+  \label{eq:F_repres}
+  F(y_{1},y_{2}, \dotsc,\ x_{1}, x_{2}, \dotsc) ={}\\
+  \sum_{c} w^{c}\
+  K(y_{1} \| \upsilon^{c}_{1})\,  K(y_{2} \| \upsilon^{c}_{1})\, \dotsm\ 
+  K(x_{1} \| \xi^{c}_{1})\,  K(x_{2} \| \xi^{c}_{1})\, \dotsm\ 
+\end{multline}
+where the $w$ are normalized weights and the $\upsilon$ and $\xi$ are parameters, possibly multidimensional. Any $F$ is thus represented by an in-principle infinite set of coordinates:
+\begin{equation}
+  \label{eq:F_coords}
+  F \corr (w^{c}, \upsilon^{c}_{j}, \xi^{c}_{j}) \ .
+\end{equation}
+More precisely, the differential manifold parametrized by these coordinates covers the manifold $\set{F}$: different coordinate values may correspond to the same $F$. We can also say that we are expressing $F$ through a frame, rather than through a set of basis functions \autocites{balanetal2006}[\chap~8]{heil1998_r2011}[\chap~3]{daubechies1992_r1999}.
 
+The representation~\eqref{eq:F_repres} is extremely convenient because it leads to simple expressions for conditional and marginal frequencies. For instance in can be easily calculated that
+\begin{gather}
+  \label{eq:Fconditional_example}
+  F(y_{1} \| x_{2}) =
+  \sum_{c}
+  \frac{ w^{c}\ K(x_{2} \| \xi^{c}_{1})}{
+   \sum_{c'} w^{c'}\ K(x_{2} \| \xi^{c'}_{1})
+}\ 
+  K(y_{1} \| \upsilon^{c}_{1}) \ ,
+\\[\jot]
+  F(y_{1}) =
+  \sum_{c} w^{c}\ K(y_{1} \| \upsilon^{c}_{1}) \ .
+\end{gather}
 
+\medskip
+
+The fact that the $(w,\upsilon,\xi)$-manifold is a covering of the manifold $\set{F}$ is not a problem, because a probability density on the first also defines a probability density on the second. Indeed what is now left is the specification of a probability density
+\begin{equation}
+  \label{eq:density_coordsF}
+   \p(\di w, \di\upsilon, \di\xi \|I) \ .
+\end{equation}
+
+ 
 
 % \[ \color{bluepurple}\bm{a} \color{redpurple}\mathbin{\bm{\land}}\color{bluepurple} \bm{b} \]
 
