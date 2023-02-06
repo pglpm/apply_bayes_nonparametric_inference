@@ -1,7 +1,7 @@
 \pdfoutput=1
 %% Author: PGL  Porta Mana
 %% Created: 2015-05-01T20:53:34+0200
-%% Last-Updated: 2023-02-06T15:20:06+0100
+%% Last-Updated: 2023-02-06T17:18:06+0100
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newif\ifarxiv
 \arxivfalse
@@ -1080,10 +1080,31 @@ and $\p(Y^{0}\mo y^{0} \| \Iy^{0},I)$ is taken to be equal to a \emph{base rate}
 
 It is possible to consider also symmetries for only some of the $X$ variates or some of the $Y$ variates or both, with analyses similar to those of the previous subsections. Finally, it is also possible to consider situations with no symmetries; then the theorems based on exchangeability are not available and one have to assign initial probabilities by different arguments.
 
-\section{Mathematical representation of the density $\p(\di F \| I)$}
+\subsection{Common mathematical term}
+\label{sec:common_term}
+
+In all examples of additional information $I^{0}$ considered above, the resulting expression for our main probability, \eqns~\eqref{eq:general_prob_fullexch}, \eqref{eq:general_prob_partialexch}, \eqref{eq:relation_exchY}, involve an integral containing a common term: the density
+\begin{equation}
+  \label{eq:common_density}
+  \p(\di F \|D,I) \defd
+    \frac{
+    F(x^{1},y^{1})\,F(x^{2},y^{2})\,\dotsm\  
+  }{
+   \int F(x^{1},y^{1})\,F(x^{2},y^{2})\,\dotsm\  \p(\di F \|I)
+  } \ ,
+\end{equation}
+where $D$ is the conjunction of all statements \prop{$Y^{i}\mo y^{i}$}, \prop{$X^{i}\mo x^{i}$} for $i=1,2,\dotsc$. Indeed this probability density can be considered as the updated probability for $\di F$, given the information about all units, $D$.
+
+Our next task is to calculate this term.
+
+
+\section{Mathematical representation of $F$ and its densities}
 \label{sec:repr_density_F}
 
-In order to specify the probability density $\p(\di F \| I)$ we need a mathematical representation of the possible joint distributions $F(y,x)$ and of their space; from a differential-geometric point of view \autocites[III.A, VII.A]{choquetbruhatetal1977_r1996}, we want a coordinate system on the manifold of distributions $\set{F}$. It would be an advantage if this mathematical representation would also let us easily compute conditional and marginal distributions such as $F(y\| x)$ and $F(x)$, because we need these to calculate our main probability from formulae~\eqref{eq:general_prob_partialexch} or \eqref{eq:indepYfromdata}.
+\subsection{Representation of $F$}
+\label{sec:repr_F}
+
+In order to specify the probability densities $\p(\di F \| I)$ and $\p(\di F \| D, I)$ we need a mathematical representation of the possible joint distributions $F(y,x)$ and of their space; from a differential-geometric point of view \autocites[III.A, VII.A]{choquetbruhatetal1977_r1996}, we want a coordinate system on the manifold of distributions $\set{F}$. It would be an advantage if this mathematical representation would also let us easily compute conditional and marginal distributions such as $F(y\| x)$ and $F(x)$, as we need these to calculate our main probability from formulae~\eqref{eq:general_prob_partialexch} or \eqref{eq:indepYfromdata}.
 
 A very clever representation is discussed by \textcites{dunsonetal2011}\autocites[see also][]{bhattacharyaetal2012,rossi2014}; it is an evolution of representations based on Dirichlet-process mixtures \autocites[\eg][]{antoniak1974,ferguson1983,escobaretal1995,rasmussen1999}. It expresses a particular $F(y,x)$ as an in-principle infinite convex sum of products of parametric distributions $K(\dotso \| \dotso)$:
 \begin{multline}
@@ -1093,12 +1114,12 @@ A very clever representation is discussed by \textcites{dunsonetal2011}\autocite
   K(y_{1} \| \upsilon^{c}_{1})\,  K(y_{2} \| \upsilon^{c}_{1})\, \dotsm\ 
   K(x_{1} \| \xi^{c}_{1})\,  K(x_{2} \| \xi^{c}_{1})\, \dotsm\ 
 \end{multline}
-where the $w$ are normalized weights and the $\upsilon$ and $\xi$ are parameters, possibly multidimensional. Any $F$ is thus represented by an in-principle infinite set of coordinates:
+where the $w$ are normalized weights and the $\upsilon$ and $\xi$ are parameters, possibly multidimensional. Any $F$ is thus represented by an in-principle infinite tuple of variables:
 \begin{equation}
   \label{eq:F_coords}
   F \corr (w^{c}, \upsilon^{c}_{j}, \xi^{c}_{j}) \ .
 \end{equation}
-More precisely, the differential manifold parametrized by these coordinates covers the manifold $\set{F}$: different coordinate values may correspond to the same $F$. We can also say that we are expressing $F$ through a frame, rather than through a set of basis functions \autocites{balanetal2006}[\chap~8]{heil1998_r2011}[\chap~3]{daubechies1992_r1999}.
+The relation between the manifolds $\set{F}$ and $\set{(w, \upsilon, \xi)}$ is typically not one-to-one: different tuples of variables can correspond to the same $F$. We can interpret this as a non-regular embedding $\set{F} \to \set{(w, \upsilon, \xi)}$, or as the existence of different coordinate charts on $\set{F}$, with overlapping domains, or as the expression of $F$ through a frame, rather than through a set of basis functions \autocites{balanetal2006}[\chap~8]{heil1998_r2011}[\chap~3]{daubechies1992_r1999}. This is not a problem for us, because a probability density on the manifold $\set{(w, \upsilon, \xi)}$ also defines, by pull-back, a probability density on the manifold $\set{F}$.
 
 The representation~\eqref{eq:F_repres} is extremely convenient because it leads to simple expressions for conditional and marginal frequencies. For instance in can be easily calculated that
 \begin{gather}
@@ -1113,6 +1134,47 @@ The representation~\eqref{eq:F_repres} is extremely convenient because it leads 
   F(y_{1}) =
   \sum_{c} w^{c}\ K(y_{1} \| \upsilon^{c}_{1}) \ .
 \end{gather}
+
+Although the sum in the representation~\eqref{eq:F_repres} is in principle infinite, a particular choice of density for the $(w,\upsilon,\xi)$ variables allows us to approximate it with a finite number of terms, as shown by \textcites{ishwaranetal2002b}. This possibility is essential for computational purposes.
+
+\medskip
+
+The representation~\eqref{eq:F_repres} can in turn be embedded in a larger space; this may be convenient for computing the posterior density $\p(\di F \| D,I)$ of \eqn~\eqref{eq:common_density}. Consider a distribution $F$ represented by variables $(w, \upsilon, \xi)$, and the product of its values at specific variate values $y^{1},y^{2},\dotsc,x^{1},x^{2},\dotsc$. We may write this as
+\begin{multline}
+  \label{eq:product_F}
+  F(y^{1},x^{1}\| w,\upsilon,\xi)\,
+  F(y^{2},x^{2}\| w,\upsilon,\xi)\, \dotsm
+  ={}\\
+  \Bigl[\sum_{c} w^{c}\, K(y^{1} \| \upsilon^{c})\, K(x^{1} \| \xi^{c})\Bigr]\ 
+  \Bigl[\sum_{c} w^{c}\, K(y^{2} \| \upsilon^{c})\, K(x^{2} \| \xi^{c})\Bigr]\ \dotsm
+  \equiv{}\\
+  \prod_{i}
+  \Bigl[\sum_{c^{i}} w^{c^{i}}\,
+  K(y^{i} \| \upsilon^{c^{i}})\, K(x^{i} \| \xi^{c^{i}})\Bigr]
+  \equiv{}\\
+  \sum_{c^{1}}\sum_{c^{2}}\dotso
+\bigl[  w^{c^{1}}\,
+  K(y^{1} \| \upsilon^{c^{1}})\, K(x^{1} \| \xi^{c^{1}})\ 
+  w^{c^{2}}\,
+  K(y^{2} \| \upsilon^{c^{2}})\, K(x^{2} \| \xi^{c^{2}})\ 
+\dotsm \bigr] \ .
+\end{multline}
+In the last term we have as many sums and running indices $c^{i}$ as units $i=1,2,\dotsc$, and corresponding terms within the product. This last expression can be interpreted as the marginalization over variables $c^{1}, c^{2}, \dotsc$ of a distribution $G$ defined as
+\begin{multline}
+  \label{eq:distr_with_c}
+  G(c^{1},y^{1},x^{1},\ c^{2},y^{2},x^{2},\dotsc \| w,\upsilon,\xi) \defd{}\\
+  w^{c^{1}}\,
+  K(y^{1} \| \upsilon^{c^{1}})\, K(x^{1} \| \xi^{c^{1}})\ 
+  w^{c^{2}}\,
+  K(y^{2} \| \upsilon^{c^{2}})\, K(x^{2} \| \xi^{c^{2}})\ 
+\dotsm
+\end{multline}
+
+
+\subsection{Representation of the densities}
+\label{sec:repr_densities}
+
+A probability density $\p(\di F)$ is specified by specifying a density $\p(\di w, \di\upsilon, \di\xi)$. This specification is determined partly by the information underlying the density, partly by computational demands. These densities can be calculated by a variety of Monte Carlo methods, each of which may be more convenient in a particular 
 
 \medskip
 
