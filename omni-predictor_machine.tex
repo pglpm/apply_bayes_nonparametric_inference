@@ -1,7 +1,7 @@
 \pdfoutput=1
 %% Author: PGL  Porta Mana
 %% Created: 2015-05-01T20:53:34+0200
-%% Last-Updated: 2023-02-06T19:03:51+0100
+%% Last-Updated: 2023-02-16T15:28:27+0100
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newif\ifarxiv
 \arxivfalse
@@ -646,10 +646,10 @@ Open Science Framework \doi{10.17605/osf.io/#1}%
 %\providecommand{\varparallel}{\ensuremath{\mathbin{/\mkern-7mu/}}}%parallel (tentative symbol)
 \renewcommand*{\le}{\leqslant}%less or equal
 \renewcommand*{\ge}{\geqslant}%greater or equal
-%\DeclarePairedDelimiter\clcl{[}{]}
-%\DeclarePairedDelimiter\clop{[}{[}
-%\DeclarePairedDelimiter\opcl{]}{]}
-%\DeclarePairedDelimiter\opop{]}{[}%}
+\DeclarePairedDelimiter\clcl{[}{]}
+\DeclarePairedDelimiter\clop{[}{[}
+\DeclarePairedDelimiter\opcl{]}{]}
+\DeclarePairedDelimiter\opop{]}{[}%}
 \DeclarePairedDelimiter\abs{\lvert}{\rvert}
 %\DeclarePairedDelimiter\norm{\lVert}{\rVert}
 \DeclarePairedDelimiter\set{\{}{\}} %}
@@ -806,8 +806,8 @@ To limit the confusion that can arise from this notation abuse, I use a conventi
 We take the logical connectives $\lnot$ (not), $\lor$ (or), $\land$ (and) as a functionally complete (redundant) base set. A comma \enquote{,} is interchangeably used for $\land$ in probability formulae. The probability-calculus rules for the base connectives are
 \begin{equation}
   \begin{gathered}
-\P(A\|A \land H) = 1
-\qquad
+% \P(A\|A \land H) = 1
+% \qquad
 \P(\lnot A\|H) + \P(A \|H) = 1
 \\
 \P(A\land B \|H) - \P(A\|B\land H) \, \P(B\| H)= 0
@@ -1101,6 +1101,10 @@ Our next task is to calculate this term.
 \section{Mathematical representation of $F$ and its densities}
 \label{sec:repr_density_F}
 
+\subsection{Mathematical representation of $F$}
+\label{sec:repr_F_convexsum}
+
+
 In order to specify the probability densities $\p(\di F \| I)$ and $\p(\di F \| D, I)$ we need a mathematical representation of the possible joint distributions $F(y,x)$ and of their space; from a differential-geometric point of view \autocites[III.A, VII.A]{choquetbruhatetal1977_r1996}, we want a coordinate system on the manifold of distributions $\set{F}$. It would be an advantage if this mathematical representation would also let us easily compute conditional and marginal distributions such as $F(y\| x)$ and $F(x)$, as we need these to calculate our main probability from formulae~\eqref{eq:general_prob_partialexch} or \eqref{eq:indepYfromdata}.
 
 A very clever representation is discussed by \textcites{dunsonetal2011}\autocites[see also][]{bhattacharyaetal2012,rossi2014}; it is an evolution of representations based on Dirichlet-process mixtures \autocites[\eg][]{antoniak1974,ferguson1983,escobaretal1995,muelleretal1996,rasmussen1999}. It expresses a particular $F(y,x)$ as an in-principle infinite convex mixture of products of parametric distributions $K(\dotso \| \dotso)$:
@@ -1176,7 +1180,92 @@ A probability density $\p(\di F)$ is finally specified by specifying a density $
 
 These densities can be calculated by a variety of Monte Carlo methods. We discuss the computation in detail in \sect***.
 
+\subsection{Choice of parametric distributions $K$}
+\label{sec:choice_K}
+
+The choice of parametric distribution $K$ for each variate depends on the mathematical type of variate, on the kind of long-run distribution we expect for it, and on computational convenience. Here are some specific choices. What is said about a variate $x$ and parameters $\xi$ also holds for any variate $y$ and parameters $\upsilon$. In the following, $\Phi$ is the function
+\begin{equation}
+  \label{eq:Phi}
+  \Phi \colon  \set{-\infty}\cup\RR\cup\set{+\infty}\to\clcl{0,1},
+  \qquad
+  \Phi(z) \defd \frac{1}{\sqrt{2\pu}}\, \int_{-\infty}^{z} \exp\Bigl(-\frac{t^{2}}{2}\Bigr)\, \di t \ ,
+\end{equation}
+and $\Phi^{-1}\colon \clcl{0,1}\to\set{-\infty}\cup\RR\cup\set{+\infty}$ its inverse (\enquote{probit} function).
+
+
+\paragraph{Unbounded continuous variates}
+
+For an unbounded continuous variate $x \in \RR$ we choose a gaussian distribution with mean and variance as the parameters $\xi=(\mu, \sigma^{2})$:
+\begin{equation}
+  \label{eq:K_unb_cont}
+  K(\di x \| \mu,\sigma^{2}) \defd \Phi'\biggl(\frac{x-\mu}{\sigma}\biggr)\, \di x
+  \equiv \frac{1}{\sqrt{2\pu\,\sigma^{2}}}\,
+  \exp\biggl[-\frac{(x-\mu)^{2}}{\sigma^{2}}\biggr]\, \di x \ .
+\end{equation}
+
+Variates with connected, open domains in the real line can transformed into this kind of variate. For example  a variate $z \in \opop{0, +\infty}$ can be transformed into $x=\ln z$.
+
+\paragraph{Binary variates}
+
+For a binary variate $x \in \set{0,1}$ we choose a Bernoulli distribution with weight parameter $\xi=q$:
+\begin{equation}
+  \label{eq:K_bin}
+  K(x \| q) \defd x\, q + (1-x)\,(1-q) \equiv
+  \begin{cases}
+    q&\text{ if $x=1$} \\1-q&\text{ if $x=0$}
+  \end{cases}
+\end{equation}
+
+Obviously any other binary values $\set{a,b}$ can be mapped into $\set{0,1}$.
+
+\paragraph{Categorical variates}
+
+For a categorical variate with $n$ possible values, $x \in \set{a_{1}, \dotsc, a_{n}}$, we choose a categorical distribution with normalized weight parameters $q \defd (q_{1}, \dotsc, q_{n})$:
+\begin{equation}
+  \label{eq:K_cat}
+  K(x \| q) \defd \sum_{i=1}^{n} q_{i}\,\delt(x=a_{i}) \equiv
+  \begin{cases}
+    q_{1} &\text{ if $x=a_{1}$}\\\dotso&\\
+    q_{n} &\text{ if $x=a_{n}$}
+  \end{cases}
+\end{equation}
+
+Obviously the values $\set{a_{1}, \dotsc, a_{n}}$ can be set in one-one correspondence with $\set{1, \dotsc, n}$.
+
+\paragraph{Integer or discrete ordinal variates}
+
+By \enquote{discrete ordinal} variate we mean a variate $x$ assuming a discrete number $m$ of values which have a natural ordering, for example integers $x \in \set{1,\dotsc, m}$. The fact that they have a natural ordering has implications for smoothness, in a loose sense of this word. That is, we expect the probabilities for two consecutive values not to have excessive jumps. This is the difference between a categorical and a discrete-ordinal variate.
+
+We can represent such a variate as an index for different subranges of an underlying continuous variate. Thus for its kernel we choose the convolution of a gaussian with mean and variance parameters $(\mu,\sigma^{2})$ and a \enquote{window function}:
+\begin{equation}
+  \label{eq:K_int}
+  \begin{split}
+  K(x \| \mu, \sigma^{2}) &\defd
+  \Phi\biggl[
+  \frac{\Phi^{-1}\bigl(\frac{x}{m}\bigr) - \mu}{\sigma}
+  \biggr]
+  -
+  \Phi\biggl[
+  \frac{\Phi^{-1}\bigl(\frac{x-1}{m}\bigr) - \mu}{\sigma}
+  \biggr]
+  \\[\jot]&\equiv
+  \frac{1}{\sqrt{2\pu\,\sigma^{2}}}\,
+  \int_{\Phi^{-1}(\frac{x-1}{m})}^{\Phi^{-1}(\frac{x}{m})}
+  \exp\biggl[-\frac{(z-\mu)^{2}}{\sigma^{2}}\biggr]\, \di z \ .
+\end{split}
+\end{equation}
+
+Discrete ordinal variates with other domains can be mapped onto $\set{1,\dotsc,m}$.
+
+\paragraph{Continuous censored variates}
+
+
+
+
 \medskip
+
+
+
 
 \begin{equation}
   \label{eq:density_coordsF}
