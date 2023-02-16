@@ -1,7 +1,7 @@
 \pdfoutput=1
 %% Author: PGL  Porta Mana
 %% Created: 2015-05-01T20:53:34+0200
-%% Last-Updated: 2023-02-16T15:44:26+0100
+%% Last-Updated: 2023-02-16T15:54:44+0100
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newif\ifarxiv
 \arxivfalse
@@ -1260,7 +1260,9 @@ Discrete ordinal variates with other domains can be mapped onto $\set{1,\dotsc,m
 
 \paragraph{Continuous censored variates}
 
+A \enquote{continuous censored} variate is meant here, more generally, to be a continuous variate with values in a \emph{closed} or semi-closed bounded set, for example $x \in \clcl{0,1}$ or $x \in \clop{0,1}$ or $x \in \clop{0,+\infty}$. Owing to the different topology of its domain, such variate cannot be mapped onto a continuous unbounded one, discussed above.
 
+The boundary value or values that such a variable can take often have a singular probability mass (delta distribution), which may arise from the fact that $x$ is censored, that is, it could in principle assume continuous values outside the boundary, but such values are truncated to the boundary one.
 
 
 \medskip
