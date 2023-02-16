@@ -1,7 +1,7 @@
 \pdfoutput=1
 %% Author: PGL  Porta Mana
 %% Created: 2015-05-01T20:53:34+0200
-%% Last-Updated: 2023-02-16T15:28:27+0100
+%% Last-Updated: 2023-02-16T15:44:26+0100
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newif\ifarxiv
 \arxivfalse
@@ -1200,7 +1200,7 @@ For an unbounded continuous variate $x \in \RR$ we choose a gaussian distributio
   \label{eq:K_unb_cont}
   K(\di x \| \mu,\sigma^{2}) \defd \Phi'\biggl(\frac{x-\mu}{\sigma}\biggr)\, \di x
   \equiv \frac{1}{\sqrt{2\pu\,\sigma^{2}}}\,
-  \exp\biggl[-\frac{(x-\mu)^{2}}{\sigma^{2}}\biggr]\, \di x \ .
+  \exp\biggl[-\frac{(x-\mu)^{2}}{2\,\sigma^{2}}\biggr]\, \di x \ .
 \end{equation}
 
 Variates with connected, open domains in the real line can transformed into this kind of variate. For example  a variate $z \in \opop{0, +\infty}$ can be transformed into $x=\ln z$.
@@ -1223,7 +1223,7 @@ Obviously any other binary values $\set{a,b}$ can be mapped into $\set{0,1}$.
 For a categorical variate with $n$ possible values, $x \in \set{a_{1}, \dotsc, a_{n}}$, we choose a categorical distribution with normalized weight parameters $q \defd (q_{1}, \dotsc, q_{n})$:
 \begin{equation}
   \label{eq:K_cat}
-  K(x \| q) \defd \sum_{i=1}^{n} q_{i}\,\delt(x=a_{i}) \equiv
+  K(x \| q) \defd \sum_{i=1}^{n} q_{i}\,\delt(x\mo a_{i}) \equiv
   \begin{cases}
     q_{1} &\text{ if $x=a_{1}$}\\\dotso&\\
     q_{n} &\text{ if $x=a_{n}$}
@@ -1236,7 +1236,7 @@ Obviously the values $\set{a_{1}, \dotsc, a_{n}}$ can be set in one-one correspo
 
 By \enquote{discrete ordinal} variate we mean a variate $x$ assuming a discrete number $m$ of values which have a natural ordering, for example integers $x \in \set{1,\dotsc, m}$. The fact that they have a natural ordering has implications for smoothness, in a loose sense of this word. That is, we expect the probabilities for two consecutive values not to have excessive jumps. This is the difference between a categorical and a discrete-ordinal variate.
 
-We can represent such a variate as an index for different subranges of an underlying continuous variate. Thus for its kernel we choose the convolution of a gaussian with mean and variance parameters $(\mu,\sigma^{2})$ and a \enquote{window function}:
+For such a variate we can use a \enquote{discretized-gaussian} kernel with mean and variance parameters $(\mu,\sigma^{2})$:
 \begin{equation}
   \label{eq:K_int}
   \begin{split}
@@ -1251,9 +1251,10 @@ We can represent such a variate as an index for different subranges of an underl
   \\[\jot]&\equiv
   \frac{1}{\sqrt{2\pu\,\sigma^{2}}}\,
   \int_{\Phi^{-1}(\frac{x-1}{m})}^{\Phi^{-1}(\frac{x}{m})}
-  \exp\biggl[-\frac{(z-\mu)^{2}}{\sigma^{2}}\biggr]\, \di z \ .
+  \exp\biggl[-\frac{(z-\mu)^{2}}{2\,\sigma^{2}}\biggr]\, \di z \ .
 \end{split}
 \end{equation}
+The discretization points are chosen so that for $\mu=0$, $\sigma=1$ the distribution $K$ is uniform with constant value $1/m$.
 
 Discrete ordinal variates with other domains can be mapped onto $\set{1,\dotsc,m}$.
 
