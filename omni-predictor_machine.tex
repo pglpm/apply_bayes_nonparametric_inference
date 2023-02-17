@@ -1,7 +1,7 @@
 \pdfoutput=1
 %% Author: PGL  Porta Mana
 %% Created: 2015-05-01T20:53:34+0200
-%% Last-Updated: 2023-02-16T15:54:44+0100
+%% Last-Updated: 2023-02-17T15:16:07+0100
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newif\ifarxiv
 \arxivfalse
@@ -1203,7 +1203,7 @@ For an unbounded continuous variate $x \in \RR$ we choose a gaussian distributio
   \exp\biggl[-\frac{(x-\mu)^{2}}{2\,\sigma^{2}}\biggr]\, \di x \ .
 \end{equation}
 
-Variates with connected, open domains in the real line can transformed into this kind of variate. For example  a variate $z \in \opop{0, +\infty}$ can be transformed into $x=\ln z$.
+Variates with connected, open domains in the real line can transformed into this kind of variate. For example  a variate $z \in \opop{0, +\infty}$ can be transformed into $x=\ln z$, and a variate $z \in \opop{a,b}$  into $x=\Phi^{-1}\bigl(\frac{z-a}{b-a}\bigr)$.
 
 \paragraph{Binary variates}
 
@@ -1234,9 +1234,9 @@ Obviously the values $\set{a_{1}, \dotsc, a_{n}}$ can be set in one-one correspo
 
 \paragraph{Integer or discrete ordinal variates}
 
-By \enquote{discrete ordinal} variate we mean a variate $x$ assuming a discrete number $m$ of values which have a natural ordering, for example integers $x \in \set{1,\dotsc, m}$. The fact that they have a natural ordering has implications for smoothness, in a loose sense of this word. That is, we expect the probabilities for two consecutive values not to have excessive jumps. This is the difference between a categorical and a discrete-ordinal variate.
+By \enquote{discrete ordinal} variate it is meant a variate $x$ assuming a discrete number $m$ of values which have a natural ordering, for example integers $x \in \set{1,\dotsc, m}$. The fact that they have a natural ordering has implications for smoothness, in a loose sense of this word. That is, we expect the probabilities for two consecutive values not to have excessive jumps. This is the difference between a discrete-ordinal variate and the categorical one discussed above.
 
-For such a variate we can use a \enquote{discretized-gaussian} kernel with mean and variance parameters $(\mu,\sigma^{2})$:
+For such a variate we can use a \enquote{discretized-gaussian} distribution with mean and variance parameters $(\mu,\sigma^{2})$:
 \begin{equation}
   \label{eq:K_int}
   \begin{split}
@@ -1260,9 +1260,34 @@ Discrete ordinal variates with other domains can be mapped onto $\set{1,\dotsc,m
 
 \paragraph{Continuous censored variates}
 
-A \enquote{continuous censored} variate is meant here, more generally, to be a continuous variate with values in a \emph{closed} or semi-closed bounded set, for example $x \in \clcl{0,1}$ or $x \in \clop{0,1}$ or $x \in \clop{0,+\infty}$. Owing to the different topology of its domain, such variate cannot be mapped onto a continuous unbounded one, discussed above.
+A \enquote{continuous censored} variate is meant here, more generally, to be a continuous variate with values in a \emph{closed} or semi-closed bounded set, for example $x \in \clcl{0,1}$ or $x \in \clop{0,1}$ or $x \in \clop{0,+\infty}$. Owing to the different topology of its domain, such variate cannot be mapped onto a continuous unbounded one, previously discussed.
 
-The boundary value or values that such a variable can take often have a singular probability mass (delta distribution), which may arise from the fact that $x$ is censored, that is, it could in principle assume continuous values outside the boundary, but such values are truncated to the boundary one.
+The boundary value or values that such a variable can take often have a singular probability mass (delta distribution), which may arise from the fact that $x$ is censored, that is, it could in principle assume continuous values outside the boundaries, but such values are truncated to the boundary ones.
+
+For such a variate we can used a gaussian distribution with mean and variance parameters $(\mu,\sigma^{2})$, where the $q$-tails, for some $0<q<1/2$, represent the probability mass given to the boundary points.
+
+For a doubly-bounded variate $x \in \clcl{a,b}$:
+\begin{equation}
+  \label{eq:K_cens}
+    K(\di x \| \mu, \sigma^{2}) \defd
+    \begin{dcases}
+        \Phi\biggl[
+  \frac{\Phi^{-1}(q) - \mu}{\sigma}
+  \biggr]
+  &\text{if $x=a$}
+      \\[2\jot]
+        \Phi'\biggl(
+  \frac{\Phi^{-1}\bigl[(1-2\,q)\,\frac{x-a}{b-a}+q\bigr] - \mu}{\sigma}
+  \biggr)
+  \, \di x
+  &\text{if $a < x < b$}
+      \\[2\jot]
+        \Phi\biggl[
+  \frac{\Phi^{-1}(1-q) - \mu}{\sigma}
+  \biggr]
+  &\text{if $x=b$}
+    \end{dcases}
+\end{equation}
 
 
 \medskip
