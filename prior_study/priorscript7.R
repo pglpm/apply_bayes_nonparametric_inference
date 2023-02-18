@@ -27,98 +27,89 @@ nn <- 32
 
 #### Currently used ####
 
-#### continuous case
-####  @@@
+#### continuous variate
 sd2iqr <- 0.5/qnorm(0.75)
-dt <- fread('~/repositories/ledley-jaynes_machine/scripts/ingrid_data_nogds6.csv')
-varinfo <- data.matrix(read.csv('~/repositories/ledley-jaynes_machine/scripts/varinfo.csv',row.names=1))
+## dt <- fread('~/repositories/ledley-jaynes_machine/scripts/ingrid_data_nogds6.csv')
+## varinfo <- data.matrix(read.csv('~/repositories/ledley-jaynes_machine/scripts/varinfo.csv',row.names=1))
 graphics.off()
-pdff('samples_real_scales2')
-for(varindex in c('AGE','LRHHC_n_long')){
-if(!is.na(varindex)){
-    data <- log(dt[[varindex]])
-    data <- data[!is.na(data)]
-}else{data <- NULL}
+pdff('priorsamples_real')
 set.seed(123)
 ## tran <- function(x){qnorm(x*(1-2*dd)+dd)}
 ## jac <- function(x){1/dnorm(x*(1-2*dd)+dd)*(1-2*dd)}
-xlocation <- median(data,na.rm=T)
-xscale <- IQR(data,na.rm=T)*sd2iqr #diff(tquant(data,c(1,7)/8))
-xmin <- varinfo[varindex,'plotmin']
-xmax <- varinfo[varindex,'plotmax']
+xlocation <- 0
+xscale <- 1
+xmin <- -4
+xmax <- 4
 tran <- function(x){(x-xlocation)/xscale}
 invtran <- function(y){y*xscale+xlocation}
 jac <- function(y){1/xscale}
 ##
-fract <- 400
-nsamples <- fract*4
+## hyperparameters
+rowcol <- c(20,20)
+nsamples <- prod(rowcol)*4
 nclusters <- 64
-alphas <- 2^((-3):3)
-means <- c(0)
-sds <- c(2)
-shape1s <- c(1) # large scales
-shape2s <- c(1) # small scales
-sameshape <- TRUE
-hw <- 2
-scales <- (1 * 2^((-2):2))^2
+alpha0 <- 2^((-3):3)
+rmean0 <- 0
+rvar0 <- 2^2
+rshapein0 <- 1 # large scales
+rshapeout0 <- 1 # small scales
+hwidth <- 2 # number of powers of 2 to consider in either direction
+rvarscales <- (1 * 2^((-hwidth):hwidth))^2
 ##
-alpha <- sample(rep(alphas,2),nsamples,replace=T)
+alpha <- sample(rep(alpha0,2),nsamples,replace=T)
 q <- extraDistr::rdirichlet(n=nsamples,alpha=matrix(alpha/nclusters,nsamples,nclusters))
-sd <- sample(rep(sds,2),nsamples*nclusters,replace=T)
-m <- matrix(rnorm(nsamples*nclusters,means,sd),nsamples)
-shape1 <- sample(rep(shape1s,2),nsamples*nclusters,replace=T)
-if(sameshape){shape2 <- shape1}else{
-                                  shape2 <- sample(rep(shape2s,2),nsamples*nclusters,replace=T)
-                              }
-scalevar <- sample(rep(scales,2),nsamples*nclusters,replace=T)
-s <- matrix(sqrt(nimble::rinvgamma(nsamples*nclusters,shape=shape1,rate=nimble::rinvgamma(nsamples*nclusters,shape=shape2,rate=scalevar))),nsamples)
+sd <- sample(rep(sqrt(rvar0),2),nsamples*nclusters,replace=T)
+m <- matrix(rnorm(nsamples*nclusters,rmean0,sd),nsamples)
+shapein <- sample(rep(rshapein0,2),nsamples*nclusters,replace=T)
+shapeout <- sample(rep(rshapeout0,2),nsamples*nclusters,replace=T)
+scalevar <- sample(rep(rvarscales,2),nsamples*nclusters,replace=T)
+s <- matrix(sqrt(nimble::rinvgamma(nsamples*nclusters,shape=shapeout,rate=nimble::rinvgamma(nsamples*nclusters,shape=shapein,rate=scalevar))),nsamples)
 ##
-txgrid <- seq(-5, 5, length.out=256)
+txgrid <- seq(xmin, xmax, length.out=256)
 xgrid <- invtran(txgrid)
 ysum <- 0
 ## tplot(x=xgrid,y=dnorm(txgrid)*jac(xgrid))
-par(mfrow=c(20,20),mar = c(0,0,0,0))
+par(mfrow=rowcol,mar = c(0,0,0,0))
 for(i in 1:nsamples){
     y <- rowSums(sapply(1:nclusters,function(acluster){
-        dens <- dnorm(txgrid, m[i,acluster], s[i,acluster])*jac(txgrid)
-        q[i,acluster]*dens}))
+        q[i,acluster] *
+            dnorm(txgrid, m[i,acluster], s[i,acluster]) * jac(txgrid)
+    }))
     ysum <- ysum+y
-    if(i<fract | i==nsamples){
-    if(i==nsamples){y <- ysum/nsamples}
-    if(!is.null(data)){
-        his <- thist(data)
-        ymax <- max(y,his$density)
-    }else{ymax <- NULL}
+    if(i < prod(rowcol) | i==nsamples){
+    if(i == nsamples){y <- ysum/nsamples}
+    ## if(!is.null(data)){
+    ##     his <- thist(data)
+    ##     ymax <- max(y,his$density)
+    ## }else{ymax <- NULL}
+    ymax <- NULL
     tplot(x=xgrid, y=y,
           ylim=c(0,max(y,ymax)),xlim=range(xgrid),
           xlabels=NA,ylabels=NA, xlab=NA,ylab=NA,
           xticks=NA,yticks=NA,
           mar=c(1,1,1,1)*0.5,
-          col=if(i<fract){1}else{if(any(is.infinite(ysum))){2}else{3}}, ly=1,lwd=0.5)
+          col=(if(i < prod(rowcol)){1}else{if(any(is.infinite(ysum))){2}else{3}}), ly=1,lwd=0.5)
     ## tplot(x=xgrid[extr2], y=y[extr2],
     ##       type='p',col=4,cex=0.15,add=T,pch=3)
-    if(!is.null(data)){
-        tplot(x=his$mids,y=his$density,type='l',lwd=0.5,add=T,alpha=0.25,col=4)
-    }
-    abline(h=c(0),lwd=0.5,col=alpha2hex(0.5,c(7,2)),lty=c(1,2))
+    ## if(!is.null(data)){
+    ##     tplot(x=his$mids,y=his$density,type='l',lwd=0.5,add=T,alpha=0.25,col=4)
+    ## }
+    abline(h=c(0),lwd=0.5,col=alpha2hex2(0.5,c(7,2)),lty=c(1,2))
     if(i==nsamples){
-        abline(v=invtran(c(-1,1)),lwd=0.5,col=alpha2hex(0.5,c(2)),lty=1)
+        abline(v=invtran(c(-1,1)),lwd=0.5,col=alpha2hex(2,0.5),lty=1)
         ## abline(v=c(xmin,xmax),lwd=0.5,col=alpha2hex(0.5,7),lty=2)
     }
     }
 }
-}
 dev.off()
 
 
-#### @@@
-#### Integer
-#### with norm transformation IV
-dt <- fread('~/repositories/ledley-jaynes_machine/scripts/ingrid_data_nogds6.csv')
-varinfo <- readRDS('~/repositories/ledley-jaynes_machine/scripts/varinfo.rds')
+#### integer variate
+## dt <- fread('~/repositories/ledley-jaynes_machine/scripts/ingrid_data_nogds6.csv')
+## varinfo <- readRDS('~/repositories/ledley-jaynes_machine/scripts/varinfo.rds')
 pregrid <- 1
 graphics.off()
-pdff(paste0('samples_integer_scales2centre1'))
+pdff(paste0('priorsamples_integer'))
 variates <- names(varinfo[['type']])[varinfo[['type']] == 'I']
 nns <- sapply(variates,function(xxx){varinfo[['n']][xxx]})
 variates <- variates[order(nns)]
