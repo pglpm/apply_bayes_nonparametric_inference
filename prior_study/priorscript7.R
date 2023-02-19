@@ -112,13 +112,8 @@ pdff('priorsamples_2censored')
 set.seed(123)
 ## tran <- function(x){qnorm(x*(1-2*dd)+dd)}
 ## jac <- function(x){1/dnorm(x*(1-2*dd)+dd)*(1-2*dd)}
-xmin <- 0
-xmax <- 1
-qq <- 1/16
-tran <- function(x){qnorm((x-xmin)/(xmax-xmin)*(1-2*qq)+qq)}
-invtran <- function(y){(pnorm(y)-qq)*(xmax-xmin)/(1-2*qq)+xmin}
-jac <- function(y){(1-2*qq)/((xmax-xmin)*dnorm(y))}
-jacx <- function(x){(1-2*qq)/((xmax-xmin)*dnorm(tran(x)))}
+xmin <- -2
+xmax <- 2
 ##
 ## hyperparameters
 rowcol <- c(20,20)
@@ -126,11 +121,11 @@ nsamples <- prod(rowcol)*4
 nclusters <- 64
 alpha0 <- 2^((-3):3)
 dmean0 <- 0
-dvar0 <- 1^2
+dvar0 <- 2^2
 dshapein0 <- 1 # large scales
 dshapeout0 <- 1 # small scales
 hwidth <- 2 # number of powers of 2 to consider in either direction
-dvarscales <- (1/4 * 2^((-hwidth):hwidth))^2
+dvarscales <- (1 * 2^((-hwidth):hwidth))^2
 ##
 alpha <- sample(rep(alpha0,2),nsamples,replace=T)
 q <- extraDistr::rdirichlet(n=nsamples,alpha=matrix(alpha/nclusters,nsamples,nclusters))
@@ -142,15 +137,14 @@ scalevar <- sample(rep(dvarscales,2),nsamples*nclusters,replace=T)
 s <- matrix(sqrt(nimble::rinvgamma(nsamples*nclusters,shape=shapeout,rate=nimble::rinvgamma(nsamples*nclusters,shape=shapein,rate=scalevar))),nsamples)
 ##
 xgrid <- seq(xmin, xmax, length.out=256)
-txgrid <- tran(xgrid)
-bgrid <- txgrid[c(1,length(txgrid))]
+bgrid <- xgrid[c(1,length(xgrid))]
 ysum <- ybsum <- 0
 ## tplot(x=xgrid,y=dnorm(txgrid)*jac(xgrid))
 par(mfrow=rowcol,mar = c(0,0,0,0))
 for(i in 1:nsamples){
     y <- rowSums(sapply(1:nclusters,function(acluster){
         q[i,acluster] *
-            dnorm(txgrid, m[i,acluster], s[i,acluster]) * jac(txgrid)
+            dnorm(xgrid, m[i,acluster], s[i,acluster])
     }))
     yb <- rowSums(sapply(1:nclusters,function(acluster){
         q[i,acluster] *
@@ -277,6 +271,98 @@ dev.off()
 ########################
 
 
+#### doubly-censored variate
+sd2iqr <- 0.5/qnorm(0.75)
+## dt <- fread('~/repositories/ledley-jaynes_machine/scripts/ingrid_data_nogds6.csv')
+## varinfo <- data.matrix(read.csv('~/repositories/ledley-jaynes_machine/scripts/varinfo.csv',row.names=1))
+graphics.off()
+pdff('priorsamples_2censored')
+set.seed(123)
+## tran <- function(x){qnorm(x*(1-2*dd)+dd)}
+## jac <- function(x){1/dnorm(x*(1-2*dd)+dd)*(1-2*dd)}
+xmin <- 0
+xmax <- 1
+qq <- 1/16
+tran <- function(x){qnorm((x-xmin)/(xmax-xmin)*(1-2*qq)+qq)}
+invtran <- function(y){(pnorm(y)-qq)*(xmax-xmin)/(1-2*qq)+xmin}
+jac <- function(y){(1-2*qq)/((xmax-xmin)*dnorm(y))}
+jacx <- function(x){(1-2*qq)/((xmax-xmin)*dnorm(tran(x)))}
+##
+## hyperparameters
+rowcol <- c(20,20)
+nsamples <- prod(rowcol)*4
+nclusters <- 64
+alpha0 <- 2^((-3):3)
+dmean0 <- 0
+dvar0 <- 1^2
+dshapein0 <- 1 # large scales
+dshapeout0 <- 1 # small scales
+hwidth <- 2 # number of powers of 2 to consider in either direction
+dvarscales <- (1/4 * 2^((-hwidth):hwidth))^2
+##
+alpha <- sample(rep(alpha0,2),nsamples,replace=T)
+q <- extraDistr::rdirichlet(n=nsamples,alpha=matrix(alpha/nclusters,nsamples,nclusters))
+sd <- sample(rep(sqrt(dvar0),2),nsamples*nclusters,replace=T)
+m <- matrix(rnorm(nsamples*nclusters,dmean0,sd),nsamples)
+shapein <- sample(rep(dshapein0,2),nsamples*nclusters,replace=T)
+shapeout <- sample(rep(dshapeout0,2),nsamples*nclusters,replace=T)
+scalevar <- sample(rep(dvarscales,2),nsamples*nclusters,replace=T)
+s <- matrix(sqrt(nimble::rinvgamma(nsamples*nclusters,shape=shapeout,rate=nimble::rinvgamma(nsamples*nclusters,shape=shapein,rate=scalevar))),nsamples)
+##
+xgrid <- seq(xmin, xmax, length.out=256)
+txgrid <- tran(xgrid)
+bgrid <- txgrid[c(1,length(txgrid))]
+ysum <- ybsum <- 0
+## tplot(x=xgrid,y=dnorm(txgrid)*jac(xgrid))
+par(mfrow=rowcol,mar = c(0,0,0,0))
+for(i in 1:nsamples){
+    y <- rowSums(sapply(1:nclusters,function(acluster){
+        q[i,acluster] *
+            dnorm(txgrid, m[i,acluster], s[i,acluster]) * jac(txgrid)
+    }))
+    yb <- rowSums(sapply(1:nclusters,function(acluster){
+        q[i,acluster] *
+            pnorm(bgrid*c(1,-1), c(1,-1)*m[i,acluster], s[i,acluster])
+            ## c(pnorm(bgrid[1], c(1,-1)*m[i,acluster], s[i,acluster]),
+            ##   pnorm(bgrid[2], m[i,acluster], s[i,acluster], lower.tail=F))
+    }))
+    ysum <- ysum+y
+    ybsum <- ybsum+yb
+    if(i < prod(rowcol) | i==nsamples){
+    if(i == nsamples){y <- ysum/nsamples}
+    ## if(!is.null(data)){
+    ##     his <- thist(data)
+    ##     ymax <- max(y,his$density)
+    ## }else{ymax <- NULL}
+    ymax <- NULL
+    tplot(x=xgrid, y=y,
+          ylim=c(0,max(y,ymax)),xlim=range(xgrid),
+          xlabels=NA,ylabels=NA, xlab=NA,ylab=NA,
+          xticks=NA,yticks=NA,
+          mar=c(1,1,1,1)*0.5,
+          col=(if(i < prod(rowcol)){1}else{if(any(is.infinite(ysum))){2}else{3}}),
+          ly=1,lwd=0.5)
+    tplot(x=cbind(c(xmin,xmin),c(xmax,xmax)), y=rbind(0,yb)*max(y),
+          type='l', lty=1, lwd=0.1,
+          col=(if(i < prod(rowcol)){1}else{if(any(is.infinite(ysum))){2}else{3}}),
+          add=T)
+    tplot(x=c(xmin,xmax), y=yb*max(y),
+          type='p', cex=0.2,
+          col=(if(i < prod(rowcol)){1}else{if(any(is.infinite(ysum))){2}else{3}}),
+          add=T)
+    ## tplot(x=xgrid[extr2], y=y[extr2],
+    ##       type='p',col=4,cex=0.15,add=T,pch=3)
+    ## if(!is.null(data)){
+    ##     tplot(x=his$mids,y=his$density,type='l',lwd=0.5,add=T,alpha=0.25,col=4)
+    ## }
+    abline(h=c(0,max(y)),lwd=0.5,col=alpha2hex2(0.5,c(7,7)),lty=c(1,2))
+    ## if(i==nsamples){
+    ##     abline(v=invtran(c(-1,1)),lwd=0.5,col=alpha2hex(2,0.5),lty=1)
+    ##     ## abline(v=c(xmin,xmax),lwd=0.5,col=alpha2hex(0.5,7),lty=2)
+    ## }
+    }
+}
+dev.off()
 
 
 

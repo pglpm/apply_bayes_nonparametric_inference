@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2022-09-08T17:03:24+0200
-## Last-Updated: 2023-01-02T14:06:17+0100
+## Last-Updated: 2023-02-19T17:32:29+0100
 #########################################
 ## Inference of exchangeable variates (nonparametric density regression)
 ## using effectively-infinite mixture of product kernels
@@ -102,51 +102,63 @@ transf <- function(x, varinfo, Iout='init', Oout='data', Dout='data', Bout='data
                 datum <- datum * info$scale + info$location
             }
             ##
-        } else if(info$type == 'O'){ # one-censored
+        } else if(info$type == 'D'){ # censored
             if (info$transform == 'log'){
                 datum <- log(datum-info$min)
                 rightbound <- log(info$tmax-info$min)
+                leftbound <- log(info$tmin-info$min)
             }else if (info$transform == 'probit'){
                 datum <- qnorm((datum-info$min)/(info$max-info$min))
                 rightbound <- qnorm((info$tmax-info$min)/(info$max-info$min))
+                leftbound <- qnorm((info$tmin-info$min)/(info$max-info$min))
             }
             datum <- (datum-info$location)/info$scale
             rightbound <- (rightbound-info$location)/info$scale
+            leftbound <- (leftbound-info$location)/info$scale
             if(Oout == 'left'){ # in MCMC
                 sel <- is.na(datum) | (x[,v] < info$tmax)
                 datum[sel] <- -Inf
                 datum[!sel] <- rightbound
+            if(Oout == 'right'){ # in MCMC
+                sel <- is.na(datum) | (x[,v] > info$tmin)
+                datum[sel] <- +Inf
+                datum[!sel] <- leftbound
             } else if(Oout == 'data'){ # data in MCMC
-                sel <- is.na(datum) | (x[,v] >= info$tmax)
+                sel <- is.na(datum) | (x[,v] >= info$tmax) | (x[,v] <= info$tmin)
                 datum[sel] <- NA
             } else if(Oout == 'init'){ #init in MCMC
                 datum[is.na(datum)] <- 0L
-                datum[x[,v] >= info$tmax] <- rightbound+0.125
+                datum[x[,v] >= info$tmax] <- rightbound + 0.125
+                datum[x[,v] <= info$tmin] <- leftbound - 0.125
             } else if(Oout == 'index'){ #in sampling functions
                 datum[x[,v] >= info$tmax] <- +Inf
+                datum[x[,v] <= info$tmin] <- -Inf
             }
             ##
-        } else if(info$type == 'D'){ # continuous doubly-bounded
-            warning('D not ready')
-            ## datum <- trans0(datum)
-            ## if(Dout == 'left'){ # in sampling functions
-            ##     sel <- is.na(datum) | (x[,v] < varinfo[['max']][v])
-            ##     datum[sel] <- -Inf
-            ##     datum[!sel] <- qnorm(1-info['n'])
-            ## } else if(Dout == 'right'){ # in sampling functions
-            ##     sel <- is.na(datum) | (x[,v] > varinfo[['min']][v])
-            ##     datum[sel] <- +Inf
-            ##     datum[!sel] <- qnorm(info['n'])
-            ## } else if(Dout == 'data'){ # as init for MCMC
-            ##     datum[is.na(datum) | (x[,v] >= varinfo[['max']][v]) | (x[,v] <= varinfo[['min']][v])] <- NA
-            ## } else if(Dout == 'init'){ # as init for MCMC
-            ##     datum[is.na(datum)] <- 0L
-            ##     datum[(x[,v] >= varinfo[['max']][v])] <- qnorm(1-info['n'])+0.125
-            ##     datum[(x[,v] <= varinfo[['min']][v])] <- qnorm(info['n'])-0.125
-            ## } else if(Dout == 'index'){ # in sampling functions
-            ##     datum[(x[,v] >= varinfo[['max']][v])] <- +Inf
-            ##     datum[(x[,v] <= varinfo[['min']][v])] <- -Inf
-            ## }
+        ## } else if(info$type == 'O'){ # one-censored
+        ##     if (info$transform == 'log'){
+        ##         datum <- log(datum-info$min)
+        ##         rightbound <- log(info$tmax-info$min)
+        ##     }else if (info$transform == 'probit'){
+        ##         datum <- qnorm((datum-info$min)/(info$max-info$min))
+        ##         rightbound <- qnorm((info$tmax-info$min)/(info$max-info$min))
+        ##     }
+        ##     datum <- (datum-info$location)/info$scale
+        ##     rightbound <- (rightbound-info$location)/info$scale
+        ##     if(Oout == 'left'){ # in MCMC
+        ##         sel <- is.na(datum) | (x[,v] < info$tmax)
+        ##         datum[sel] <- -Inf
+        ##         datum[!sel] <- rightbound
+        ##     } else if(Oout == 'data'){ # data in MCMC
+        ##         sel <- is.na(datum) | (x[,v] >= info$tmax)
+        ##         datum[sel] <- NA
+        ##     } else if(Oout == 'init'){ #init in MCMC
+        ##         datum[is.na(datum)] <- 0L
+        ##         datum[x[,v] >= info$tmax] <- rightbound+0.125
+        ##     } else if(Oout == 'index'){ #in sampling functions
+        ##         datum[x[,v] >= info$tmax] <- +Inf
+        ##     }
+        ##     ##
         }
         datum
     }),ncol=ncol(x),dimnames=list(NULL,colnames(x)))
