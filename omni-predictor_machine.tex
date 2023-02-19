@@ -1,7 +1,7 @@
 \pdfoutput=1
 %% Author: PGL  Porta Mana
 %% Created: 2015-05-01T20:53:34+0200
-%% Last-Updated: 2023-02-17T15:16:07+0100
+%% Last-Updated: 2023-02-19T16:58:26+0100
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newif\ifarxiv
 \arxivfalse
@@ -1193,27 +1193,20 @@ The choice of parametric distribution $K$ for each variate depends on the mathem
 and $\Phi^{-1}\colon \clcl{0,1}\to\set{-\infty}\cup\RR\cup\set{+\infty}$ its inverse (\enquote{probit} function).
 
 
-\paragraph{Unbounded continuous variates}
-
-For an unbounded continuous variate $x \in \RR$ we choose a gaussian distribution with mean and variance as the parameters $\xi=(\mu, \sigma^{2})$:
-\begin{equation}
-  \label{eq:K_unb_cont}
-  K(\di x \| \mu,\sigma^{2}) \defd \Phi'\biggl(\frac{x-\mu}{\sigma}\biggr)\, \di x
-  \equiv \frac{1}{\sqrt{2\pu\,\sigma^{2}}}\,
-  \exp\biggl[-\frac{(x-\mu)^{2}}{2\,\sigma^{2}}\biggr]\, \di x \ .
-\end{equation}
-
-Variates with connected, open domains in the real line can transformed into this kind of variate. For example  a variate $z \in \opop{0, +\infty}$ can be transformed into $x=\ln z$, and a variate $z \in \opop{a,b}$  into $x=\Phi^{-1}\bigl(\frac{z-a}{b-a}\bigr)$.
 
 \paragraph{Binary variates}
 
 For a binary variate $x \in \set{0,1}$ we choose a Bernoulli distribution with weight parameter $\xi=q$:
 \begin{equation}
   \label{eq:K_bin}
-  K(x \| q) \defd x\, q + (1-x)\,(1-q) \equiv
+  \begin{split}
+    &x \in \set{0,1}:
+\\
+    &K(x \| q) \defd x\, q + (1-x)\,(1-q) \equiv
   \begin{cases}
     q&\text{ if $x=1$} \\1-q&\text{ if $x=0$}
   \end{cases}
+\end{split}
 \end{equation}
 
 Obviously any other binary values $\set{a,b}$ can be mapped into $\set{0,1}$.
@@ -1223,11 +1216,15 @@ Obviously any other binary values $\set{a,b}$ can be mapped into $\set{0,1}$.
 For a categorical variate with $n$ possible values, $x \in \set{a_{1}, \dotsc, a_{n}}$, we choose a categorical distribution with normalized weight parameters $q \defd (q_{1}, \dotsc, q_{n})$:
 \begin{equation}
   \label{eq:K_cat}
-  K(x \| q) \defd \sum_{i=1}^{n} q_{i}\,\delt(x\mo a_{i}) \equiv
+  \begin{split}
+    &x \in \set{a_{1}, \dotsc, a_{n}}:
+    \\
+  &K(x \| q) \defd \sum_{i=1}^{n} q_{i}\,\delt(x\mo a_{i}) \equiv
   \begin{cases}
     q_{1} &\text{ if $x=a_{1}$}\\\dotso&\\
     q_{n} &\text{ if $x=a_{n}$}
   \end{cases}
+\end{split}
 \end{equation}
 
 Obviously the values $\set{a_{1}, \dotsc, a_{n}}$ can be set in one-one correspondence with $\set{1, \dotsc, n}$.
@@ -1240,6 +1237,9 @@ For such a variate we can use a \enquote{discretized-gaussian} distribution with
 \begin{equation}
   \label{eq:K_int}
   \begin{split}
+    &x \in \set{1,\dotsc, m}:
+    \\
+    &\!\begin{aligned}
   K(x \| \mu, \sigma^{2}) &\defd
   \Phi\biggl[
   \frac{\Phi^{-1}\bigl(\frac{x}{m}\bigr) - \mu}{\sigma}
@@ -1252,42 +1252,65 @@ For such a variate we can use a \enquote{discretized-gaussian} distribution with
   \frac{1}{\sqrt{2\pu\,\sigma^{2}}}\,
   \int_{\Phi^{-1}(\frac{x-1}{m})}^{\Phi^{-1}(\frac{x}{m})}
   \exp\biggl[-\frac{(z-\mu)^{2}}{2\,\sigma^{2}}\biggr]\, \di z \ .
+\end{aligned}
 \end{split}
 \end{equation}
 The discretization points are chosen so that for $\mu=0$, $\sigma=1$ the distribution $K$ is uniform with constant value $1/m$.
 
 Discrete ordinal variates with other domains can be mapped onto $\set{1,\dotsc,m}$.
 
+\paragraph{Continuous unbounded variates}
+
+For a continuous unbounded variate $x \in \RR$ we choose a gaussian distribution with mean and variance as the parameters $\xi=(\mu, \sigma^{2})$:
+\begin{equation}
+  \label{eq:K_unb_cont}
+  \begin{split}
+    &x \in \RR:
+    \\
+  &K(\di x \| \mu,\sigma^{2}) \defd \Phi'\biggl(\frac{x-\mu}{\sigma}\biggr)\, \di x
+  \equiv \frac{1}{\sqrt{2\pu\,\sigma^{2}}}\,
+  \exp\biggl[-\frac{(x-\mu)^{2}}{2\,\sigma^{2}}\biggr]\, \di x \ .
+\end{split}
+\end{equation}
+
 \paragraph{Continuous censored variates}
 
-A \enquote{continuous censored} variate is meant here, more generally, to be a continuous variate with values in a \emph{closed} or semi-closed bounded set, for example $x \in \clcl{0,1}$ or $x \in \clop{0,1}$ or $x \in \clop{0,+\infty}$. Owing to the different topology of its domain, such variate cannot be mapped onto a continuous unbounded one, previously discussed.
+A \enquote{continuous censored} variate is meant here, more generally, to be a continuous variate with values in a \emph{closed} or semi-closed bounded set, for example $x \in \clcl{a,b}$ or $x \in \clop{a,+\infty}$. Owing to the topology of its domain, such variate cannot be mapped onto a continuous unbounded one, previously discussed.
 
 The boundary value or values that such a variable can take often have a singular probability mass (delta distribution), which may arise from the fact that $x$ is censored, that is, it could in principle assume continuous values outside the boundaries, but such values are truncated to the boundary ones.
 
-For such a variate we can used a gaussian distribution with mean and variance parameters $(\mu,\sigma^{2})$, where the $q$-tails, for some $0<q<1/2$, represent the probability mass given to the boundary points.
-
-For a doubly-bounded variate $x \in \clcl{a,b}$:
+For such a variate we can use a gaussian distribution with mean and variance parameters $(\mu,\sigma^{2})$, where the $x \le a$ and $x \ge b$ tails represent the probability mass given to the boundary points:
 \begin{equation}
-  \label{eq:K_cens}
-    K(\di x \| \mu, \sigma^{2}) \defd
+  \begin{split}
+    \label{eq:K_cens}
+    &x \in \clcl{a,b}:
+    \\
+    &K(\di x \| \mu, \sigma^{2}) \defd
     \begin{dcases}
-        \Phi\biggl[
-  \frac{\Phi^{-1}(q) - \mu}{\sigma}
-  \biggr]
+        \Phi\Bigl(
+  \frac{a - \mu}{\sigma}
+  \Bigr)
   &\text{if $x=a$}
       \\[2\jot]
-        \Phi'\biggl(
-  \frac{\Phi^{-1}\bigl[(1-2\,q)\,\frac{x-a}{b-a}+q\bigr] - \mu}{\sigma}
-  \biggr)
+        \Phi'\Bigl(
+  \frac{x - \mu}{\sigma}
+  \Bigr)
   \, \di x
   &\text{if $a < x < b$}
       \\[2\jot]
-        \Phi\biggl[
-  \frac{\Phi^{-1}(1-q) - \mu}{\sigma}
-  \biggr]
+        \Phi\Bigl(
+  -\frac{b - \mu}{\sigma}
+  \Bigr)
   &\text{if $x=b$}
     \end{dcases}
+  \end{split}
 \end{equation}
+The semi-bounded case $x \in \clop{a,+\infty}$ can be obtained with obvious adjustments. The continuous non-bounded case previously discussed can be seen as a limit case of the present one for $a\to -\infty$, $b\to +\infty$.
+
+\paragraph{Other continuous variates}
+
+Other continuous variates with connected, open or semi-open domains in the real line can transformed into the continuous unbounded or censored ones discussed last with appropriate transformations. For example a variate $z \in \opop{0, +\infty}$ can be transformed into $x=\ln z$, a variate $z \in \opop{a,b}$ into $x=\Phi^{-1}\bigl(\frac{z-a}{b-a}\bigr)$, and a variate $z \in \clop{0, +\infty}$ into $x=\ln(z+a)$ for some $a>0$, to be treated as a censoring value. These kinds of transformation are often suggested by the nature of the original variate.
+
 
 
 \medskip
