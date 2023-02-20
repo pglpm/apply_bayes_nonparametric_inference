@@ -1,27 +1,57 @@
 * Variate info
 ** type
-| Continuous (real)            |  0 |R
-| Int discrete ordinal         |  1 |I
-| Binary                       |  2 |B
-| Categorical                  |  3 |C
-| Continuous strictly positive | -1 |R
-| Continuous doubly bounded    | -2 |D
+| Continuous (real)          |  0 | R |
+| Binary                     |  2 | B |
+| Categorical                |  3 | C |
+| Discrete ordinal (integer) |  1 | I |
+| Censored                   | -1 | D |
+
+** transformation
+| 0 | id     |
+| 1 | log    |
+| 2 | probit |
+
+** min (theoretical)
+** max (theoretical)
+
+| Continuous (real)          | min | max |
+| Binary                     | min | max |
+| Categorical                | min | max |
+| Discrete ordinal (integer) | min | max |
+| Censored                   | min | max |
+
+
+** left truncation
+** right truncation
 
 ** location
-|  0 | Continuous (real)            | median     |                      |
-|  1 | Int discrete ordinal         | N*m-M      | d=(M-m)/(N-1)        |
-|  2 | Binary                       | 0          |                      |
-|  3 | Categorical                  | 0          |                      |
-| -1 | Continuous strictly positive | log-median |                      |
-| -2 | Continuous doubly bounded    | m-d*scale  | d=(m-location)/scale |
+
+*** Discrete ordinal (integer) variates are assumed to take on a set of equispaced values. These must be translated into:
+- Ileft values in the MCMC algorithm: defining the left boundary of the interval corresponding to that value
+- Iright values in the MCMC algorithm: ditto for the right boundary
+- location & scale are chosen so as to obtain a range {0,...,N-1}:
+- then
+  Ileft = qnorm( pmax(0, round((x-loc)/sca))/N )
+  Iright = qnorm( pmin(N, 1+round((x-loc)/sca))/N )
+
+*** Categorical variates are assumed to take on a set of equispaced values
+- location & scale are chosen so as to obtain a range {0,...,N-1}:
+- then
+  value = round((x-loc)/sca)+1
+
+| Continuous (real)          | median |
+| Binary                     | min    |
+| Categorical                | min    |
+| Discrete ordinal (integer) | min    |
+| Censored                   | median |
 
 ** scale
-|  0 | Continuous (real)            | IQR           |                      |
-|  1 | Int discrete ordinal         | (M-m)/(N-1)   | N=1+(M-m)/d          |
-|  2 | Binary                       | 1             |                      |
-|  3 | Categorical                  | 1             |                      |
-| -1 | Continuous strictly positive | log-IQR       |                      |
-| -2 | Continuous doubly bounded    | (M-m)/(1-2*d) | d=pnorm(qnorm(2^-6)) |
+| Continuous (real)          | IQR or MAD      |
+| Binary                     | max-min         |
+| Categorical                | (max-min)/(N-1) |
+| Discrete ordinal (integer) | (max-min)/(N-1) |
+| Censored                   | IQR or MAD      |
+
 
 ** min
 |  0 | Continuous (real)            | min |
