@@ -197,7 +197,7 @@ sd2iqr <- 0.5/qnorm(0.75)
 ## varinfo <- data.matrix(read.csv('~/repositories/ledley-jaynes_machine/scripts/varinfo.csv',row.names=1))
 graphics.off()
 pdff(paste0('priorsamples_integer'))
-for(nint in c(5,10,32,100)){
+for(nint in c(5,10,32,100,330)){
 set.seed(123)
 ## tran <- function(x){qnorm(x*(1-2*dd)+dd)}
 ## jac <- function(x){1/dnorm(x*(1-2*dd)+dd)*(1-2*dd)}
@@ -229,6 +229,89 @@ s <- matrix(sqrt(nimble::rinvgamma(nsamples*nclusters,shape=shapeout,rate=nimble
 ##
 xgrid <- seq(nmin,nmax,length.out=nint)
 mgrid <- qnorm(seq(0,1,length.out=nint+1))
+## kkk <- 1
+## mgrid <- qnorm(c(0, seq(1/(kkk*nint), (kkk*nint-1)/(kkk*nint), length.out=nint-1), 1))
+ysum <- 0
+## tplot(x=xgrid,y=dnorm(txgrid)*jac(xgrid))
+par(mfrow=rowcol,mar = c(0,0,0,0))
+for(i in 1:nsamples){
+    y <- rowSums(sapply(1:nclusters,function(acluster){
+        q[i,acluster] *
+    diff(pnorm(mgrid, m[i,acluster], s[i,acluster]))
+    }))
+    ysum <- ysum+y
+    if(i < prod(rowcol) | i==nsamples){
+    if(i == nsamples){y <- ysum/nsamples}
+    ## if(!is.null(data)){
+    ##     his <- thist(data)
+    ##     ymax <- max(y,his$density)
+    ## }else{ymax <- NULL}
+    ymax <- NULL
+    tplot(x=xgrid, y=y,
+          ylim=c(0,max(y,ymax)),xlim=range(xgrid),
+          xlabels=NA,ylabels=NA, xlab=NA,ylab=NA,
+          xticks=NA,yticks=NA,
+          mar=c(1,1,1,1)*0.5,
+          col=(if(i < prod(rowcol)){1}else{if(any(is.infinite(ysum))){2}else{3}}), ly=1,lwd=0.5)
+    ## tplot(x=xgrid[extr2], y=y[extr2],
+    ##       type='p',col=4,cex=0.15,add=T,pch=3)
+    ## if(!is.null(data)){
+    ##     tplot(x=his$mids,y=his$density,type='l',lwd=0.5,add=T,alpha=0.25,col=4)
+    ## }
+    abline(h=c(0),lwd=0.5,col=alpha2hex2(0.5,c(7,2)),lty=c(1,2))
+    if(i==nsamples){text(nint/2,max(y)*0.9,nint,cex=0.5)}
+    ## if(i==nsamples){
+    ##     abline(v=invtran(c(-1,1)),lwd=0.5,col=alpha2hex(2,0.5),lty=1)
+    ##     ## abline(v=c(xmin,xmax),lwd=0.5,col=alpha2hex(0.5,7),lty=2)
+    ## }
+    }
+}
+}
+dev.off()
+
+#### integer variate
+sd2iqr <- 0.5/qnorm(0.75)
+## dt <- fread('~/repositories/ledley-jaynes_machine/scripts/ingrid_data_nogds6.csv')
+## varinfo <- data.matrix(read.csv('~/repositories/ledley-jaynes_machine/scripts/varinfo.csv',row.names=1))
+graphics.off()
+pdff(paste0('priorsamples_integer2'))
+for(nint in c(5,10,32,100,330)){
+set.seed(123)
+## tran <- function(x){qnorm(x*(1-2*dd)+dd)}
+## jac <- function(x){1/dnorm(x*(1-2*dd)+dd)*(1-2*dd)}
+nmin <- 1
+nmax <- nint
+dd <- (nint-2)/(2*nint^2)#
+tran <- function(x){qnorm((x-nmin)/(nmax-nmin)*(1-2*dd)+dd)}
+##
+## hyperparameters
+rowcol <- c(20,20)
+nsamples <- prod(rowcol)*4
+nclusters <- 64
+alpha0 <- 2^((-3):3)
+imean0 <- 0
+ivar0 <- 2^2
+ishapein0 <- 1 # large scales
+ishapeout0 <- 1 # small scales
+hwidth <- 2 # number of powers of 2 to consider in either direction
+ivarscales <- (1 * 2^((-hwidth):hwidth))^2
+##
+alpha <- sample(rep(alpha0,2),nsamples,replace=T)
+q <- extraDistr::rdirichlet(n=nsamples,alpha=matrix(alpha/nclusters,nsamples,nclusters))
+sd <- sample(rep(sqrt(ivar0),2),nsamples*nclusters,replace=T)
+m <- matrix(rnorm(nsamples*nclusters,imean0,sd),nsamples)
+shapein <- sample(rep(ishapein0,2),nsamples*nclusters,replace=T)
+shapeout <- sample(rep(ishapeout0,2),nsamples*nclusters,replace=T)
+scalevar <- sample(rep(ivarscales,2),nsamples*nclusters,replace=T)
+s <- matrix(sqrt(nimble::rinvgamma(nsamples*nclusters,shape=shapeout,rate=nimble::rinvgamma(nsamples*nclusters,shape=shapein,rate=scalevar))),nsamples)
+##
+xgrid <- seq(nmin,nmax,length.out=nint)
+## mgrid <- qnorm(seq(0,1,length.out=nint+1),mean=0,sd=4)
+## mgrid <- qcauchy(seq(0,1,length.out=nint+1),location=0,scale=2)
+## mgrid <- qlogis(seq(0,1,length.out=nint+1),location=0,scale=2)
+mgrid <- 2.25*qt(seq(0,1,length.out=nint+1),df=2.25)
+## kkk <- 1
+## mgrid <- qnorm(c(0, seq(1/(kkk*nint), (kkk*nint-1)/(kkk*nint), length.out=nint-1), 1))
 ysum <- 0
 ## tplot(x=xgrid,y=dnorm(txgrid)*jac(xgrid))
 par(mfrow=rowcol,mar = c(0,0,0,0))

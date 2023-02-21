@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2022-09-08T17:03:24+0200
-## Last-Updated: 2023-02-19T17:32:29+0100
+## Last-Updated: 2023-02-21T14:29:05+0100
 #########################################
 ## Inference of exchangeable variates (nonparametric density regression)
 ## using effectively-infinite mixture of product kernels
@@ -63,7 +63,7 @@ variatetypes <- c( 'categorical'='C', 'binary'='B', 'ordinal'='I', 'continuous'=
 
 
 ## Transformation from variate to internal variable
-transf <- function(x, varinfo, Iout='init', Oout='data', Dout='data', Bout='data', variates=NULL){ # 'in' 'data' 'aux'
+transf <- function(x, varinfo, Iout='init', Oout='data', Dout='data', Bout='data', variates=NULL, Ifunction='qnorm'){ # 'in' 'data' 'aux'
     x <- cbind(data.matrix(x))
     if(!is.null(variates)){colnames(x) <- variates}
     matrix(sapply(colnames(x), function(v){
@@ -80,15 +80,17 @@ transf <- function(x, varinfo, Iout='init', Oout='data', Dout='data', Bout='data
             datum <- (datum-info$location)/info$scale
             ##
         } else if(info$type == 'I'){ # integer, discrete ordinal
+            if(Ifunction == 'qnorm'){Ifunction <- qnorm
+            } else if(Ifunction == 'qt'){Ifunction <- function(xxx){2.25*qt(xxx,df=2.25)}}
             datum <- round((datum-info$location)/info$scale) # output is in range 0 to n-1
             if(Iout == 'init'){ # in sampling functions or init MCMC
                 datum[is.na(datum)] <- round(info$n/2-0.5)
-                datum <- qnorm((datum+0.5)/info$n)
+                datum <- Ifunction((datum+0.5)/info$n)
             } else if(Iout == 'left'){ # as left for MCMC
-                datum <- qnorm(pmax(0,datum)/info$n)
+                datum <- Ifunction(pmax(0,datum)/info$n)
                 datum[is.na(datum)] <- -Inf
             } else if(Iout == 'right'){ # as right for MCMC
-                datum <- qnorm(pmin(info$n,datum+1)/info$n)
+                datum <- Ifunction(pmin(info$n,datum+1)/info$n)
                 datum[is.na(datum)] <- +Inf
             } else if(Iout == 'index'){ # in output functions
                 datum <- datum+1L
@@ -115,22 +117,22 @@ transf <- function(x, varinfo, Iout='init', Oout='data', Dout='data', Bout='data
             datum <- (datum-info$location)/info$scale
             rightbound <- (rightbound-info$location)/info$scale
             leftbound <- (leftbound-info$location)/info$scale
-            if(Oout == 'left'){ # in MCMC
+            if(Dout == 'left'){ # in MCMC
                 sel <- is.na(datum) | (x[,v] < info$tmax)
                 datum[sel] <- -Inf
                 datum[!sel] <- rightbound
-            if(Oout == 'right'){ # in MCMC
+            } else if(Dout == 'right'){ # in MCMC
                 sel <- is.na(datum) | (x[,v] > info$tmin)
                 datum[sel] <- +Inf
                 datum[!sel] <- leftbound
-            } else if(Oout == 'data'){ # data in MCMC
+            } else if(Dout == 'data'){ # data in MCMC
                 sel <- is.na(datum) | (x[,v] >= info$tmax) | (x[,v] <= info$tmin)
                 datum[sel] <- NA
-            } else if(Oout == 'init'){ #init in MCMC
+            } else if(Dout == 'init'){ #init in MCMC
                 datum[is.na(datum)] <- 0L
                 datum[x[,v] >= info$tmax] <- rightbound + 0.125
                 datum[x[,v] <= info$tmin] <- leftbound - 0.125
-            } else if(Oout == 'index'){ #in sampling functions
+            } else if(Dout == 'index'){ #in sampling functions
                 datum[x[,v] >= info$tmax] <- +Inf
                 datum[x[,v] <= info$tmin] <- -Inf
             }

@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2022-09-08T17:03:24+0200
-## Last-Updated: 2023-02-19T17:36:52+0100
+## Last-Updated: 2023-02-21T14:49:54+0100
 #########################################
 ## Inference of exchangeable variates (nonparametric density regression)
 ## using effectively-infinite mixture of product kernels
@@ -51,11 +51,19 @@ dshapein0 <- 1
 dshapeout0 <- 1
 dvarscales <- (1 * 2^((-hwidth):hwidth))^2
 ##
+## imean0 <- 0
+## ivar0 <- 2^2
+## ishapein0 <- 1
+## ishapeout0 <- 1
+## ivarscales <- (1 * 2^((-hwidth):hwidth))^2
+## ifunction <- 'qt'
+### alternative
 imean0 <- 0
 ivar0 <- (7/8)^2
 ishapein0 <- 1
 ishapeout0 <- 1
 ivarscales <- ((1/4) * 2^((-hwidth):hwidth))^2
+ifunction <- 'qnorm'
 ##
 bshapein0 <- 1
 bshapeout0 <- 1
@@ -190,8 +198,8 @@ datapoints = c(
                   )},
     ## integer
     if(len$I > 0){list(
-                   Ileft = transf(data0[,variate$I,with=F], varinfo, Iout='left'),
-                   Iright = transf(data0[,variate$I,with=F], varinfo, Iout='right'),
+                   Ileft = transf(data0[,variate$I,with=F], varinfo, Iout='left', Ifunction=ifunction),
+                   Iright = transf(data0[,variate$I,with=F], varinfo, Iout='right', Ifunction=ifunction),
                    Iaux = matrix(1L, nrow=ndata, ncol=len$I)
     )},
     ## binary
@@ -362,7 +370,7 @@ initsFunction <- function(){
                      Ivar = sIvar
                      ),
                      if(posterior){list(
-                     Icont = transf(data0[,variate$I,with=F], varinfo, Iout='init')
+                     Icont = transf(data0[,variate$I,with=F], varinfo, Iout='init', Ifunction=ifunction)
                                    )}
                      )},
         if(len$B > 0){list( # binay variate
