@@ -1,7 +1,7 @@
 \pdfoutput=1
 %% Author: PGL  Porta Mana
 %% Created: 2015-05-01T20:53:34+0200
-%% Last-Updated: 2023-02-22T14:51:43+0100
+%% Last-Updated: 2023-02-22T15:25:57+0100
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newif\ifarxiv
 \arxivfalse
@@ -1362,6 +1362,27 @@ Furthermore, the densities $\p(\di\xi^{c}_{j} \|I)$ are taken to be identical fo
   \p(\di\xi^{c}_{j} \|I) = \p(\di\xi^{1}_{j} \|I) \ ,\quad\forall c \ ;
 \end{equation}
 and likewise for $\p(\di\upsilon^{c}_{j} \|I)$.
+
+In the following the specific factor densities are described. The generic parameter $\xi$ is used to include both $\upsilon$ and $\xi$.
+
+\paragraph{Density for $w$}
+
+The density for the weights $w$ is a mixture of Dirichlet distributions:
+\begin{equation}
+  \label{eq:density_w}
+  \p(\di w\|I) =
+  \frac{1}{7}
+  \sum_{\alpha=2^{-3}}^{2^{3}}
+  (\alpha - 1)! \Biggl[\prod_{c=1}^{M}
+  \frac{\bigl(w^{c}\bigr)^{\alpha/M-1}}{(\alpha/M -1)!} \Biggr]
+  \, \delt\Bigl(1-\tsum_{c=1}^{M} w^{c}\Bigr)\,
+  \di w
+\end{equation}
+with $\alpha$ running through the values $\set*{2^{-3},2^{-2},2^{-1},1,2^{1},2^{2},2^{3}}$, and where $M$ is the number of components in the convex mixture~\eqref{eq:F_repres}.
+
+
+
+
 
 \medskip
 
