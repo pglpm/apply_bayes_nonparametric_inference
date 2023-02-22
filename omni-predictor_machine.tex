@@ -1,7 +1,7 @@
 \pdfoutput=1
 %% Author: PGL  Porta Mana
 %% Created: 2015-05-01T20:53:34+0200
-%% Last-Updated: 2023-02-19T17:03:21+0100
+%% Last-Updated: 2023-02-22T14:51:43+0100
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newif\ifarxiv
 \arxivfalse
@@ -603,9 +603,32 @@ Open Science Framework \doi{10.17605/osf.io/#1}%
 %\providecommand{\degree}{\textdegree}% degree
 %\newcommand*{\celsius}{\textcelsius}% degree Celsius
 %\newcommand*{\micro}{\textmu}% degree Celsius
-\newcommand*{\I}{\mathrm{i}}%imaginary unit
-\newcommand*{\e}{\mathrm{e}}%Neper
-\newcommand*{\di}{\mathrm{d}}%differential
+% \newcommand*{\I}{\mathrm{i}}%imaginary unit
+\newcommand*{\I}{\ensuremath{\mathrm{i}}}
+% \newcommand*{\e}{\mathrm{e}}%Neper
+\newcommand*{\e}{\ensuremath{\mathrm{e}}}
+% \newcommand*{\di}{\mathrm{d}}%differential
+%% From TUGboat 18 (1997) 1
+\makeatletter
+\providecommand*{\di}%
+{\@ifnextchar^{\DIfF}{\DIfF^{}}}
+\def\DIfF^#1{%
+\mathop{\mathrm{\mathstrut d}}%
+\nolimits^{#1}\gobblespace}
+\def\gobblespace{%
+\futurelet\diffarg\opspace}
+\def\opspace{%
+\let\DiffSpace\!%
+\ifx\diffarg(%
+\let\DiffSpace\relax
+\else
+\ifx\diffarg[%
+\let\DiffSpace\relax
+\else
+\ifx\diffarg\{%
+\let\DiffSpace\relax
+\fi\fi\fi\DiffSpace}
+\makeatother
 %\newcommand*{\Di}{\mathrm{D}}%capital differential
 %\newcommand*{\Li}{\mathrm{L}}%Lie derivative
 %\newcommand*{\planckc}{\hslash}
@@ -1098,7 +1121,7 @@ where $D$ is the conjunction of all statements \prop{$Y^{i}\mo y^{i}$}, \prop{$X
 Our next task is to calculate this term.
 
 
-\section{Mathematical representation of $F$ and its densities}
+\section{A specific representation of $F$ and its densities}
 \label{sec:repr_density_F}
 
 \subsection{Mathematical representation of $F$}
@@ -1115,14 +1138,14 @@ A very clever representation is discussed by \textcites{dunsonetal2011}\autocite
   K(y_{1} \| \upsilon^{c}_{1})\,  K(y_{2} \| \upsilon^{c}_{1})\, \dotsm\ 
   K(x_{1} \| \xi^{c}_{1})\,  K(x_{2} \| \xi^{c}_{1})\, \dotsm\ 
 \end{multline}
-where the $w$ are normalized weights and the $\upsilon$ and $\xi$ are parameters, possibly multidimensional. The functional forms of the distributions $K(y \| \dotso)$, $K(x \| \dotso)$ depend on the nature of the variates $y,x$. For example $K$ could be a gaussian distribution for a continuous unbounded variate. The choice of the $K$ is connected to the properties expected in the distributions $F$, but also depends somehow on computational requirements.
+where $w\defd (w^{c})$ are normalized weights, and $\upsilon \defd (\upsilon^{c}_{j})$ and $\xi \defd (\xi^{c}_{j})$ are parameters, possibly multidimensional. The functional forms of the distributions $K(y \| \dotso)$, $K(x \| \dotso)$ depend on the nature of the variates $y,x$. For example $K$ could be a gaussian distribution for a continuous unbounded variate. The choice of the $K$ depends on the properties expected in the distributions $F$ and on computational requirements.
 
 Any $F$ is thus represented by an in-principle infinite tuple of variables:
 \begin{equation}
   \label{eq:F_coords}
-  F \corr (w^{c}, \upsilon^{c}_{j}, \xi^{c}_{j}) \ .
+  F \corr (w, \upsilon, \xi) \equiv (w^{c}, \upsilon^{c}_{j}, \xi^{c}_{j}) \ .
 \end{equation}
-The relation between the manifolds $\set{F}$ and $\set{(w, \upsilon, \xi)}$ is typically not one-to-one: different tuples of variables can correspond to the same $F$. We can interpret this as a non-regular embedding $\set{F} \to \set{(w, \upsilon, \xi)}$, or as the existence of different coordinate charts on $\set{F}$, with overlapping domains, or as the expression of $F$ through a frame, rather than through a set of basis functions \autocites{balanetal2006}[\chap~8]{heil1998_r2011}[\chap~3]{daubechies1992_r1999}. This is not a problem for us, because a probability density on the manifold $\set{(w, \upsilon, \xi)}$ also defines, by pull-back, a probability density on the manifold $\set{F}$.
+The relation between the manifolds $\set{F}$ and $\set{(w, \upsilon, \xi)}$ is typically not one-to-one: different tuples of variables can correspond to the same $F$. We can interpret this as a non-regular embedding $\set{F} \to \set{(w, \upsilon, \xi)}$; or as the existence of different coordinate charts on $\set{F}$, with overlapping domains; or as the expression of $F$ through a frame\autocites{balanetal2006}[\chap~8]{heil1998_r2011}[\chap~3]{daubechies1992_r1999}, rather than through a set of basis functions . This is not a problem for us, because a probability density on the manifold $\set{(w, \upsilon, \xi)}$ also defines, by pull-back, a probability density on the manifold $\set{F}$.
 
 The representation~\eqref{eq:F_repres} is extremely convenient because it leads to simple expressions for conditional and marginal frequencies. For instance in can be easily calculated that
 \begin{gather}
@@ -1259,9 +1282,9 @@ The discretization points are chosen so that for $\mu=0$, $\sigma=1$ the distrib
 
 Discrete ordinal variates with other domains can be mapped onto $\set{1,\dotsc,m}$.
 
-\paragraph{Continuous unbounded variates}
+\paragraph{Continuous real variates}
 
-For a continuous unbounded variate $x \in \RR$ we choose a gaussian distribution with mean and variance as the parameters $\xi=(\mu, \sigma^{2})$:
+For a continuous real variate $x \in \RR$ we choose a gaussian distribution with mean and variance as the parameters $\xi=(\mu, \sigma^{2})$:
 \begin{equation}
   \label{eq:K_unb_cont}
   \begin{split}
@@ -1273,9 +1296,9 @@ For a continuous unbounded variate $x \in \RR$ we choose a gaussian distribution
 \end{split}
 \end{equation}
 
-\paragraph{Continuous censored variates}
+\paragraph{Censored continuous variates}
 
-A \enquote{continuous censored} variate is meant here, more generally, to be a continuous variate with values in a \emph{closed} or semi-closed bounded set, for example $x \in \clcl{a,b}$ or $x \in \clop{a,+\infty}$. Owing to the topology of its domain, such variate cannot be mapped onto a continuous unbounded one, previously discussed.
+A \enquote{censored continuous} variate is meant here, more generally, to be a continuous variate with values in a \emph{closed} or semi-closed bounded set, for example $x \in \clcl{a,b}$ or $x \in \clop{a,+\infty}$. Owing to the topology of its domain, such variate cannot be mapped onto a continuous unbounded one, previously discussed.
 
 The boundary value or values that such a variable can take often have a singular probability mass (delta distribution), which may arise from the fact that $x$ is censored, that is, it could in principle assume continuous values outside the boundaries, but such values are truncated to the boundary ones.
 
@@ -1309,9 +1332,36 @@ The semi-bounded case $x \in \clop{a,+\infty}$ can be obtained with obvious adju
 
 \paragraph{Other continuous variates}
 
-Other continuous variates with connected, open or semi-open domains in the real line can transformed into the continuous unbounded or censored ones discussed last with appropriate transformations. For example a variate $z \in \opop{0, +\infty}$ can be transformed into $x=\ln z$, a variate $z \in \opop{a,b}$ into $x=\Phi^{-1}\bigl(\frac{z-a}{b-a}\bigr)$, and a variate $z \in \clop{0, +\infty}$ into $x=\ln(z+q)$ for some $q > 0$ to be treated as a censoring value. These kinds of transformation are often suggested by the nature of the original variate.
+Other continuous variates with open or semi-open connected domains in the real line can be transformed into the continuous real or censored ones discussed last. For example a variate $z \in \opop{0, +\infty}$ can be transformed into $x=\ln z$, a variate $z \in \opop{a,b}$ into $x=\Phi^{-1}\bigl(\frac{z-a}{b-a}\bigr)$, and a variate $z \in \clop{0, +\infty}$ into $x=\ln(z+q)$ for some $q > 0$ to be treated as a censoring value. These kinds of transformation are often suggested by the nature of the original variate.
 
+\subsection{Density for $F$}
+\label{sec:density_F}
 
+Once the density $F$ is represented by the variables $(w, \upsilon, \xi)$ through \eqn~\eqref{eq:F_repres}, any density $\p(\di w, \di\upsilon, \di\xi \|I)$ for the latter variables also determines (possibly by pull-back) a density $\p(\di F \| I)$ for $F$.
+
+The choice of this density is equivalent, by de~Finetti's theorem~\eqref{eq:deFinetti_integral}, to a choice of exchangeable joint distribution $\p(Y, X \|I)$. This choice is thus essentially dependent on the meaning of the variates $Y,X$ and on the specific inference context.
+
+A general-purpose specific mathematical choice is presented here. It can be useful as a starting point, and it can be reasonable as a definitive choice if we have a large number of units with known $X,Y$. %***explain why
+This choice has two main motivations:
+\begin{itemize}
+\item represent a state of uncertainty that is \enquote{diffuse} but still realistic,
+\item possibility of allowing fast Markov-chain Monte Carlo computations using Gibbs sampling with conditionally conjugate distributions \autocites[\cf]{goerueretal2010}.
+\end{itemize}
+
+We consider a density that factorizes as follows:
+\begin{equation}
+  \label{eq:density_factorizes}
+  \p(\di w, \di\upsilon, \di\xi \|I) =
+  \p(\di w \|I)\,
+  \prod_{c,j}\bigl[\p(\di\upsilon^{c}_{j} \|I)\,
+  \p(\di\xi^{c}_{j} \|I) \bigr] \ .
+\end{equation}
+Furthermore, the densities $\p(\di\xi^{c}_{j} \|I)$ are taken to be identical for each component $c$, but potentially different for different variates $j$:
+\begin{equation}
+  \label{eq:density_same_c}
+  \p(\di\xi^{c}_{j} \|I) = \p(\di\xi^{1}_{j} \|I) \ ,\quad\forall c \ ;
+\end{equation}
+and likewise for $\p(\di\upsilon^{c}_{j} \|I)$.
 
 \medskip
 
