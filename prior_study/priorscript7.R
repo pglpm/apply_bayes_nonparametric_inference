@@ -46,7 +46,7 @@ jac <- function(y){1/xscale}
 ##
 ## hyperparameters
 rowcol <- c(20,20)
-nsamples <- prod(rowcol)*4
+nsamples <- prod(rowcol)*10
 nclusters <- 64
 alpha0 <- 2^((-3):3)
 rmean0 <- 0
@@ -88,15 +88,16 @@ for(i in 1:nsamples){
           xlabels=NA,ylabels=NA, xlab=NA,ylab=NA,
           xticks=NA,yticks=NA,
           mar=c(1,1,1,1)*0.5,
-          col=(if(i < prod(rowcol)){1}else{if(any(is.infinite(ysum))){2}else{3}}), ly=1,lwd=0.5)
+          col=(if(i < prod(rowcol)){1}else{if(any(is.infinite(ysum))){2}else{3}}), ly=1,lwd=(if(i < prod(rowcol)){0.5}else{1}))
     ## tplot(x=xgrid[extr2], y=y[extr2],
     ##       type='p',col=4,cex=0.15,add=T,pch=3)
     ## if(!is.null(data)){
     ##     tplot(x=his$mids,y=his$density,type='l',lwd=0.5,add=T,alpha=0.25,col=4)
     ## }
     abline(h=c(0),lwd=0.5,col=alpha2hex2(0.5,c(7,2)),lty=c(1,2))
-    if(i==nsamples){
-        abline(v=invtran(c(-1,1)),lwd=0.5,col=alpha2hex(2,0.5),lty=1)
+##    if(i==nsamples){
+    if(TRUE){
+        abline(v=invtran(c(-1,1)),lwd=0.5,col=alpha2hex(7,0.5),lty=1)
         ## abline(v=c(xmin,xmax),lwd=0.5,col=alpha2hex(0.5,7),lty=2)
     }
     }
