@@ -28,33 +28,33 @@ nn <- 32
 #### Currently used ####
 
 #### continuous variate
-sd2iqr <- 0.5/qnorm(0.75)
+sdovermad <- 0.5/qnorm(0.75)
 ## dt <- fread('~/repositories/ledley-jaynes_machine/scripts/ingrid_data_nogds6.csv')
 ## varinfo <- data.matrix(read.csv('~/repositories/ledley-jaynes_machine/scripts/varinfo.csv',row.names=1))
-##graphics.off()
-##pdff('priorsamples_real')
+graphics.off()
+pdff('priorsamples_real')
 set.seed(123)
 ## tran <- function(x){qnorm(x*(1-2*dd)+dd)}
 ## jac <- function(x){1/dnorm(x*(1-2*dd)+dd)*(1-2*dd)}
 xlocation <- 0
 xscale <- 1
-xmin <- -4
-xmax <- 4
+xmin <- -6
+xmax <- 6
 tran <- function(x){(x-xlocation)/xscale}
 invtran <- function(y){y*xscale+xlocation}
 jac <- function(y){1/xscale}
 ##
 ## hyperparameters
 rowcol <- c(20,20)
-nsamples <- 1e5
+nsamples <- 1e6
 nclusters <- 64
 alpha0 <- 2^((-3):3)
 rmean0 <- 0
-rvar0 <- 2^2 # (1.5*sd2iqr)^2
+rvar0 <- (0+2*sdovermad)^2
 rshapein0 <- 1 # large scales
 rshapeout0 <- 1 # small scales
 hwidth <- 2 # number of powers of 2 to consider in either direction
-rvarscales <- rep((1 * 2^((-hwidth):hwidth))^2 ,2)
+rvarscales <- rep(((0+1*sdovermad) * 2^((-hwidth):hwidth))^2 ,2)
 ##
 xsamples <- rnorm(nsamples,
                   mean=rnorm(nsamples,mean=rmean0,sd=sqrt(rvar0)),
@@ -63,35 +63,34 @@ xsamples <- rnorm(nsamples,
                                           scale=sample(rvarscales,nsamples,replace=T))
                   )
                   )
-IQR(xsamples)
+IQR(xsamples)/2
 mad(xsamples, constant=1)
-IQR(xsamples)*sd2iqr
-thist(xsamples[xsamples<6&xsamples>-6],plot=T)
-abline(v=c(-1,1))
-
-
-alpha <- sample(rep(alpha0,2),nsamples,replace=T)
-q <- extraDistr::rdirichlet(n=nsamples,alpha=matrix(alpha/nclusters,nsamples,nclusters))
-sd <- sample(rep(sqrt(rvar0),2),nsamples*nclusters,replace=T)
-m <- matrix(rnorm(nsamples*nclusters,rmean0,sd),nsamples)
-shapein <- sample(rep(rshapein0,2),nsamples*nclusters,replace=T)
-shapeout <- sample(rep(rshapeout0,2),nsamples*nclusters,replace=T)
-scalevar <- sample(rep(rvarscales,2),nsamples*nclusters,replace=T)
-s <- matrix(sqrt(nimble::rinvgamma(nsamples*nclusters,shape=shapeout,rate=nimble::rinvgamma(nsamples*nclusters,shape=shapein,rate=scalevar))),nsamples)
+IQR(xsamples)*sdovermad/2
+## thist(xsamples[xsamples<6&xsamples>-6],plot=T)
+## abline(v=c(-1,1))
+nsamples2 <- min(10000,nsamples)
+alpha <- sample(rep(alpha0,2),nsamples2,replace=T)
+q <- extraDistr::rdirichlet(n=nsamples2,alpha=matrix(alpha/nclusters,nsamples2,nclusters))
+sd <- sample(rep(sqrt(rvar0),2),nsamples2*nclusters,replace=T)
+m <- matrix(rnorm(nsamples2*nclusters,rmean0,sd),nsamples2)
+shapein <- sample(rep(rshapein0,2),nsamples2*nclusters,replace=T)
+shapeout <- sample(rep(rshapeout0,2),nsamples2*nclusters,replace=T)
+scalevar <- sample(rep(rvarscales,2),nsamples2*nclusters,replace=T)
+s <- matrix(sqrt(nimble::rinvgamma(nsamples2*nclusters,shape=shapeout,rate=nimble::rinvgamma(nsamples2*nclusters,shape=shapein,rate=scalevar))),nsamples2)
 ##
 txgrid <- seq(xmin, xmax, length.out=256)
 xgrid <- invtran(txgrid)
 ysum <- 0
 ## tplot(x=xgrid,y=dnorm(txgrid)*jac(xgrid))
 par(mfrow=rowcol,mar = c(0,0,0,0))
-for(i in 1:nsamples){
+for(i in 1:nsamples2){
     y <- rowSums(sapply(1:nclusters,function(acluster){
         q[i,acluster] *
             dnorm(txgrid, m[i,acluster], s[i,acluster]) * jac(txgrid)
     }))
     ysum <- ysum+y
-    if(i < prod(rowcol) | i==nsamples){
-    if(i == nsamples){y <- ysum/nsamples}
+    if(i < prod(rowcol) | i==nsamples2){
+    if(i == nsamples2){y <- ysum/nsamples2}
     ## if(!is.null(data)){
     ##     his <- thist(data)
     ##     ymax <- max(y,his$density)
@@ -109,9 +108,9 @@ for(i in 1:nsamples){
     ##     tplot(x=his$mids,y=his$density,type='l',lwd=0.5,add=T,alpha=0.25,col=4)
     ## }
     abline(h=c(0),lwd=0.5,col=alpha2hex2(0.5,c(7,2)),lty=c(1,2))
-##    if(i==nsamples){
+##    if(i==nsamples2){
     if(TRUE){
-        abline(v=invtran(c(-1,1)),lwd=0.5,col=alpha2hex(7,0.5),lty=1)
+        abline(v=c(-1,1)*2*sdovermad,lwd=0.5,col=alpha2hex(7,0.5),lty=1)
         ## abline(v=c(xmin,xmax),lwd=0.5,col=alpha2hex(0.5,7),lty=2)
     }
     }

@@ -1,7 +1,7 @@
 \pdfoutput=1
 %% Author: PGL  Porta Mana
 %% Created: 2015-05-01T20:53:34+0200
-%% Last-Updated: 2023-02-24T13:26:17+0100
+%% Last-Updated: 2023-02-26T12:22:11+0100
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newif\ifarxiv
 \arxivfalse
@@ -1391,7 +1391,9 @@ The density for the mean $\mu$ of components with a Gaussian distribution is a b
   \label{eq:density_mu}
   \p(\di \mu\|I) = \Phi'\biggl(\frac{\mu-\muo}{2\,\sigmao}\biggr) \di\mu
 \end{equation}
-where $\muo$ and $\sigmao$ are location and scale hyperparameters for the variate of interest. The values of these hyperparameters are determined by the nature of the variate; otherwise they can approximately -- although slightly inconsistently -- be determined by the data, if the latter are numerous. For instance, $\muo$ can be taken to be the median of the data, and $\sigmao$ the interquartile range or the median absolute deviation of the data, possibly rescaled to the standard deviation of a standard Gaussian.
+where $\muo$ and $\sigmao$ are location and scale hyperparameters for the variate of interest, and $C$ a constant factor. The values of these hyperparameters are determined by the nature of the variate; otherwise they can approximately -- although slightly inconsistently -- be determined by the data, if the latter are numerous. For instance, $\muo$ can be taken to be the median of the data, and $\sigmao$ one quarter the interquartile range or one half the median absolute deviation of the data, multiplied by $1/\Phi^{-1}(3/4)$ (the ratio between the standard deviation and the median absolute deviation of a Gaussian).
+
+\medskip
 
 The density for the variance $\sigma^{2}$ is a discrete mixture of beta-prime distributions (or beta distributions of the second kind) \autocites[\sect\,25.7, 27.2]{johnsonetal1970b_r1995}{mcdonald1984} with unit shape hyperparameters and different scale hyperparameters $\tau^{2}$. The beta-prime can in turn be written as a mixture of inverse-gamma distributions \autocites{dubey1970} with different rate parameters $\lambda$:
 \begin{equation}
@@ -1421,7 +1423,7 @@ The expression in terms of inverse-gammas is useful for conditionally conjugate 
     \frac{1}{5}\sum_{l=2^{-2}}^{2^{2}}
     2\,\Bigl(
     \e^{\ln\frac{\sigma}{l\,\sigmao}}
-+    \e^{-\ln\frac{\sigma}{l\sigmao}}
++    \e^{-\ln\frac{\sigma}{l\,\sigmao}}
     \Bigr)^{-2}\, \di\ln\sigma
 \end{equation}
 The mixture of several scale hyperparameters makes it somewhat broader without excessively fattening the tails, as shown in \fig~\ref{fig:betaprime}.
@@ -1441,7 +1443,7 @@ The combination of prior densities~\eqref{eq:density_w}, \eqref{eq:density_mu}, 
 \begin{figure}
 %\begin{wrapfigure}{r}{0.4\linewidth} % with wrapfigure
 \centering\includegraphics[width=\linewidth]{priorsamples_real.pdf}\\
-\caption{399 samples from the density $\p[\di F \| I]$  for the marginal density $F(\di x)$ of a continuous real variate $x$. The vertical grey lines mark the scale $\pm\sigmao$. The thicker green density at the bottom-right corner is the expected marginal density $\E[F(\di x) \| I]$.}\label{fig:marginal_real}
+\caption{399 samples from the density $\p[\di F \| I]$ for the marginal density $F(\di x)$ of a continuous real variate $x$. The vertical grey lines mark $\pm2\sigmao$. The thicker green density at the bottom-right corner is the expected marginal density $\E[F(\di x) \| I]$.}\label{fig:marginal_real}
 \end{figure}
 
 
