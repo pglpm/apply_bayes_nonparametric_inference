@@ -28,7 +28,7 @@ nn <- 32
 #### Currently used ####
 
 #### continuous variate
-sdovermad <- 0.5/qnorm(0.75)
+sdovermad2 <- 0.5/qnorm(0.75)
 ## dt <- fread('~/repositories/ledley-jaynes_machine/scripts/ingrid_data_nogds6.csv')
 ## varinfo <- data.matrix(read.csv('~/repositories/ledley-jaynes_machine/scripts/varinfo.csv',row.names=1))
 graphics.off()
@@ -50,22 +50,22 @@ nsamples <- 1e6
 nclusters <- 64
 alpha0 <- 2^((-3):3)
 rmean0 <- 0
-rvar0 <- (0+2*sdovermad)^2
+rvar0 <- (0+2*sdovermad2)^2
 rshapein0 <- 1 # large scales
 rshapeout0 <- 1 # small scales
 hwidth <- 2 # number of powers of 2 to consider in either direction
-rvarscales <- rep(((0+1*sdovermad) * 2^((-hwidth):hwidth))^2 ,2)
+rvarscales <- rep(((0+1*sdovermad2) * 2^((-hwidth):hwidth))^2 ,2)
 ##
 xsamples <- rnorm(nsamples,
                   mean=rnorm(nsamples,mean=rmean0,sd=sqrt(rvar0)),
                   sd=sqrt(
-                      extraDistr::rbetapr(nsamples,shape1=1,shape2=2,
+                      extraDistr::rbetapr(nsamples,shape1=rshapein0,shape2=rshapeout0,
                                           scale=sample(rvarscales,nsamples,replace=T))
                   )
                   )
 IQR(xsamples)/2
 mad(xsamples, constant=1)
-IQR(xsamples)*sdovermad/2
+IQR(xsamples)*sdovermad2/2
 ## thist(xsamples[xsamples<6&xsamples>-6],plot=T)
 ## abline(v=c(-1,1))
 nsamples2 <- min(10000,nsamples)
@@ -110,7 +110,7 @@ for(i in 1:nsamples2){
     abline(h=c(0),lwd=0.5,col=alpha2hex2(0.5,c(7,2)),lty=c(1,2))
 ##    if(i==nsamples2){
     if(TRUE){
-        abline(v=c(-1,1)*2*sdovermad,lwd=0.5,col=alpha2hex(7,0.5),lty=1)
+        abline(v=c(-1,1)*2*sdovermad2,lwd=0.5,col=alpha2hex(7,0.5),lty=1)
         ## abline(v=c(xmin,xmax),lwd=0.5,col=alpha2hex(0.5,7),lty=2)
     }
     }
@@ -118,7 +118,7 @@ for(i in 1:nsamples2){
 dev.off()
 
 #### doubly-censored variate
-sd2iqr <- 0.5/qnorm(0.75)
+sdovermad2 <- 0.5/qnorm(0.75)
 ## dt <- fread('~/repositories/ledley-jaynes_machine/scripts/ingrid_data_nogds6.csv')
 ## varinfo <- data.matrix(read.csv('~/repositories/ledley-jaynes_machine/scripts/varinfo.csv',row.names=1))
 graphics.off()
@@ -131,15 +131,15 @@ xmax <- 2
 ##
 ## hyperparameters
 rowcol <- c(20,20)
-nsamples <- prod(rowcol)*4
+nsamples <- 1e4
 nclusters <- 64
 alpha0 <- 2^((-3):3)
 dmean0 <- 0
-dvar0 <- 2^2
+dvar0 <- (0+2*sdovermad2)^2
 dshapein0 <- 1 # large scales
 dshapeout0 <- 1 # small scales
 hwidth <- 2 # number of powers of 2 to consider in either direction
-dvarscales <- (1 * 2^((-hwidth):hwidth))^2
+dvarscales <- rep(((0+1*sdovermad2) * 2^((-hwidth):hwidth))^2 ,2)
 ##
 alpha <- sample(rep(alpha0,2),nsamples,replace=T)
 q <- extraDistr::rdirichlet(n=nsamples,alpha=matrix(alpha/nclusters,nsamples,nclusters))
@@ -169,7 +169,9 @@ for(i in 1:nsamples){
     ysum <- ysum+y
     ybsum <- ybsum+yb
     if(i < prod(rowcol) | i==nsamples){
-    if(i == nsamples){y <- ysum/nsamples}
+        if(i == nsamples){
+            y <- ysum/nsamples
+        yb <- ybsum/nsamples}
     ## if(!is.null(data)){
     ##     his <- thist(data)
     ##     ymax <- max(y,his$density)
@@ -196,6 +198,7 @@ for(i in 1:nsamples){
     ##     tplot(x=his$mids,y=his$density,type='l',lwd=0.5,add=T,alpha=0.25,col=4)
     ## }
     abline(h=c(0,max(y)),lwd=0.5,col=alpha2hex2(0.5,c(7,7)),lty=c(1,2))
+        abline(v=c(-1,1)*2*sdovermad2,lwd=0.5,col=alpha2hex(7,0.5),lty=1)
     ## if(i==nsamples){
     ##     abline(v=invtran(c(-1,1)),lwd=0.5,col=alpha2hex(2,0.5),lty=1)
     ##     ## abline(v=c(xmin,xmax),lwd=0.5,col=alpha2hex(0.5,7),lty=2)
@@ -206,31 +209,46 @@ dev.off()
 
 
 #### integer variate
-sd2iqr <- 0.5/qnorm(0.75)
+sdovermad2 <- 0.5/qnorm(0.75)
 ## dt <- fread('~/repositories/ledley-jaynes_machine/scripts/ingrid_data_nogds6.csv')
 ## varinfo <- data.matrix(read.csv('~/repositories/ledley-jaynes_machine/scripts/varinfo.csv',row.names=1))
 graphics.off()
-pdff(paste0('priorsamples_integer'))
-for(nint in c(5,10,32,100,330)){
+pdff(paste0('priorsamples_integer_q'))
+for(nint in c(5,
+                10,32,100,
+              256)){
 set.seed(123)
 ## tran <- function(x){qnorm(x*(1-2*dd)+dd)}
 ## jac <- function(x){1/dnorm(x*(1-2*dd)+dd)*(1-2*dd)}
 nmin <- 1
 nmax <- nint
 dd <- (nint-2)/(2*nint^2)#
-tran <- function(x){qnorm((x-nmin)/(nmax-nmin)*(1-2*dd)+dd)}
+tsqrt <- function(x){sign(x)*sqrt(abs(x))}
+tran <- function(x){qnorm((x-nmin)/(nmax-nmin)*(1-2*dd)+dd,mean=0,sd=transd)}
 ##
 ## hyperparameters
 rowcol <- c(20,20)
-nsamples <- prod(rowcol)*4
+nsamples <- 1e4
 nclusters <- 64
 alpha0 <- 2^((-3):3)
 imean0 <- 0
-ivar0 <- (7/8)^2
+ivar0 <- (2*sdovermad2)^2#(7/8)^2
 ishapein0 <- 1 # large scales
 ishapeout0 <- 1 # small scales
 hwidth <- 2 # number of powers of 2 to consider in either direction
-ivarscales <- ((1/4) * 2^((-hwidth):hwidth))^2
+ivarscales <- ((sdovermad2) * 2^((-hwidth):hwidth))^2
+##
+nsamplesx <- 1e7
+xsamples <- rnorm(nsamplesx,
+                  mean=rnorm(nsamplesx,mean=imean0,sd=sqrt(ivar0)),
+                  sd=sqrt(
+                      extraDistr::rbetapr(nsamplesx,shape1=ishapein0,shape2=ishapeout0,
+                                          scale=sample(ivarscales,nsamplesx,replace=T))
+                  )
+                  )
+testgr <- tquant(xsamples, seq(0,1,length.out=nint+1))
+testgr <- (testgr-rev(testgr))/2
+testgr[c(1,length(testgr))] <- c(-Inf,+Inf)
 ##
 alpha <- sample(rep(alpha0,2),nsamples,replace=T)
 q <- extraDistr::rdirichlet(n=nsamples,alpha=matrix(alpha/nclusters,nsamples,nclusters))
@@ -242,7 +260,10 @@ scalevar <- sample(rep(ivarscales,2),nsamples*nclusters,replace=T)
 s <- matrix(sqrt(nimble::rinvgamma(nsamples*nclusters,shape=shapeout,rate=nimble::rinvgamma(nsamples*nclusters,shape=shapein,rate=scalevar))),nsamples)
 ##
 xgrid <- seq(nmin,nmax,length.out=nint)
-mgrid <- qnorm(seq(0,1,length.out=nint+1))
+transd <- 2*sdovermad2 #*log(nint)
+mgrid <- testgr
+##mgrid <- qnorm(seq(0,1,length.out=nint+1), mean=0, sd=transd)
+#mgrid <- c(-Inf, tsqrt((1:(nint-1))-nint/2)*sdovermad2/2, +Inf)
 ## kkk <- 1
 ## mgrid <- qnorm(c(0, seq(1/(kkk*nint), (kkk*nint-1)/(kkk*nint), length.out=nint-1), 1))
 ysum <- 0
@@ -282,6 +303,58 @@ for(i in 1:nsamples){
 }
 }
 dev.off()
+
+qfs <- foreach(nint=rev(c(5,
+                10,32,100,
+              256)))%do%{
+nmin <- 1
+nmax <- nint
+dd <- (nint-2)/(2*nint^2)#
+tsqrt <- function(x){sign(x)*sqrt(abs(x))}
+tran <- function(x){qnorm((x-nmin)/(nmax-nmin)*(1-2*dd)+dd,mean=0,sd=transd)}
+##
+## hyperparameters
+rowcol <- c(20,20)
+nsamples <- 1e4
+nclusters <- 64
+alpha0 <- 2^((-3):3)
+imean0 <- 0
+ivar0 <- (2*sdovermad2)^2#(7/8)^2
+ishapein0 <- 1 # large scales
+ishapeout0 <- 1 # small scales
+hwidth <- 2 # number of powers of 2 to consider in either direction
+ivarscales <- ((sdovermad2) * 2^((-hwidth):hwidth))^2
+##
+nsamplesx <- 1e7
+xsamples <- rnorm(nsamplesx,
+                  mean=rnorm(nsamplesx,mean=imean0,sd=sqrt(ivar0)),
+                  sd=sqrt(
+                      extraDistr::rbetapr(nsamplesx,shape1=ishapein0,shape2=ishapeout0,
+                                          scale=sample(ivarscales,nsamplesx,replace=T))
+                  )
+                  )
+testgr <- tquant(xsamples, seq(0,1,length.out=nint+1))
+testgr <- (testgr-rev(testgr))/2
+testgr[c(1,length(testgr))] <- c(-Inf,+Inf)
+## tplot(x=1:(nint-1),y=list(testgr[-c(1,nint+1)],qnorm(seq(0,1,length.out=nint+1),sd=3)[-c(1,nint+1)]))
+testgr[-c(1,nint+1)]
+              }
+
+xss <- foreach(nint=rev(c(5,
+                10,32,100,
+                256)))%do%{
+                (1:(nint-1))/nint}
+
+pdff('Qfunction')
+tplot(x=xss[[2]],y=list(qfs[[2]],qnorm(xss[[2]]),qlogis(xss[[2]]),qcauchy(xss[[2]])),lwd=c(3,2,2,4),lty=c(1,2,4,3),ylim=range(qfs[[2]]), alpha=0.25,
+      xticks=c(0,0.5,1),xlabels=c(0,expression(italic(m)/2),expression(italic(m)+1)),
+      xlab=expression(italic(x)), ylab=expression(italic(Q)(italic(x))),
+      mar=c(NA,5,2,1))
+dev.off()
+
+
+
+
 
 #### integer variate
 sd2iqr <- 0.5/qnorm(0.75)

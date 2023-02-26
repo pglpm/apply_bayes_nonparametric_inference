@@ -1,7 +1,7 @@
 \pdfoutput=1
 %% Author: PGL  Porta Mana
 %% Created: 2015-05-01T20:53:34+0200
-%% Last-Updated: 2023-02-26T12:22:11+0100
+%% Last-Updated: 2023-02-26T18:37:31+0100
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newif\ifarxiv
 \arxivfalse
@@ -424,7 +424,7 @@ Open Science Framework \doi{10.17605/osf.io/#1}%
 \setsubsecindent{0pt}%0ex plus 1ex minus .2ex}
 \setparaheadstyle{\bfseries\sffamily%
 \raggedright}
-\setcounter{secnumdepth}{2}
+\setcounter{secnumdepth}{3}
 \setlength{\headwidth}{\textwidth}
 \newcommand{\addchap}[1]{\chapter*[#1]{#1}\addcontentsline{toc}{chapter}{#1}}
 \newcommand{\addsec}[1]{\section*{#1}\addcontentsline{toc}{section}{#1}}
@@ -1219,7 +1219,7 @@ and $\Phi^{-1}\colon \clcl{0,1}\to\set{-\infty}\cup\RR\cup\set{+\infty}$ its inv
 
 
 
-\paragraph{Binary variates}
+\subsubsection{Binary variates}
 
 For a binary variate $x \in \set{0,1}$ we choose a Bernoulli distribution with weight parameter $\xi=q$:
 \begin{equation}
@@ -1236,7 +1236,7 @@ For a binary variate $x \in \set{0,1}$ we choose a Bernoulli distribution with w
 
 Obviously any other binary values $\set{a,b}$ can be mapped into $\set{0,1}$.
 
-\paragraph{Categorical variates}
+\subsubsection{Categorical variates}
 
 For a categorical variate with $n$ possible values, $x \in \set{a_{1}, \dotsc, a_{n}}$, we choose a categorical distribution with normalized weight parameters $q \defd (q_{1}, \dotsc, q_{n})$:
 \begin{equation}
@@ -1254,11 +1254,18 @@ For a categorical variate with $n$ possible values, $x \in \set{a_{1}, \dotsc, a
 
 Obviously the values $\set{a_{1}, \dotsc, a_{n}}$ can be set in one-one correspondence with $\set{1, \dotsc, n}$.
 
-\paragraph{Integer or discrete ordinal variates}
+\subsubsection{Integer or discrete ordinal variates}
 
 By \enquote{discrete ordinal} variate it is meant a variate $x$ assuming a discrete number $m$ of values which have a natural ordering, for example integers $x \in \set{1,\dotsc, m}$. The fact that they have a natural ordering has implications for smoothness, in a loose sense of this word. That is, we expect the probabilities for two consecutive values not to have excessive jumps. This is the difference between a discrete-ordinal variate and the categorical one discussed above.
 
-For such a variate we can use a \enquote{discretized-Gaussian} distribution with mean and variance parameters $(\mu,\sigma^{2})$:
+For such a variate we can use a \enquote{discretized-Gaussian} distribution with mean and variance parameters $(\mu,\sigma^{2})$. We introduce first a function
+\begin{multline}
+  \label{eq:Q_function_integer}
+  Q\colon \set{1,\dotsc, m} \to \RR
+  \\ \text{satisfying the symmetry}\quad 
+  Q(m+1-x)=Q(x) \ ,
+\end{multline}
+which will be described more in detail in \sect\mynotew{***}. The distribution for $x$ is then given by
 \begin{equation}
   \label{eq:K_int}
   \begin{split}
@@ -1267,24 +1274,24 @@ For such a variate we can use a \enquote{discretized-Gaussian} distribution with
     &\!\begin{aligned}
   K(x \| \mu, \sigma^{2}) &\defd
   \Phi\biggl[
-  \frac{\Phi^{-1}\bigl(\frac{x}{m}\bigr) - \mu}{\sigma}
+  \frac{Q(x) - \mu}{\sigma}
   \biggr]
   -
   \Phi\biggl[
-  \frac{\Phi^{-1}\bigl(\frac{x-1}{m}\bigr) - \mu}{\sigma}
+  \frac{Q(x-1) - \mu}{\sigma}
   \biggr]
   \\[\jot]&\equiv
   \frac{1}{\sqrt{2\pu\,\sigma^{2}}}\,
-  \int_{\Phi^{-1}(\frac{x-1}{m})}^{\Phi^{-1}(\frac{x}{m})}
+  \int_{Q(x-1)}^{Q(x)}
   \exp\biggl[-\frac{(z-\mu)^{2}}{2\,\sigma^{2}}\biggr]\, \di z \ .
 \end{aligned}
 \end{split}
 \end{equation}
-The discretization points are chosen so that for $\mu=0$, $\sigma=1$ the distribution $K$ is uniform with constant value $1/m$.
+% The discretization points are chosen so that for $\mu=0$, $\sigma=1$ the distribution $K$ is uniform with constant value $1/m$.
 
 Discrete ordinal variates with other domains can be mapped onto $\set{1,\dotsc,m}$.
 
-\paragraph{Continuous real variates}
+\subsubsection{Continuous real variates}
 
 For a continuous real variate $x \in \RR$ we choose a Gaussian distribution with mean and variance as the parameters $\xi=(\mu, \sigma^{2})$:
 \begin{equation}
@@ -1298,7 +1305,7 @@ For a continuous real variate $x \in \RR$ we choose a Gaussian distribution with
 \end{split}
 \end{equation}
 
-\paragraph{Censored continuous variates}
+\subsubsection{Censored continuous variates}
 
 A \enquote{censored continuous} variate is meant here, more generally, to be a continuous variate with values in a \emph{closed} or semi-closed bounded set, for example $x \in \clcl{a,b}$ or $x \in \clop{a,+\infty}$. Owing to the topology of its domain, such variate cannot be mapped onto a continuous unbounded one, previously discussed.
 
@@ -1332,7 +1339,7 @@ For such a variate we can use a Gaussian distribution with mean and variance par
 \end{equation}
 The semi-bounded case $x \in \clop{a,+\infty}$ can be obtained with obvious adjustments. The continuous non-bounded case previously discussed can be seen as a limit case of the present one for $a\to -\infty$, $b\to +\infty$.
 
-\paragraph{Other continuous variates}
+\subsubsection{Other continuous variates}
 
 Other continuous variates with open or semi-open connected domains in the real line can be transformed into the continuous real or censored ones discussed last. For example a variate $z \in \opop{0, +\infty}$ can be transformed into $x=\ln z$, a variate $z \in \opop{a,b}$ into $x=\Phi^{-1}\bigl(\frac{z-a}{b-a}\bigr)$, and a variate $z \in \clop{0, +\infty}$ into $x=\ln(z+q)$ for some $q > 0$ to be treated as a censoring value. These kinds of transformation are often suggested by the nature of the original variate.
 
@@ -1367,7 +1374,7 @@ and likewise for $\p(\di\upsilon^{c}_{j} \|I)$.
 
 In the following the specific factor densities are described. The generic parameter $\xi$ is used to include both $\upsilon$ and $\xi$.
 
-\paragraph{Density for $w$}
+\subsubsection{Density for $w$}
 
 The density for the weights $w$ is a discrete mixture of Dirichlet distributions with different concentration parameters $\alpha$:
 \begin{equation}
@@ -1384,7 +1391,7 @@ with $\alpha$ running through the values $\set*{2^{-3},2^{-2},2^{-1},1,2^{1},2^{
 
 This density is a discretized version of a mixture of Dirichlet distributions with a continuous range of concentration parameters \autocites[\eg][\sect\,2.5]{rossi2014}[\sect\,2.1]{rasmussen1999}. The discretized version seems to lead to the same general predictive properties as the continuous one, but is computationally more convenient.
 
-\paragraph{Density for parameters of Gaussian components}
+\subsubsection{Density for parameters of Gaussian components}
 
 The density for the mean $\mu$ of components with a Gaussian distribution is a broad Gaussian distribution:
 \begin{equation}
@@ -1443,8 +1450,10 @@ The combination of prior densities~\eqref{eq:density_w}, \eqref{eq:density_mu}, 
 \begin{figure}
 %\begin{wrapfigure}{r}{0.4\linewidth} % with wrapfigure
 \centering\includegraphics[width=\linewidth]{priorsamples_real.pdf}\\
-\caption{399 samples from the density $\p[\di F \| I]$ for the marginal density $F(\di x)$ of a continuous real variate $x$. The vertical grey lines mark $\pm2\sigmao$. The thicker green density at the bottom-right corner is the expected marginal density $\E[F(\di x) \| I]$.}\label{fig:marginal_real}
+\caption{399 samples from the density $\p[\di F \| I]$ for the marginal density $F(\di x)$ of a continuous real variate $x$. The vertical grey lines mark $\pm2\sigmao$. The thicker green density at the bottom-right corner is the expected marginal density $\E[F\| I](\di x)$.}\label{fig:marginal_real}
 \end{figure}
+
+\subsubsection{Density for parameters of integer components}
 
 
 
