@@ -1,7 +1,7 @@
 \pdfoutput=1
 %% Author: PGL  Porta Mana
 %% Created: 2015-05-01T20:53:34+0200
-%% Last-Updated: 2023-02-27T10:52:33+0100
+%% Last-Updated: 2023-02-27T11:49:40+0100
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newif\ifarxiv
 \arxivfalse
@@ -1460,6 +1460,9 @@ The mixture of several scale hyperparameters makes it somewhat broader without e
 \medskip
 
 The density obtained by mixing Gaussians with parameters $(\mu, \sigma^{2})$ according to the densities~\eqref{eq:density_mu}, \eqref{eq:density_sigma} cannot be written in closed form. It is shown in \fig~\ref{fig:gaussmix} (\textcolor{bluepurple}{solid blue}), upper panel, together with the densities of a Gaussian (\textcolor{redpurple}{dashed red}), a Cauchy (\textcolor{green}{dot-dashed green}), and a logistic (\textcolor{yellow}{dotted yellow}) distribution having the same median absolute deviation.
+
+The quantile function of this Gaussian mixture is also shown in \fig~\ref{fig:gaussmix}, lower panel. It is the function $Q(x)$ introduced in \sect~\ref{sec:variates_ordinal}.
+
 %%\setlength{\intextsep}{0ex}% with wrapfigure
 %%\setlength{\columnsep}{0ex}% with wrapfigure
 \begin{figure}
@@ -1470,8 +1473,7 @@ The density obtained by mixing Gaussians with parameters $(\mu, \sigma^{2})$ acc
 \caption{Upper panel, \textcolor{bluepurple}{solid blue}: density of the Gaussian mixture with $(\mu, \sigma^{2})$ having the densities~\eqref{eq:density_mu}, \eqref{eq:density_sigma}. For comparison, Gaussian (\textcolor{redpurple}{dashed red}), Cauchy (\textcolor{green}{dot-dashed green}), logistic (\textcolor{yellow}{dotted yellow}) densities with the same median absolute deviation (\textcolor{grey}{thicker grey} vertical lines) are also shown. Lower panel: corresponding quantile functions; the \textcolor{bluepurple}{solid blue} curve is also the function $Q(x)$.}\label{fig:gaussmix}
 \end{figure}
 
-The quantile function of this Gaussian mixture is also shown in \fig~\ref{fig:gaussmix}, lower panel. It is the function $Q(x)$ introduced in \sect~\ref{sec:variates_ordinal}.
-
+\medskip
 
 The combination of prior densities~\eqref{eq:density_w}, \eqref{eq:density_mu}, \eqref{eq:density_sigma} leads to a distribution $\p(\di F\|I)$ of marginal densities $F(\di x)$, for a real variate $x$, which is illustrated in \fig~\ref{fig:marginal_real}.
 %%\setlength{\intextsep}{0ex}% with wrapfigure
@@ -1482,7 +1484,22 @@ The combination of prior densities~\eqref{eq:density_w}, \eqref{eq:density_mu}, 
 \caption{399 samples from the density $\p[\di F \| I]$ for the marginal density $F(\di x)$ of a continuous real variate $x$. The vertical grey lines mark $\pm2\sigmao$. The thicker green density at the bottom-right corner is the expected marginal density $\E[F\| I](\di x)$.}\label{fig:marginal_real}
 \end{figure}
 
-\subsubsection{Density for parameters of integer components}
+%%\setlength{\intextsep}{0ex}% with wrapfigure
+%%\setlength{\columnsep}{0ex}% with wrapfigure
+\begin{figure}
+%\begin{wrapfigure}{r}{0.4\linewidth} % with wrapfigure
+\centering\includegraphics[width=\linewidth]{priorsamples_2censored.pdf}\\
+\caption{399 samples from the density $\p[\di F \| I]$ for the marginal density $F(\di x)$ of a continuous real variate $x$. The vertical grey lines mark $\pm2\sigmao$. The thicker green density at the bottom-right corner is the expected marginal density $\E[F\| I](\di x)$.}\label{fig:marginal_censored}
+\end{figure}
+
+%%\setlength{\intextsep}{0ex}% with wrapfigure
+%%\setlength{\columnsep}{0ex}% with wrapfigure
+\begin{figure}
+%\begin{wrapfigure}{r}{0.4\linewidth} % with wrapfigure
+\centering\includegraphics[width=\linewidth]{priorsamples_integer_32.pdf}\\
+\caption{399 samples from the density $\p[\di F \| I]$ for the marginal density $F(\di x)$ of a continuous real variate $x$. The vertical grey lines mark $\pm2\sigmao$. The thicker green density at the bottom-right corner is the expected marginal density $\E[F\| I](\di x)$.}\label{fig:marginal_integer}
+\end{figure}
+
 
 
 
