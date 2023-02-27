@@ -128,12 +128,12 @@ set.seed(123)
 ## tran <- function(x){qnorm(x*(1-2*dd)+dd)}
 ## jac <- function(x){1/dnorm(x*(1-2*dd)+dd)*(1-2*dd)}
 xlocation <- 0
-xq1 <- 0.5
-xq3 <- 2
+xq1 <- 1
+xq3 <- 3
 xscale <- (log(xq3)-log(xq1))*sdovermad2/2
 xlocation <- mean(log(c(xq1,xq3)))
 xmin <- 2^(-10)
-xmax <- 3
+xmax <- 4
 tran <- function(x){(log(x)-xlocation)/xscale}
 invtran <- function(y){exp(xscale*y+xlocation)}
 jac <- function(y){exp(-(xscale*y+xlocation))/xscale}
@@ -316,7 +316,7 @@ for(i in 1:nsamples){
           xticks=NA,yticks=NA,
           mar=c(1,1,1,1)*0.5,
           col=(if(i < prod(rowcol)){1}else{if(any(is.infinite(ysum))){2}else{3}}),
-          ly=1,lwd=0.5)
+          ly=1,lwd=(if(i < prod(rowcol)){0.5}else{1}))
     tplot(x=cbind(c(xmin,xmin),c(xmax,xmax)), y=rbind(0,yb)*max(y),
           type='l', lty=1, lwd=0.1,
           col=(if(i < prod(rowcol)){1}else{if(any(is.infinite(ysum))){2}else{3}}),
@@ -409,7 +409,7 @@ for(i in 1:nsamples){
           xlabels=NA,ylabels=NA, xlab=NA,ylab=NA,
           xticks=NA,yticks=NA,
           mar=c(1,1,1,1)*0.5,
-          col=(if(i < prod(rowcol)){1}else{if(any(is.infinite(ysum))){2}else{3}}), ly=1,lwd=0.5)
+          col=(if(i < prod(rowcol)){1}else{if(any(is.infinite(ysum))){2}else{3}}), ly=1,lwd=(if(i < prod(rowcol)){0.5}else{1}))
     ## tplot(x=xgrid[extr2], y=y[extr2],
     ##       type='p',col=4,cex=0.15,add=T,pch=3)
     ## if(!is.null(data)){
@@ -493,7 +493,7 @@ for(i in 1:nsamples){
           xlabels=NA,ylabels=NA, xlab=NA,ylab=NA,
           xticks=NA,yticks=NA,
           mar=c(1,1,1,1)*0.5,
-          col=(if(i < prod(rowcol)){1}else{if(any(is.infinite(ysum))){2}else{3}}), ly=1,lwd=0.5)
+          col=(if(i < prod(rowcol)){1}else{if(any(is.infinite(ysum))){2}else{3}}), ly=1,lwd=(if(i < prod(rowcol)){0.5}else{1}))
     ## tplot(x=xgrid[extr2], y=y[extr2],
     ##       type='p',col=4,cex=0.15,add=T,pch=3)
     ## if(!is.null(data)){

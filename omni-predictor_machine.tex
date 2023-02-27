@@ -1,7 +1,7 @@
 \pdfoutput=1
 %% Author: PGL  Porta Mana
 %% Created: 2015-05-01T20:53:34+0200
-%% Last-Updated: 2023-02-27T11:49:40+0100
+%% Last-Updated: 2023-02-27T13:16:08+0100
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newif\ifarxiv
 \arxivfalse
@@ -1404,7 +1404,7 @@ This density is a discretized version of a mixture of Dirichlet distributions wi
 \subsubsection{Density for parameters of Gaussian components}
 \label{sec:params_gaussian}
 
-We use a common density for the parameters $(\mu,\sigma^{2})$ of components based on a Gaussian density, discussed in \sects\,\ref{sec:variates_ordinal}, \ref{sec:variates_real}, \ref{sec:variates_censored}.
+We use a common density for the parameters $(\mu,\sigma^{2})$ of components based on a Gaussian density, discussed in \sects~\ref{sec:variates_ordinal}, \ref{sec:variates_real}, \ref{sec:variates_censored}.
 
 In the following, $\muo$ and $\sigmao$ are location and scale hyperparameters for the variate of interest. Their values are problem-dependent, determined by the nature of the variate. They can approximately -- although slightly inconsistently -- be determined by the data, if the latter are numerous. For instance, $\muo$ can be taken to be the median of the data, and $\sigmao$ one quarter the interquartile range or one half the median absolute deviation of the data, multiplied by $1/\Phi^{-1}(3/4)$ (the ratio between the standard deviation and the median absolute deviation of a Gaussian).
 
@@ -1459,7 +1459,12 @@ The mixture of several scale hyperparameters makes it somewhat broader without e
 
 \medskip
 
-The density obtained by mixing Gaussians with parameters $(\mu, \sigma^{2})$ according to the densities~\eqref{eq:density_mu}, \eqref{eq:density_sigma} cannot be written in closed form. It is shown in \fig~\ref{fig:gaussmix} (\textcolor{bluepurple}{solid blue}), upper panel, together with the densities of a Gaussian (\textcolor{redpurple}{dashed red}), a Cauchy (\textcolor{green}{dot-dashed green}), and a logistic (\textcolor{yellow}{dotted yellow}) distribution having the same median absolute deviation.
+The density obtained by mixing Gaussians with parameters $(\mu, \sigma^{2})$ according to the densities~\eqref{eq:density_mu}, \eqref{eq:density_sigma},
+\begin{equation}
+  \label{eq:gaussian_mixture}
+  \iint K(\di x \| \mu, \sigma^{2})\, \p(\di\mu \|I)\, \p(\di\sigma^{2} \|I)\,\di\mu\,\di\sigma^{2} \ ,
+\end{equation}
+cannot be written in closed form. This density is shown in \fig~\ref{fig:gaussmix} (\textcolor{bluepurple}{solid blue}), upper panel, together with the densities of a Gaussian (\textcolor{redpurple}{dashed red}), a Cauchy (\textcolor{green}{dot-dashed green}), and a logistic (\textcolor{yellow}{dotted yellow}) distribution having the same median absolute deviation.
 
 The quantile function of this Gaussian mixture is also shown in \fig~\ref{fig:gaussmix}, lower panel. It is the function $Q(x)$ introduced in \sect~\ref{sec:variates_ordinal}.
 
@@ -1470,37 +1475,56 @@ The quantile function of this Gaussian mixture is also shown in \fig~\ref{fig:ga
 \centering\includegraphics[width=0.75\linewidth]{Gaussmix.pdf}\\%\hfill%
 \includegraphics[width=0.75\linewidth]{Qfunction2.pdf}%
 \\
-\caption{Upper panel, \textcolor{bluepurple}{solid blue}: density of the Gaussian mixture with $(\mu, \sigma^{2})$ having the densities~\eqref{eq:density_mu}, \eqref{eq:density_sigma}. For comparison, Gaussian (\textcolor{redpurple}{dashed red}), Cauchy (\textcolor{green}{dot-dashed green}), logistic (\textcolor{yellow}{dotted yellow}) densities with the same median absolute deviation (\textcolor{grey}{thicker grey} vertical lines) are also shown. Lower panel: corresponding quantile functions; the \textcolor{bluepurple}{solid blue} curve is also the function $Q(x)$.}\label{fig:gaussmix}
+\caption{Upper panel, \textcolor{bluepurple}{solid blue}: density of the Gaussian mixture of \eqn~\eqref{eq:gaussian_mixture}. For comparison, Gaussian (\textcolor{redpurple}{dashed red}), Cauchy (\textcolor{green}{dot-dashed green}), logistic (\textcolor{yellow}{dotted yellow}) densities with the same median absolute deviation (\textcolor{grey}{thicker grey} vertical lines) are also shown. Lower panel: corresponding quantile functions; the \textcolor{bluepurple}{solid blue} curve is the function $Q(x)$ introduced in \sect\,\ref{sec:variates_ordinal}.}\label{fig:gaussmix}
 \end{figure}
 
 \medskip
 
-The combination of prior densities~\eqref{eq:density_w}, \eqref{eq:density_mu}, \eqref{eq:density_sigma} leads to a distribution $\p(\di F\|I)$ of marginal densities $F(\di x)$, for a real variate $x$, which is illustrated in \fig~\ref{fig:marginal_real}.
-%%\setlength{\intextsep}{0ex}% with wrapfigure
-%%\setlength{\columnsep}{0ex}% with wrapfigure
-\begin{figure}
-%\begin{wrapfigure}{r}{0.4\linewidth} % with wrapfigure
-\centering\includegraphics[width=\linewidth]{priorsamples_real.pdf}\\
-\caption{399 samples from the density $\p[\di F \| I]$ for the marginal density $F(\di x)$ of a continuous real variate $x$. The vertical grey lines mark $\pm2\sigmao$. The thicker green density at the bottom-right corner is the expected marginal density $\E[F\| I](\di x)$.}\label{fig:marginal_real}
-\end{figure}
-
-%%\setlength{\intextsep}{0ex}% with wrapfigure
-%%\setlength{\columnsep}{0ex}% with wrapfigure
-\begin{figure}
-%\begin{wrapfigure}{r}{0.4\linewidth} % with wrapfigure
-\centering\includegraphics[width=\linewidth]{priorsamples_2censored.pdf}\\
-\caption{399 samples from the density $\p[\di F \| I]$ for the marginal density $F(\di x)$ of a continuous real variate $x$. The vertical grey lines mark $\pm2\sigmao$. The thicker green density at the bottom-right corner is the expected marginal density $\E[F\| I](\di x)$.}\label{fig:marginal_censored}
-\end{figure}
+The combination of prior densities~\eqref{eq:density_w}, \eqref{eq:density_mu}, \eqref{eq:density_sigma} leads to a distribution $\p(\di F\|I)$ of marginal densities $F(\di x)$ for the integer and continuous variates discussed in \sects~\ref{sec:variates_ordinal}, \ref{sec:variates_real}, \ref{sec:variates_censored}. These densities are illustrated in \figs~\ref{fig:marginal_integer}, \ref{fig:marginal_real}, \ref{fig:marginal_censored} in the form of 399 samples drawn from them, each sample being a possible distribution $F$.
 
 %%\setlength{\intextsep}{0ex}% with wrapfigure
 %%\setlength{\columnsep}{0ex}% with wrapfigure
 \begin{figure}
 %\begin{wrapfigure}{r}{0.4\linewidth} % with wrapfigure
 \centering\includegraphics[width=\linewidth]{priorsamples_integer_32.pdf}\\
-\caption{399 samples from the density $\p[\di F \| I]$ for the marginal density $F(\di x)$ of a continuous real variate $x$. The vertical grey lines mark $\pm2\sigmao$. The thicker green density at the bottom-right corner is the expected marginal density $\E[F\| I](\di x)$.}\label{fig:marginal_integer}
+\caption{399 samples from the density $\p[\di F \| I]$ for the marginal distribution $F(x)$ of an integer variate, discussed in \sect\,\ref{sec:variates_ordinal}, with values in $\set{1,\dotsc,32}$. The thicker green density at the bottom-right corner is the expected marginal distribution $\E[F\| I](x)$.}\label{fig:marginal_integer}
 \end{figure}
 
+%%\setlength{\intextsep}{0ex}% with wrapfigure
+%%\setlength{\columnsep}{0ex}% with wrapfigure
+\begin{figure}
+%\begin{wrapfigure}{r}{0.4\linewidth} % with wrapfigure
+\centering\includegraphics[width=\linewidth]{priorsamples_real.pdf}\\
+\caption{399 samples from the density $\p[\di F \| I]$ for the marginal density $F(\di x)$ of a continuous real variate $x$. The vertical grey lines mark $\pm2\sigmao$. The thicker green density at the bottom-right corner is the expected marginal density $\E[F\| I](\di x)$.}\label{fig:marginal_censored}
+\end{figure}
 
+%% \setlength{\intextsep}{0ex}% with wrapfigure
+%%\setlength{\columnsep}{0ex}% with wrapfigure
+\begin{figure}
+%\begin{wrapfigure}{r}{0.4\linewidth} % with wrapfigure
+\centering\includegraphics[width=\linewidth]{priorsamples_2censored.pdf}\\
+\caption{399 samples from the density $\p[\di F \| I]$ for the marginal density $F(\di x)$ of a continuous variate with boundary singularities. The vertical grey lines mark $\pm 2\sigmao$; the boundaries are assumed to be at $\pm 3\sigmao$. The finite probabilities assigned to the boundary values are depicted as small disks; the unit value correspond to the dashed red horizontal line. The thicker green density at the bottom-right corner is the expected marginal density $\E[F\| I](\di x)$.}\label{fig:marginal_real}
+\end{figure}
+
+\subsubsection{Density for the parameter of Bernoulli components}
+\label{sec:density_bernoulli}
+
+The component distributions for a binary variate, \sect\,\ref{sec:variates_binary}, is a Bernoulli distribution with weight parameter $q \in\clcl{0,1}$. For the density of this parameter we take a uniform distribution on $\clcl{0,1}$, equivalent to a beta distribution with unit shape parameters:
+\begin{equation}
+  \label{eq:density_q_bernoulli}
+  \p(\di q\|I) = \di q \ .
+\end{equation}
+This is also the resulting uniform density $\p[F(X \mo 1) \|I]$ for the probability of any one of the binary values.
+
+
+\subsubsection{Density for the parameters of the categorical components}
+\label{sec:density_categorical}
+
+Components with categorical variates have a categorical distribution with normalized weights $q \defd (q_{1},\dotsc,q_{n})$, as discussed in \sect\,\ref{sec:variates_categorical}. The density for these weights is a Dirichlet distribution with unit concentration parameter, or equivalently a constant density on the simplex $\set{q}$:
+\begin{equation}
+  \label{eq:density_q_categorical}
+  \p(\di q\|I) = \delt\bigl(\tsum_{i}q_{i}-1\bigr)\,\di q \ .
+\end{equation}
 
 
 
