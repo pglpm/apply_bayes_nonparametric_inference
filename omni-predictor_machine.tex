@@ -1,7 +1,7 @@
 \pdfoutput=1
 %% Author: PGL  Porta Mana
 %% Created: 2015-05-01T20:53:34+0200
-%% Last-Updated: 2023-02-26T18:37:31+0100
+%% Last-Updated: 2023-02-27T10:52:33+0100
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newif\ifarxiv
 \arxivfalse
@@ -1220,6 +1220,7 @@ and $\Phi^{-1}\colon \clcl{0,1}\to\set{-\infty}\cup\RR\cup\set{+\infty}$ its inv
 
 
 \subsubsection{Binary variates}
+\label{sec:variates_binary}
 
 For a binary variate $x \in \set{0,1}$ we choose a Bernoulli distribution with weight parameter $\xi=q$:
 \begin{equation}
@@ -1237,6 +1238,7 @@ For a binary variate $x \in \set{0,1}$ we choose a Bernoulli distribution with w
 Obviously any other binary values $\set{a,b}$ can be mapped into $\set{0,1}$.
 
 \subsubsection{Categorical variates}
+\label{sec:variates_categorical}
 
 For a categorical variate with $n$ possible values, $x \in \set{a_{1}, \dotsc, a_{n}}$, we choose a categorical distribution with normalized weight parameters $q \defd (q_{1}, \dotsc, q_{n})$:
 \begin{equation}
@@ -1255,17 +1257,20 @@ For a categorical variate with $n$ possible values, $x \in \set{a_{1}, \dotsc, a
 Obviously the values $\set{a_{1}, \dotsc, a_{n}}$ can be set in one-one correspondence with $\set{1, \dotsc, n}$.
 
 \subsubsection{Integer or discrete ordinal variates}
+\label{sec:variates_ordinal}
 
 By \enquote{discrete ordinal} variate it is meant a variate $x$ assuming a discrete number $m$ of values which have a natural ordering, for example integers $x \in \set{1,\dotsc, m}$. The fact that they have a natural ordering has implications for smoothness, in a loose sense of this word. That is, we expect the probabilities for two consecutive values not to have excessive jumps. This is the difference between a discrete-ordinal variate and the categorical one discussed above.
 
-For such a variate we can use a \enquote{discretized-Gaussian} distribution with mean and variance parameters $(\mu,\sigma^{2})$. We introduce first a function
-\begin{multline}
-  \label{eq:Q_function_integer}
-  Q\colon \set{1,\dotsc, m} \to \RR
-  \\ \text{satisfying the symmetry}\quad 
-  Q(m+1-x)=Q(x) \ ,
-\end{multline}
-which will be described more in detail in \sect\mynotew{***}. The distribution for $x$ is then given by
+For such a variate we can use a \enquote{discretized-Gaussian} distribution with mean and variance parameters $(\mu,\sigma^{2})$. We first introduce the monotonically increasing function
+\begin{gather}
+    \label{eq:Q_function_integer}
+    Q\colon \clcl{0,1} \to \set{-\infty}\cup\RR\cup\set{+\infty}
+    \\ \shortintertext{satisfying}
+    Q(0)=-\infty\ ,\quad Q(1)=+\infty \ ,
+    \quad 
+    Q(1-x)=-Q(x) \ ,
+\end{gather}
+which is shown in the lower panel of \fig~\ref{fig:gaussmix} (\textcolor{bluepurple}{solid blue} curve) and will be described in more detail in \sect~\ref{sec:params_gaussian}. The distribution for $x$ is then given by
 \begin{equation}
   \label{eq:K_int}
   \begin{split}
@@ -1274,15 +1279,15 @@ which will be described more in detail in \sect\mynotew{***}. The distribution f
     &\!\begin{aligned}
   K(x \| \mu, \sigma^{2}) &\defd
   \Phi\biggl[
-  \frac{Q(x) - \mu}{\sigma}
+  \frac{Q\bigl(\frac{x}{m}\bigr) - \mu}{\sigma}
   \biggr]
   -
   \Phi\biggl[
-  \frac{Q(x-1) - \mu}{\sigma}
+  \frac{Q\bigl(\frac{x-1}{m}\bigr) - \mu}{\sigma}
   \biggr]
   \\[\jot]&\equiv
   \frac{1}{\sqrt{2\pu\,\sigma^{2}}}\,
-  \int_{Q(x-1)}^{Q(x)}
+  \int_{Q(\frac{x-1}{m})}^{Q(\frac{x}{m})}
   \exp\biggl[-\frac{(z-\mu)^{2}}{2\,\sigma^{2}}\biggr]\, \di z \ .
 \end{aligned}
 \end{split}
@@ -1292,6 +1297,7 @@ which will be described more in detail in \sect\mynotew{***}. The distribution f
 Discrete ordinal variates with other domains can be mapped onto $\set{1,\dotsc,m}$.
 
 \subsubsection{Continuous real variates}
+\label{sec:variates_real}
 
 For a continuous real variate $x \in \RR$ we choose a Gaussian distribution with mean and variance as the parameters $\xi=(\mu, \sigma^{2})$:
 \begin{equation}
@@ -1305,11 +1311,12 @@ For a continuous real variate $x \in \RR$ we choose a Gaussian distribution with
 \end{split}
 \end{equation}
 
-\subsubsection{Censored continuous variates}
+\subsubsection{Continuous variates with boundary singularities or censoring}
+\label{sec:variates_censored}
 
-A \enquote{censored continuous} variate is meant here, more generally, to be a continuous variate with values in a \emph{closed} or semi-closed bounded set, for example $x \in \clcl{a,b}$ or $x \in \clop{a,+\infty}$. Owing to the topology of its domain, such variate cannot be mapped onto a continuous unbounded one, previously discussed.
+By \enquote{variate with boundary singularity} we mean a continuous variate with values in a \emph{closed} or semi-closed bounded set, for example $x \in \clcl{a,b}$ or $x \in \clop{a,+\infty}$. Owing to the topology of its domain, such variate cannot be mapped onto a continuous unbounded one discussed in \sect\,\ref{sec:variates_real}.
 
-The boundary value or values that such a variable can take often have a singular probability mass (delta distribution), which may arise from the fact that $x$ is censored, that is, it could in principle assume continuous values outside the boundaries, but such values are truncated to the boundary ones.
+The boundary value or values that such a variate can take often have a singular probability mass (delta distribution), which may arise from the fact that $x$ is censored, that is, it could in principle assume continuous values outside the boundaries, but such values are truncated to the boundary ones.
 
 For such a variate we can use a Gaussian distribution with mean and variance parameters $(\mu,\sigma^{2})$, where the $x \le a$ and $x \ge b$ tails represent the probability mass given to the boundary points:
 \begin{equation}
@@ -1340,6 +1347,7 @@ For such a variate we can use a Gaussian distribution with mean and variance par
 The semi-bounded case $x \in \clop{a,+\infty}$ can be obtained with obvious adjustments. The continuous non-bounded case previously discussed can be seen as a limit case of the present one for $a\to -\infty$, $b\to +\infty$.
 
 \subsubsection{Other continuous variates}
+\label{sec:variates_other}
 
 Other continuous variates with open or semi-open connected domains in the real line can be transformed into the continuous real or censored ones discussed last. For example a variate $z \in \opop{0, +\infty}$ can be transformed into $x=\ln z$, a variate $z \in \opop{a,b}$ into $x=\Phi^{-1}\bigl(\frac{z-a}{b-a}\bigr)$, and a variate $z \in \clop{0, +\infty}$ into $x=\ln(z+q)$ for some $q > 0$ to be treated as a censoring value. These kinds of transformation are often suggested by the nature of the original variate.
 
@@ -1375,6 +1383,7 @@ and likewise for $\p(\di\upsilon^{c}_{j} \|I)$.
 In the following the specific factor densities are described. The generic parameter $\xi$ is used to include both $\upsilon$ and $\xi$.
 
 \subsubsection{Density for $w$}
+\label{sec:params_w}
 
 The density for the weights $w$ is a discrete mixture of Dirichlet distributions with different concentration parameters $\alpha$:
 \begin{equation}
@@ -1391,18 +1400,24 @@ with $\alpha$ running through the values $\set*{2^{-3},2^{-2},2^{-1},1,2^{1},2^{
 
 This density is a discretized version of a mixture of Dirichlet distributions with a continuous range of concentration parameters \autocites[\eg][\sect\,2.5]{rossi2014}[\sect\,2.1]{rasmussen1999}. The discretized version seems to lead to the same general predictive properties as the continuous one, but is computationally more convenient.
 
-\subsubsection{Density for parameters of Gaussian components}
 
-The density for the mean $\mu$ of components with a Gaussian distribution is a broad Gaussian distribution:
+\subsubsection{Density for parameters of Gaussian components}
+\label{sec:params_gaussian}
+
+We use a common density for the parameters $(\mu,\sigma^{2})$ of components based on a Gaussian density, discussed in \sects\,\ref{sec:variates_ordinal}, \ref{sec:variates_real}, \ref{sec:variates_censored}.
+
+In the following, $\muo$ and $\sigmao$ are location and scale hyperparameters for the variate of interest. Their values are problem-dependent, determined by the nature of the variate. They can approximately -- although slightly inconsistently -- be determined by the data, if the latter are numerous. For instance, $\muo$ can be taken to be the median of the data, and $\sigmao$ one quarter the interquartile range or one half the median absolute deviation of the data, multiplied by $1/\Phi^{-1}(3/4)$ (the ratio between the standard deviation and the median absolute deviation of a Gaussian).
+
+
+The density for the mean $\mu$ is a broad Gaussian distribution:
 \begin{equation}
   \label{eq:density_mu}
-  \p(\di \mu\|I) = \Phi'\biggl(\frac{\mu-\muo}{2\,\sigmao}\biggr) \di\mu
+  \p(\di \mu\|I) = \Phi'\biggl(\frac{\mu-\muo}{2\,\sigmao}\biggr) \di\mu \ .
 \end{equation}
-where $\muo$ and $\sigmao$ are location and scale hyperparameters for the variate of interest, and $C$ a constant factor. The values of these hyperparameters are determined by the nature of the variate; otherwise they can approximately -- although slightly inconsistently -- be determined by the data, if the latter are numerous. For instance, $\muo$ can be taken to be the median of the data, and $\sigmao$ one quarter the interquartile range or one half the median absolute deviation of the data, multiplied by $1/\Phi^{-1}(3/4)$ (the ratio between the standard deviation and the median absolute deviation of a Gaussian).
 
 \medskip
 
-The density for the variance $\sigma^{2}$ is a discrete mixture of beta-prime distributions (or beta distributions of the second kind) \autocites[\sect\,25.7, 27.2]{johnsonetal1970b_r1995}{mcdonald1984} with unit shape hyperparameters and different scale hyperparameters $\tau^{2}$. The beta-prime can in turn be written as a mixture of inverse-gamma distributions \autocites{dubey1970} with different rate parameters $\lambda$:
+The density for the variance $\sigma^{2}$ is a discrete mixture of beta-prime distributions (or beta distributions of the second kind) \autocites[\sect\,25.7, 27.2]{johnsonetal1970b_r1995}{mcdonald1984} having unit shape hyperparameters and different scale hyperparameters $\tau^{2}$. The beta-prime can in turn be written as a continuous mixture of inverse-gamma distributions \autocites{dubey1970} having different rate parameters $\lambda$:
 \begin{equation}
   \label{eq:density_sigma}
   \begin{split}
@@ -1443,6 +1458,20 @@ The mixture of several scale hyperparameters makes it somewhat broader without e
 \end{figure}
 
 \medskip
+
+The density obtained by mixing Gaussians with parameters $(\mu, \sigma^{2})$ according to the densities~\eqref{eq:density_mu}, \eqref{eq:density_sigma} cannot be written in closed form. It is shown in \fig~\ref{fig:gaussmix} (\textcolor{bluepurple}{solid blue}), upper panel, together with the densities of a Gaussian (\textcolor{redpurple}{dashed red}), a Cauchy (\textcolor{green}{dot-dashed green}), and a logistic (\textcolor{yellow}{dotted yellow}) distribution having the same median absolute deviation.
+%%\setlength{\intextsep}{0ex}% with wrapfigure
+%%\setlength{\columnsep}{0ex}% with wrapfigure
+\begin{figure}
+%\begin{wrapfigure}{r}{0.4\linewidth} % with wrapfigure
+\centering\includegraphics[width=0.75\linewidth]{Gaussmix.pdf}\\%\hfill%
+\includegraphics[width=0.75\linewidth]{Qfunction2.pdf}%
+\\
+\caption{Upper panel, \textcolor{bluepurple}{solid blue}: density of the Gaussian mixture with $(\mu, \sigma^{2})$ having the densities~\eqref{eq:density_mu}, \eqref{eq:density_sigma}. For comparison, Gaussian (\textcolor{redpurple}{dashed red}), Cauchy (\textcolor{green}{dot-dashed green}), logistic (\textcolor{yellow}{dotted yellow}) densities with the same median absolute deviation (\textcolor{grey}{thicker grey} vertical lines) are also shown. Lower panel: corresponding quantile functions; the \textcolor{bluepurple}{solid blue} curve is also the function $Q(x)$.}\label{fig:gaussmix}
+\end{figure}
+
+The quantile function of this Gaussian mixture is also shown in \fig~\ref{fig:gaussmix}, lower panel. It is the function $Q(x)$ introduced in \sect~\ref{sec:variates_ordinal}.
+
 
 The combination of prior densities~\eqref{eq:density_w}, \eqref{eq:density_mu}, \eqref{eq:density_sigma} leads to a distribution $\p(\di F\|I)$ of marginal densities $F(\di x)$, for a real variate $x$, which is illustrated in \fig~\ref{fig:marginal_real}.
 %%\setlength{\intextsep}{0ex}% with wrapfigure

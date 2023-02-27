@@ -66,9 +66,10 @@ xsamples <- rnorm(nsamples,
 IQR(xsamples)/2
 mad(xsamples, constant=1)
 IQR(xsamples)*sdovermad2/2
+rm(xsamples)
 ## thist(xsamples[xsamples<6&xsamples>-6],plot=T)
 ## abline(v=c(-1,1))
-nsamples2 <- min(10000,nsamples)
+nsamples2 <- min(2^14,nsamples)
 alpha <- sample(rep(alpha0,2),nsamples2,replace=T)
 q <- extraDistr::rdirichlet(n=nsamples2,alpha=matrix(alpha/nclusters,nsamples2,nclusters))
 sd <- sample(rep(sqrt(rvar0),2),nsamples2*nclusters,replace=T)
@@ -116,6 +117,41 @@ for(i in 1:nsamples2){
     }
 }
 dev.off()
+
+nclusters <- 64
+alpha0 <- 2^((-3):3)
+rmean0 <- 0
+rvar0 <- (0+2*sdovermad2)^2
+rshapein0 <- 1 # large scales
+rshapeout0 <- 1 # small scales
+hwidth <- 2 # number of powers of 2 to consider in either direction
+rvarscales <- rep(((0+1*sdovermad2) * 2^((-hwidth):hwidth))^2 ,2)
+##
+nsamples <- 2^24
+xsamples <- rnorm(nsamples,
+                  mean=rnorm(nsamples,mean=rmean0,sd=sqrt(rvar0)),
+                  sd=sqrt(
+                      extraDistr::rbetapr(nsamples,shape1=rshapein0,shape2=rshapeout0,
+                                          scale=sample(rvarscales,nsamples,replace=T))
+                  )
+                  )
+
+
+thismad <- mad(xsamples,constant=1)
+thismad
+xr <- 8
+xgrid <- seq(-xr,xr,length.out=256)
+his <- thist(xsamples[xsamples<xr & xsamples > -xr],n=xgrid)
+pdff('Gaussmix')
+tplot(x=his$mids, y=list(his$density,dnorm(his$mids,sd=sdovermad2*2*thismad),dcauchy(his$mids,scale=thismad),dlogis(his$mids,scale=thismad/qlogis(3/4))),
+      xticks=seq(-xr,xr,by=1)*sdovermad2*2, xlabels=seq(-xr,xr,by=1),
+                                        #sapply(seq(-3,3,by=1),function(i)as.expression(bquote(.(i*2)*bar(sigma))))
+      xlab=expression(italic(x)/bar(sigma)), ylab='density',
+      lwd=c(3,2,2,5),lty=c(1,2,4,3), alpha=c(0,rep(0.25,3)),
+      mar=c(NA,5,2,1))
+abline(v=c(-1,1)*thismad,col=alpha2hex(7,0.25),lwd=2)
+dev.off()
+
 
 #### doubly-censored variate
 sdovermad2 <- 0.5/qnorm(0.75)
@@ -325,20 +361,37 @@ ishapeout0 <- 1 # small scales
 hwidth <- 2 # number of powers of 2 to consider in either direction
 ivarscales <- ((sdovermad2) * 2^((-hwidth):hwidth))^2
 ##
+nint <- 512
 nsamplesx <- 1e7
-xsamples <- rnorm(nsamplesx,
+testgr <- c(-Inf,
+            tquant(rnorm(nsamplesx,
                   mean=rnorm(nsamplesx,mean=imean0,sd=sqrt(ivar0)),
                   sd=sqrt(
                       extraDistr::rbetapr(nsamplesx,shape1=ishapein0,shape2=ishapeout0,
                                           scale=sample(ivarscales,nsamplesx,replace=T))
                   )
-                  )
-testgr <- tquant(xsamples, seq(0,1,length.out=nint+1))
-testgr <- (testgr-rev(testgr))/2
-testgr[c(1,length(testgr))] <- c(-Inf,+Inf)
+                  ),
+                  seq(1/nint,(nint-1)/nint,length.out=nint-1)),
+            +Inf)
 ## tplot(x=1:(nint-1),y=list(testgr[-c(1,nint+1)],qnorm(seq(0,1,length.out=nint+1),sd=3)[-c(1,nint+1)]))
 testgr[-c(1,nint+1)]
               }
+
+nint <- 512
+nsamplesx <- 2^24
+testgr <- c(NULL,
+            tquant(rnorm(nsamplesx,
+                  mean=rnorm(nsamplesx,mean=imean0,sd=sqrt(ivar0)),
+                  sd=sqrt(
+                      extraDistr::rbetapr(nsamplesx,shape1=ishapein0,shape2=ishapeout0,
+                                          scale=sample(ivarscales,nsamplesx,replace=T))
+                  )
+                  ),
+                  seq(1/nint,(nint-1)/nint,length.out=nint-1)),
+            NULL)
+testgr <- (testgr-rev(testgr))/2
+approxq <- approxfun(x=seq(1/nint,(nint-1)/nint,length.out=nint-1),y=testgr,yleft=-Inf,yright=+Inf)
+saveRDS(approxq,'Qfunction512.rsd')
 
 xss <- foreach(nint=rev(c(5,
                 10,32,100,
@@ -350,6 +403,28 @@ tplot(x=xss[[2]],y=list(qfs[[2]],qnorm(xss[[2]]),qlogis(xss[[2]]),qcauchy(xss[[2
       xticks=c(0,0.5,1),xlabels=c(0,expression(italic(m)/2),expression(italic(m)+1)),
       xlab=expression(italic(x)), ylab=expression(italic(Q)(italic(x))),
       mar=c(NA,5,2,1))
+dev.off()
+
+nint <- 256
+xgrid <- seq(1/nint,(nint-1)/nint,length.out=nint-1)
+pdff('Qfunction2')
+tplot(x=xgrid,y=list(approxq(xgrid),qnorm(xgrid,sd=sdovermad2*2*thismad),qcauchy(xgrid,scale=thismad),qlogis(xgrid,scale=thismad/qlogis(3/4))),
+      lwd=c(3,2,2,5),lty=c(1,2,4,3), alpha=c(0,rep(0.25,3)),
+      ylim=range(approxq(xgrid)), 
+      ## xticks=c(0,0.25,0.5,0.75,1),xlabels=c(0,expression(italic(m)/4),expression(italic(m)/2),expression(3*italic(m)/4),expression(italic(m))),
+      xlab=expression(italic(x)), ylab=expression(italic(Q)(italic(x))),
+      mar=c(NA,5,2,1))
+dev.off()
+
+
+pdff('Qfunction')
+tplot(x=xss,y=qfs,type='p',lwd=0.5,lty=c(1,2,4,3),ylim=range(qfs[[2]]), alpha=0.25,
+      xticks=c(0,0.5,1),xlabels=c(0,expression(italic(m)/2),expression(italic(m)+1)),
+      xlab=expression(italic(x)), ylab=expression(italic(Q)(italic(x))),
+      mar=c(NA,5,2,1))
+nint <- 256
+xgrid <- seq(1/nint,(nint-1)/nint,length.out=nint-1)
+tplot(x=xgrid,y=approxq(xgrid),add=T)
 dev.off()
 
 
