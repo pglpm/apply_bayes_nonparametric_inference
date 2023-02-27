@@ -37,8 +37,8 @@ set.seed(123)
 ## jac <- function(x){1/dnorm(x*(1-2*dd)+dd)*(1-2*dd)}
 xlocation <- 0
 xscale <- 1
-xmin <- -6
-xmax <- 6
+xmin <- -5
+xmax <- 5
 tran <- function(x){(x-xlocation)/xscale}
 invtran <- function(y){y*xscale+xlocation}
 jac <- function(y){1/xscale}
@@ -49,11 +49,11 @@ nsamples <- 1e6
 nclusters <- 64
 alpha0 <- 2^((-3):3)
 rmean0 <- 0
-rvar0 <- (2)^2
+rvar0 <- (sdovermad)^2
 rshapein0 <- 1 # large scales
 rshapeout0 <- 1 # small scales
 hwidth <- 2 # number of powers of 2 to consider in either direction
-rvarscales <- (0.001 * 2^((-hwidth):hwidth))^2
+rvarscales <- (0.5*sdovermad * 2^((-hwidth):hwidth))^2
 ##
 xsamples <- rnorm(nsamples,
                   mean=rnorm(nsamples,mean=rmean0,sd=sqrt(rvar0)),
@@ -68,7 +68,6 @@ IQR(xsamples)*sdovermad2/2
 rm(xsamples)
 ## thist(xsamples[xsamples<6&xsamples>-6],plot=T)
 ## abline(v=c(-1,1))
-
 graphics.off()
 pdff('priorsamples_real_test')
 nsamples2 <- min(2^14,nsamples)
@@ -113,7 +112,7 @@ for(i in 1:nsamples2){
     abline(h=c(0),lwd=0.5,col=alpha2hex2(0.5,c(7,2)),lty=c(1,2))
 ##    if(i==nsamples2){
     if(TRUE){
-        abline(v=c(-1,1)*2*sdovermad2,lwd=0.5,col=alpha2hex(7,0.5),lty=1)
+        abline(v=c(-1,1),lwd=0.5,col=alpha2hex(7,0.5),lty=1)
         ## abline(v=c(xmin,xmax),lwd=0.5,col=alpha2hex(0.5,7),lty=2)
     }
     }
