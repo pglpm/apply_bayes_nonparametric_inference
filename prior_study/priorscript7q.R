@@ -28,11 +28,10 @@ nn <- 32
 #### Currently used ####
 
 #### continuous variate
+sdovermad <- 1/qnorm(0.75)
 sdovermad2 <- 0.5/qnorm(0.75)
 ## dt <- fread('~/repositories/ledley-jaynes_machine/scripts/ingrid_data_nogds6.csv')
 ## varinfo <- data.matrix(read.csv('~/repositories/ledley-jaynes_machine/scripts/varinfo.csv',row.names=1))
-graphics.off()
-pdff('priorsamples_real')
 set.seed(123)
 ## tran <- function(x){qnorm(x*(1-2*dd)+dd)}
 ## jac <- function(x){1/dnorm(x*(1-2*dd)+dd)*(1-2*dd)}
@@ -50,11 +49,11 @@ nsamples <- 1e6
 nclusters <- 64
 alpha0 <- 2^((-3):3)
 rmean0 <- 0
-rvar0 <- (0+2*sdovermad2)^2
+rvar0 <- (2)^2
 rshapein0 <- 1 # large scales
 rshapeout0 <- 1 # small scales
 hwidth <- 2 # number of powers of 2 to consider in either direction
-rvarscales <- rep(((0+1*sdovermad2) * 2^((-hwidth):hwidth))^2 ,2)
+rvarscales <- (0.001 * 2^((-hwidth):hwidth))^2
 ##
 xsamples <- rnorm(nsamples,
                   mean=rnorm(nsamples,mean=rmean0,sd=sqrt(rvar0)),
@@ -69,6 +68,9 @@ IQR(xsamples)*sdovermad2/2
 rm(xsamples)
 ## thist(xsamples[xsamples<6&xsamples>-6],plot=T)
 ## abline(v=c(-1,1))
+
+graphics.off()
+pdff('priorsamples_real_test')
 nsamples2 <- min(2^14,nsamples)
 alpha <- sample(rep(alpha0,2),nsamples2,replace=T)
 q <- extraDistr::rdirichlet(n=nsamples2,alpha=matrix(alpha/nclusters,nsamples2,nclusters))
