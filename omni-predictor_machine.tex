@@ -1,7 +1,7 @@
 \pdfoutput=1
 %% Author: PGL  Porta Mana
 %% Created: 2015-05-01T20:53:34+0200
-%% Last-Updated: 2023-02-28T13:34:43+0100
+%% Last-Updated: 2023-02-28T14:19:42+0100
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newif\ifarxiv
 \arxivfalse
@@ -1561,7 +1561,7 @@ Components with categorical variates have a categorical distribution with normal
 \section{Explicit form of the density $\p(\di F\|D,I)$}
 \label{sec:explicit_posterion_F}
 
-We can now rewrite the density $\p(\di F \| D,I)$ for $F$ conditional on the known units $D$, \eqn~\eqref{eq:common_density}, in terms of the densities specified in \sect\,\ref{cha:repres_F}. Its resulting expression is not immediately intelligible if written in full generality. We therefore introduce some simplifications that still allow us to understand the more general form. First, the variates $Y$ are omitted because they play the same mathematical role as the $X$ variates. Second, we consider the $X$ variates to be five: $X_{\vb},X_{\vc},X_{\vi},X_{\vr},X_{\vd}$, one for each kind discussed in \sects~\ref{sec:variates_binary}--\ref{sec:variates_censored}. Third, we consider only two known units; therefore $D$ is the conjuction of the statements \prop{$X^{1}\mo x^{1}$} and \prop{$X^{2}\mo x^{2}$}.
+We can now rewrite the density $\p(\di F \| D,I)$ for $F$ conditional on the known units $D$, \eqn~\eqref{eq:common_density}, in terms of the densities specified in \sect\,\ref{cha:repres_F}. Its resulting expression is not immediately intelligible if written in full generality. We therefore introduce some simplifications that still allow us to understand the more general form. First, the variates $Y$ are omitted because they play the same mathematical role as the $X$ variates. Second, we consider the $X$ variates to be five: $X_{\vb},X_{\vc},X_{\vi},X_{\vr},X_{\vd}$, one for each kind discussed in \sects~\ref{sec:variates_binary}--\ref{sec:variates_censored}. Third, we consider all location hyperparameters $\muo$ to be $0$ and all scale hyperparameters $\sigmao$ to be $1$.
 
 In this simplified case, the density $F$ is thus represented by
 \begin{equation}
@@ -1569,31 +1569,89 @@ In this simplified case, the density $F$ is thus represented by
 F \corr (w^{c},\, r^{c},\, q^{c},\,
   \lambda^{c}, \rho^{c},\,
   \mu^{c}, \sigma^{c},\,
-  \nu^{c}, \tau^{c}) \ .
+  \nu^{c}, \tau^{c}) \ ,
 \end{equation}
+and the density $\p(\di F \| D,I)$ takes on the more explicit expression shown in \eqn~\eqref{eq:posterior_F_explicit}.
 
-\begin{multline}
-  \label{eq:posterior_F_explicit}
-  \p(\di F \| D, I) \corr
-  \p(\di w, \di r, \di q,
-  \di \lambda, \di \rho,
-  \di \mu, \di \sigma,
-  \di \nu, \di \tau
-  \| D, I) \propto{}\\
-  \prod_{u}\biggl[
-  \sum_{c^u}
-  w^{c^u}\times{}\\
-  K(x_{\vr}^u\|\mu_{\vr}^{c^u},v_{\vr}^{c^u})\,
-  K(x_{\vd}^u\|\mu_{\vd}^{c^u},v_{\vd}^{c^u})\,
-  K(x_{\vi}^u\|\mu_{\vi}^{c^u},v_{\vi}^{c^u})\,
-  K(x_{\vb}^u\|q_{\vb}^{c^u})\,
-  K(x_{\vc}^u\|q_{\vc}^{c^u})
-  \biggr]
-  \times{}
-  \\
-  test
-\end{multline}
-
+\begin{table}\label{tab:posterior_F}
+  \begin{multline}
+    \label{eq:posterior_F_explicit}
+    \p(\di F \| D, I) \corr
+    \p(\di w, \di r, \di q,
+    \di \lambda, \di \rho,
+    \di \mu, \di \sigma,
+    \di \nu, \di \tau
+    \| D, I) \propto{}\\
+    \begin{aligned}
+      \prod_{u}\Biggl[
+      \sum_{c^u}&
+      w^{c^u}\times{}\\
+      &x^{u}_{\vr}\, r^{c^u} + (1-x^{u}_{\vr})\,(1-r^{c^u}) \times{}\\
+      &q^{c^u}_{x^{u}_{\vc}} \times{}\\
+      &\frac{1}{\sqrt{2\pu\,{\sigmai^{c^u}}^{2}}}\,
+      \int_{Q\bigl(\frac{x_{\vi}^{u}-1}{m}\bigr)}^{Q\bigl(\frac{x_{\vi}^{u}}{m}\bigr)}
+      \exp\biggl[-\frac{(z^{u}-\mui^{c^u})^{2}}{2\,{\sigmai^{c^u}}^{2}}\biggr]\, \di z^{u}
+      \times{}\\
+      &\Phi'\biggl(\frac{x^{u}-\mur^{c^u}}{\sigmar^{c^u}}\biggr) \times{}\\
+      &\Phi'\biggl(
+      \frac{x_{\vd}^{u} - \mud^{c^u}}{\sigmad^{c^u}}
+      \biggr)
+      \Biggr]
+      \times{}
+    \end{aligned}
+    \\[2\jot]
+    \frac{1}{7}
+    \sum_{\alpha=2^{-3}}^{2^{3}}
+    (\alpha - 1)! \Biggl[\prod_{c=1}^{M}
+    \frac{\bigl(w^{c}\bigr)^{\alpha/M-1}}{(\alpha/M -1)!} \Biggr]
+    \, \delt\Bigl(1-\tsum_{c=1}^{M} w^{c}\Bigr)\,
+    \di w
+    \times{}\\
+    \begin{aligned}[b]
+      \prod_{c=1}^{M}\Biggl[&\di r^{c}
+      \times{}\\
+      &
+      \delt\bigl(\tsum_{i}q^{c}_{i}-1\bigr)\,\di q^{c}
+      \times{}\\
+      & 
+      \Phi'\bigl(\mui^{c}\bigr)\ 
+      \frac{1}{5}\sum_{l_{\vi}^{c}=2^{-2}}^{2^{2}}\,
+      \int_{0}^{\infty}
+      \frac{\e^{-\frac{1}{t_{\vi}^{c}\,{\sigmai^{c}}^{2}}}}{
+        t_{\vi}^{c}\,{\sigmai^{c}}^{4}
+      }\,
+      \frac{\e^{-\frac{1}{{l_{\vi}^{c}}^{2}\,t_{\vi}^{c}}}}{
+        {l_{\vi}^{c}}^{2}\,{t_{\vi}^{c}}^{2}
+      }\,\di t_{\vi}^{c}
+      \enspace \di\mu^{c}\,\di{\sigmai^{c}}^{2}
+      \times{}\\
+      &
+      \Phi'\bigl(\mur^{c}\bigr)\ 
+      \frac{1}{5}\sum_{l_{\vr}^{c}=2^{-2}}^{2^{2}}\,
+      \int_{0}^{\infty}
+      \frac{\e^{-\frac{1}{t_{\vr}^{c}\,{\sigmar^{c}}^{2}}}}{
+        t_{\vr}^{c}\,{\sigmar^{c}}^{4}
+      }\,
+      \frac{\e^{-\frac{1}{{l_{\vr}^{c}}^{2}\,t_{\vr}^{c}}}}{
+        {l_{\vr}^{c}}^{2}\,{t_{\vr}^{c}}^{2}
+      }\,\di t_{\vr} ^{c}
+      \enspace \di\mu^{c}\,\di{\sigmar^{c}}^{2}
+      \times{}\\
+      &
+      \Phi'\bigl(\mud^{c}\bigr)\ 
+      \frac{1}{5}\sum_{l_{\vd}^{c}=2^{-2}}^{2^{2}}\,
+      \int_{0}^{\infty}
+      \frac{\e^{-\frac{1}{t_{\vd}^{c}\,{\sigmad^{c}}^{2}}}}{
+        t_{\vd}^{c}\,{\sigmad^{c}}^{4}
+      }\,
+      \frac{\e^{-\frac{1}{{l_{\vd}^{c}}^{2}\,t_{\vd}^{c}}}}{
+        {l_{\vd}^{c}}^{2}\,{t_{\vd}^{c}}^{2}
+      }\,\di t_{\vd} ^{c}
+      \enspace \di\mu^{c}\,\di{\sigmad^{c}}^{2}
+      \Biggr] \ .
+    \end{aligned}
+  \end{multline}
+\end{table}
 
  
 
