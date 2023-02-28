@@ -1,7 +1,7 @@
 \pdfoutput=1
 %% Author: PGL  Porta Mana
 %% Created: 2015-05-01T20:53:34+0200
-%% Last-Updated: 2023-02-28T10:21:20+0100
+%% Last-Updated: 2023-02-28T13:34:43+0100
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newif\ifarxiv
 \arxivfalse
@@ -763,8 +763,19 @@ Open Science Framework \doi{10.17605/osf.io/#1}%
 \newcommand*{\Iyx}{I}
 \newcommand*{\Ix}{I_{\textrm{x}}}
 \newcommand*{\Iy}{I_{\textrm{y}}}
+\newcommand*{\mur}{\mu}
+\newcommand*{\sigmar}{\sigma}
+\newcommand*{\mud}{\nu}
+\newcommand*{\sigmad}{\tau}
+\newcommand*{\mui}{\lambda}
+\newcommand*{\sigmai}{\rho}
 \newcommand*{\muo}{\bar{\mu}}
 \newcommand*{\sigmao}{\bar{\sigma}}
+\newcommand*{\vr}{\textrm{r}}
+\newcommand*{\vd}{\textrm{d}}
+\newcommand*{\vi}{\textrm{i}}
+\newcommand*{\vb}{\textrm{b}}
+\newcommand*{\vc}{\textrm{c}}
 %%% Custom macros end @@@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -925,8 +936,8 @@ There are several prior-probability assignments appropriate to our inference pro
 
 \medskip
 
-Consider the set of units $i=1,2,\dotsc$, excluding $i=0$
-According to our information $I$, we have no reason a priori to assign special probabilities to particular units, before we know their variate values $Y^{1},X^{1},Y^{2},X^{2},\dotsc$. This is reflected in the irrelevance of any possible permutation of their indices. This informational symmetry is expressed by the equality of all joint probabilities for sets of values that can be obtained from one another by permutations of the index $i$:
+Consider the set of units $u=1,2,\dotsc$, excluding $u=0$
+According to our information $I$, we have no reason a priori to assign special probabilities to particular units, before we know their variate values $Y^{1},X^{1},Y^{2},X^{2},\dotsc$. This is reflected in the irrelevance of any possible permutation of their indices. This informational symmetry is expressed by the equality of all joint probabilities for sets of values that can be obtained from one another by permutations of the index $u$:
 \begin{multline}
   \label{eq:exchang12}
   \p(Y^{1}\mo y^{1},X^{1}\mo x^{1},\ 
@@ -934,12 +945,12 @@ According to our information $I$, we have no reason a priori to assign special p
   Y^{3}\mo y^{3},X^{3}\mo x^{3},\dotsc
   \|I) =
   {}\\
-\shoveright{  \p(Y^{1}\mo y^{r(1)},X^{1}\mo x^{r(1)},\ 
-  Y^{2}\mo y^{r(2)},X^{2}\mo x^{r(2)},\ 
-  Y^{3}\mo y^{r(3)},X^{3}\mo x^{r(3)},\dotsc
+\shoveright{  \p(Y^{1}\mo y^{\pi(1)},X^{1}\mo x^{\pi(1)},\ 
+  Y^{2}\mo y^{\pi(2)},X^{2}\mo x^{\pi(2)},\ 
+  Y^{3}\mo y^{\pi(3)},X^{3}\mo x^{\pi(3)},\dotsc
   \|I)
 }  \\
-  \text{for all permutations $r$ and all allowed values $y,x$.}
+  \text{for all permutations $\pi$ and all allowed values $y,x$.}
 \end{multline}
 
 If the number of units is large enough, de~Finetti's theorem\ibid\ proves that such a joint probability distribution must then have the following mathematical form:
@@ -985,7 +996,7 @@ Once the joint probability distribution~\eqref{eq:deFinetti_integral} has been n
 
 Any inferences about any variates of any units for which the joint probability distribution~\eqref{eq:deFinetti_integral} is defined can now be probabilistically answered.
 
-Let us consider inferences about a unit, with index $i=0$, about which we have some additional information $I^{0}$.
+Let us consider inferences about a unit, with index $u=0$, about which we have some additional information $I^{0}$.
 
 \subsection{Full symmetry}
 \label{sec:unit0_full}
@@ -1015,13 +1026,13 @@ A more interesting kind of additional information $\Ix^{0}$  amounts to saying t
   X^{0}\mo x^{*}, X^{1}\mo x^{*},X^{2}\mo x^{*},
   \dotsc,\  \Ix^{0},I) =
   {}\\
-\shoveright{  \p(Y^{0}\mo y^{r(0)}, Y^{1}\mo y^{r(1)}, Y^{2}\mo y^{r(2)}
+\shoveright{  \p(Y^{0}\mo y^{\pi(0)}, Y^{1}\mo y^{\pi(1)}, Y^{2}\mo y^{\pi(2)}
   \|
   X^{0}\mo x^{*}, X^{1}\mo x^{*},X^{2}\mo x^{*},
   \dotsc,\  \Ix^{0},I)
 }
   \\
-  \text{for all permutations $r$ and all allowed values $y,x$.}
+  \text{for all permutations $\pi$ and all allowed values $y,x$.}
 \end{multline}
 If the number of units is large enough, a variant of de~Finetti's theorem \autocites[\sect\,4.6; their presentation is in terms of the integral~\eqref{eq:deFinetti_integral_partialcond}.]{bernardoetal1994_r2000} proves that such a joint probability distribution must then have the following mathematical form:
 \begin{subequations}
@@ -1100,7 +1111,7 @@ Yet another kind of auxiliary information, $\Iy^{0}$, is the one similar to $\Ix
     \int F(x^{1},y^{1})\,\dotsm\  \p(\di F \|I)
   } \ .
 \end{multline}
-The probability in the second row, $\p(Y^{0}\mo y^{0} \| Y^{1}\mo y^{1},X^{1}\mo x^{1},\dotsc,\: \Iy^{0},I)$, must still be assigned \autocites{lindleyetal1981}. This assignment depends strongly on the circumstances. In clinical applications, for example, it is typically further assumed that the units $i=1,2,\dotsc$ are irrelevant for this probability:
+The probability in the second row, $\p(Y^{0}\mo y^{0} \| Y^{1}\mo y^{1},X^{1}\mo x^{1},\dotsc,\: \Iy^{0},I)$, must still be assigned \autocites{lindleyetal1981}. This assignment depends strongly on the circumstances. In clinical applications, for example, it is typically further assumed that the units $u=1,2,\dotsc$ are irrelevant for this probability:
 \begin{equation}
   \label{eq:indepYfromdata}
     \p(Y^{0}\mo y^{0} \|
@@ -1122,12 +1133,12 @@ In all examples of additional information $I^{0}$ considered above, the resultin
   \label{eq:common_density}
   \p(\di F \|D,I) \defd
     \frac{
-    F(x^{1},y^{1})\,F(x^{2},y^{2})\,\dotsm\  
+    F(x^{1},y^{1})\,F(x^{2},y^{2})\,\dotsm\  \p(\di F\| I)
   }{
    \int F(x^{1},y^{1})\,F(x^{2},y^{2})\,\dotsm\  \p(\di F \|I)
   } \ ,
 \end{equation}
-where $D$ is the conjunction of all statements \prop{$Y^{i}\mo y^{i}$}, \prop{$X^{i}\mo x^{i}$} for $i=1,2,\dotsc$. Indeed this probability density can be considered as the updated probability for $\di F$, given the information about all units, $D$.
+where $D$ is the conjunction of all statements \prop{$Y^{u}\mo y^{u}$}, \prop{$X^{u}\mo x^{u}$} for $u=1,2,\dotsc$. Indeed this probability density can be considered as the updated probability for $\di F$, given the information about all units, $D$.
 
 Our next task is to calculate this term.
 
@@ -1195,9 +1206,9 @@ Although the sum in the representation~\eqref{eq:F_repres} is in principle infin
 %   \Bigl[\sum_{c} w^{c}\, K(y^{1} \| \upsilon^{c})\, K(x^{1} \| \xi^{c})\Bigr]\ 
 %   \Bigl[\sum_{c} w^{c}\, K(y^{2} \| \upsilon^{c})\, K(x^{2} \| \xi^{c})\Bigr]\ \dotsm
 %   \equiv{}\\
-%   \prod_{i}
-%   \Bigl[\sum_{c^{i}} w^{c^{i}}\,
-%   K(y^{i} \| \upsilon^{c^{i}})\, K(x^{i} \| \xi^{c^{i}})\Bigr]
+%   \prod_{u}
+%   \Bigl[\sum_{c^{u}} w^{c^{u}}\,
+%   K(y^{u} \| \upsilon^{c^{u}})\, K(x^{u} \| \xi^{c^{u}})\Bigr]
 %   \equiv{}\\
 %   \sum_{c^{1}}\sum_{c^{2}}\dotso
 % \bigl[  w^{c^{1}}\,
@@ -1206,7 +1217,7 @@ Although the sum in the representation~\eqref{eq:F_repres} is in principle infin
 %   K(y^{2} \| \upsilon^{c^{2}})\, K(x^{2} \| \xi^{c^{2}})\ 
 % \dotsm \bigr] \ .
 % \end{multline}
-% In the last term we have as many sums and running indices $c^{i}$ as units $i=1,2,\dotsc$, and corresponding terms within the product. This last expression can be interpreted as the marginalization over variables $c^{1}, c^{2}, \dotsc$ of a product of distributions $G$ defined as
+% In the last term we have as many sums and running indices $c^{u}$ as units $u=1,2,\dotsc$, and corresponding terms within the product. This last expression can be interpreted as the marginalization over variables $c^{1}, c^{2}, \dotsc$ of a product of distributions $G$ defined as
 
 
 A probability density $\p(\di F)$ is finally specified by specifying a density $\p(\di w, \di\upsilon, \di\xi)$. This specification is determined partly by the information underlying the density, partly by computational demands.
@@ -1233,15 +1244,15 @@ and the inverse $\Phi^{-1}\colon \clcl{0,1}\to\set{-\infty}\cup\RR\cup\set{+\inf
 \subsection{Binary variates}
 \label{sec:variates_binary}
 
-For a binary variate $x \in \set{0,1}$ we choose a Bernoulli distribution with weight parameter $\xi=q$:
+For a binary variate $x \in \set{0,1}$ we choose a Bernoulli distribution with weight parameter $r$:
 \begin{equation}
   \label{eq:K_bin}
   \begin{split}
     &x \in \set{0,1}:
 \\
-    &K(x \| q) \defd x\, q + (1-x)\,(1-q) \equiv
+    &K(x \| r) \defd x\, r + (1-x)\,(1-r) \equiv
   \begin{cases}
-    q&\text{ if $x=1$} \\1-q&\text{ if $x=0$}
+    r&\text{ if $x=1$} \\1-r&\text{ if $x=0$}
   \end{cases}
 \end{split}
 \end{equation}
@@ -1251,17 +1262,17 @@ Obviously any other binary values $\set{a,b}$ can be mapped into $\set{0,1}$.
 \subsection{Categorical variates}
 \label{sec:variates_categorical}
 
-For a categorical variate with $n$ possible values, $x \in \set{a_{1}, \dotsc, a_{n}}$, we choose a categorical distribution with normalized weight parameters $q \defd (q_{1}, \dotsc, q_{n})$:
+For a categorical variate with $n$ possible values, $x \in \set{a_{1}, \dotsc, a_{n}}$, we choose a categorical distribution with normalized weight parameters $q \defd (q_{a_1}, \dotsc, q_{a_n})$:
 \begin{equation}
   \label{eq:K_cat}
   \begin{split}
     &x \in \set{a_{1}, \dotsc, a_{n}}:
     \\
-  &K(x \| q) \defd \sum_{i=1}^{n} q_{i}\,\delt(x\mo a_{i}) \equiv
-  \begin{cases}
-    q_{1} &\text{ if $x=a_{1}$}\\\dotso&\\
-    q_{n} &\text{ if $x=a_{n}$}
-  \end{cases}
+  &K(x \| q) \defd q_{x} \ .% \sum_{i=1}^{n} q_{i}\,\delt(x\mo a_{i}) \equiv
+  % \begin{cases}
+  %   q_{1} &\text{ if $x=a_{1}$}\\\dotso&\\
+  %   q_{n} &\text{ if $x=a_{n}$}
+  % \end{cases}
 \end{split}
 \end{equation}
 
@@ -1272,7 +1283,7 @@ Obviously the values $\set{a_{1}, \dotsc, a_{n}}$ can be set in one-one correspo
 
 By \enquote{discrete ordinal} variate it is meant a variate $x$ assuming a discrete number $m$ of values which have a natural ordering, for example integers $x \in \set{1,\dotsc, m}$. The fact that they have a natural ordering has implications for smoothness, in a loose sense of this word. That is, we expect the probabilities for two consecutive values not to have excessive jumps. This is the difference between a discrete-ordinal variate and the categorical one discussed above.
 
-For such a variate we can use a \enquote{discretized-Gaussian} distribution with mean and variance parameters $(\mu,\sigma^{2})$. We first introduce the monotonically increasing function
+For such a variate we can use a \enquote{discretized-Gaussian} distribution with mean and variance parameters $(\mui,\sigmai^{2})$. We first introduce the monotonically increasing function
 \begin{gather}
     \label{eq:Q_function_integer}
     Q\colon \clcl{0,1} \to \set{-\infty}\cup\RR\cup\set{+\infty}
@@ -1288,37 +1299,37 @@ which is shown in the lower panel of \fig~\ref{fig:gaussmix} (\textcolor{bluepur
     &x \in \set{1,\dotsc, m}:
     \\
     &\!\begin{aligned}
-  K(x \| \mu, \sigma^{2}) &\defd
+  K(x \| \mui, \sigmai^{2}) &\defd
   \Phi\biggl[
-  \frac{Q\bigl(\frac{x}{m}\bigr) - \mu}{\sigma}
+  \frac{Q\bigl(\frac{x}{m}\bigr) - \mui}{\sigmai}
   \biggr]
   -
   \Phi\biggl[
-  \frac{Q\bigl(\frac{x-1}{m}\bigr) - \mu}{\sigma}
+  \frac{Q\bigl(\frac{x-1}{m}\bigr) - \mui}{\sigmai}
   \biggr]
   \\[\jot]&\equiv
-  \frac{1}{\sqrt{2\pu\,\sigma^{2}}}\,
+  \frac{1}{\sqrt{2\pu\,\sigmai^{2}}}\,
   \int_{Q(\frac{x-1}{m})}^{Q(\frac{x}{m})}
-  \exp\biggl[-\frac{(z-\mu)^{2}}{2\,\sigma^{2}}\biggr]\, \di z \ .
+  \exp\biggl[-\frac{(z-\mui)^{2}}{2\,\sigmai^{2}}\biggr]\, \di z \ .
 \end{aligned}
 \end{split}
 \end{equation}
-% The discretization points are chosen so that for $\mu=0$, $\sigma=1$ the distribution $K$ is uniform with constant value $1/m$.
+% The discretization points are chosen so that for $\mui=0$, $\sigmai=1$ the distribution $K$ is uniform with constant value $1/m$.
 
 Discrete ordinal variates with other domains can be mapped onto $\set{1,\dotsc,m}$.
 
 \subsection{Continuous real variates}
 \label{sec:variates_real}
 
-For a continuous real variate $x \in \RR$ we choose a Gaussian distribution with mean and variance as the parameters $\xi=(\mu, \sigma^{2})$:
+For a continuous real variate $x \in \RR$ we choose a Gaussian distribution with mean and variance as the parameters $\xi=(\mur, \sigmar^{2})$:
 \begin{equation}
   \label{eq:K_unb_cont}
   \begin{split}
     &x \in \RR:
     \\
-  &K(\di x \| \mu,\sigma^{2}) \defd \Phi'\biggl(\frac{x-\mu}{\sigma}\biggr)\, \di x
-  \equiv \frac{1}{\sqrt{2\pu\,\sigma^{2}}}\,
-  \exp\biggl[-\frac{(x-\mu)^{2}}{2\,\sigma^{2}}\biggr]\, \di x \ .
+  &K(\di x \| \mur,\sigmar^{2}) \defd \Phi'\biggl(\frac{x-\mur}{\sigmar}\biggr)\, \di x
+  \equiv \frac{1}{\sqrt{2\pu\,\sigmar^{2}}}\,
+  \exp\biggl[-\frac{(x-\mur)^{2}}{2\,\sigmar^{2}}\biggr]\, \di x \ .
 \end{split}
 \end{equation}
 
@@ -1329,27 +1340,27 @@ By \enquote{variate with boundary singularity} we mean a continuous variate with
 
 The boundary value or values that such a variate can take often have a singular probability mass (delta distribution), which may arise from the fact that $x$ is censored, that is, it could in principle assume continuous values outside the boundaries, but such values are truncated to the boundary ones.
 
-For such a variate we can use a Gaussian distribution with mean and variance parameters $(\mu,\sigma^{2})$, where the $x \le a$ and $x \ge b$ tails represent the probability mass given to the boundary points:
+For such a variate we can use a Gaussian distribution with mean and variance parameters $(\mud,\sigmad^{2})$, where the $x \le a$ and $x \ge b$ tails represent the probability mass given to the boundary points:
 \begin{equation}
   \begin{split}
     \label{eq:K_cens}
     &x \in \clcl{a,b}:
     \\
-    &K(\di x \| \mu, \sigma^{2}) \defd
+    &K(\di x \| \mud, \sigmad^{2}) \defd
     \begin{dcases}
         \Phi\Bigl(
-  \frac{a - \mu}{\sigma}
+  \frac{a - \mud}{\sigmad}
   \Bigr)
   &\text{if $x=a$}
       \\[2\jot]
         \Phi'\Bigl(
-  \frac{x - \mu}{\sigma}
+  \frac{x - \mud}{\sigmad}
   \Bigr)
   \, \di x
   &\text{if $a < x < b$}
       \\[2\jot]
         \Phi\Bigl(
-  -\frac{b - \mu}{\sigma}
+  -\frac{b - \mud}{\sigmad}
   \Bigr)
   &\text{if $x=b$}
     \end{dcases}
@@ -1384,7 +1395,7 @@ We consider a density that factorizes as follows:
   \prod_{c,j}\bigl[\p(\di\upsilon^{c}_{j} \|I)\,
   \p(\di\xi^{c}_{j} \|I) \bigr] \ .
 \end{equation}
-Furthermore, the densities $\p(\di\xi^{c}_{j} \|I)$ are taken to be identical for each component $c$, but potentially different for different variates $j$:
+The densities $\p(\di\xi^{c}_{j} \|I)$ are furthermore taken to be identical for each component $c$, but potentially different for different variates $j$:
 \begin{equation}
   \label{eq:density_same_c}
   \p(\di\xi^{c}_{j} \|I) = \p(\di\xi^{1}_{j} \|I) \ ,\quad\forall c \ ;
@@ -1415,9 +1426,10 @@ This density is a discretized version of a mixture of Dirichlet distributions wi
 \subsection{Density for parameters of Gaussian components}
 \label{sec:params_gaussian}
 
-We use a common density for the parameters $(\mu,\sigma^{2})$ of components based on a Gaussian density, discussed in \sects~\ref{sec:variates_ordinal}, \ref{sec:variates_real}, \ref{sec:variates_censored}.
+We use a common density for the mean and variance parameters of components based on a Gaussian density, discussed in \sects~\ref{sec:variates_ordinal}, \ref{sec:variates_real}, \ref{sec:variates_censored}. We denote them $(\mu, \sigma^{2})$ in the present section.
 
 In the following, $\muo$ and $\sigmao$ are location and scale hyperparameters for the variate of interest. Their values are problem-dependent, determined by the nature of the variate. They can approximately -- although slightly inconsistently -- be determined by the data, if the latter are numerous. For instance, $\muo$ can be taken to be the median of the data, and $\sigmao$ the median absolute deviation or half the interquartile range of the data. In this way the interval $\clcl{-\sigmao, \sigmao}$ is expected to contain roughly 50\% of the data.%, multiplied by $1/\Phi^{-1}(3/4)$ (the ratio between the standard deviation and the median absolute deviation of a Gaussian).
+These hyperparameters can also be set to unity if we shift and rescale our data according to them, $x \mapsto (x-\muo)/\sigmao$.
 
 
 The density for the mean $\mu$ is a Gaussian distribution:
@@ -1429,7 +1441,7 @@ The density for the mean $\mu$ is a Gaussian distribution:
 
 \medskip
 
-The density for the variance $\sigma^{2}$ is a discrete mixture of beta-prime distributions (or beta distributions of the second kind) \autocites[\sect\,25.7, 27.2]{johnsonetal1970b_r1995}{mcdonald1984} having unit shape hyperparameters and different scale hyperparameters $\tau^{2}$. The beta-prime can in turn be written as a continuous mixture of inverse-gamma distributions \autocites{dubey1970} having different rate parameters $\lambda$:
+The density for the variance $\sigma^{2}$ is a discrete mixture of beta-prime distributions (or beta distributions of the second kind) \autocites[\sect\,25.7, 27.2]{johnsonetal1970b_r1995}{mcdonald1984} having unit shape hyperparameters and different scale hyperparameters $\tau^{2}$. The beta-prime can in turn be written as a continuous mixture of inverse-gamma distributions \autocites{dubey1970} having different rate parameters $t$:
 \begin{equation}
   \label{eq:density_sigma}
   \begin{split}
@@ -1442,12 +1454,12 @@ The density for the variance $\sigma^{2}$ is a discrete mixture of beta-prime di
     \di\sigma^{2}\ 
     \frac{1}{5}\sum_{l=2^{-2}}^{2^{2}}\,
     \int_{0}^{\infty}
-    \frac{\e^{-\frac{1}{\lambda\,\sigma^{2}}}}{
-    \lambda\,\sigma^{4}
+    \frac{\e^{-\frac{1}{t\,\sigma^{2}}}}{
+    t\,\sigma^{4}
   }\,
-    \frac{\e^{-\frac{1}{(l\,\sigmao)^{2}\,\lambda}}}{
-    (l\,\sigmao)^{2}\,\lambda^{2}
-  }\,\di\lambda \ .
+    \frac{\e^{-\frac{1}{(l\,\sigmao)^{2}\,t}}}{
+    (l\,\sigmao)^{2}\,t^{2}
+  }\,\di t \ .
 \end{split}
 \end{equation}
 The expression in terms of inverse-gammas is useful for conditionally conjugate Gibbs sampling. The beta-prime distribution has the appealing property of being symmetric with respect to the relative log-scale parameter $\ln(\sigma/\sigmao)$. We can in fact rewrite the density above as
@@ -1521,12 +1533,12 @@ The combination of prior densities~\eqref{eq:density_w}, \eqref{eq:density_mu}, 
 \subsection{Density for the parameter of Bernoulli components}
 \label{sec:density_bernoulli}
 
-The component distributions for a binary variate, \sect\,\ref{sec:variates_binary}, is a Bernoulli distribution with weight parameter $q \in\clcl{0,1}$. For the density of this parameter we take a uniform distribution on $\clcl{0,1}$, equivalent to a beta distribution with unit shape parameters:
+The component distributions for a binary variate, \sect\,\ref{sec:variates_binary}, is a Bernoulli distribution with weight parameter $r \in\clcl{0,1}$. For the density of this parameter we take a uniform distribution on $\clcl{0,1}$, equivalent to a beta distribution with unit shape parameters:
 \begin{equation}
   \label{eq:density_q_bernoulli}
-  \p(\di q\|I) = \di q \ .
+  \p(\di r\|I) = \di r \ .
 \end{equation}
-This is also the resulting uniform density $\p[F(X \mo 1) \|I]$ for the probability of any one of the binary values.
+This is also the resulting uniform density $\p[\di F(X \mo 1) \|I]$ for the probability of any one of the binary values.
 
 
 \subsection{Density for the parameters of the categorical components}
@@ -1546,7 +1558,41 @@ Components with categorical variates have a categorical distribution with normal
 \label{sec:condition_conj}
 
 
+\section{Explicit form of the density $\p(\di F\|D,I)$}
+\label{sec:explicit_posterion_F}
 
+We can now rewrite the density $\p(\di F \| D,I)$ for $F$ conditional on the known units $D$, \eqn~\eqref{eq:common_density}, in terms of the densities specified in \sect\,\ref{cha:repres_F}. Its resulting expression is not immediately intelligible if written in full generality. We therefore introduce some simplifications that still allow us to understand the more general form. First, the variates $Y$ are omitted because they play the same mathematical role as the $X$ variates. Second, we consider the $X$ variates to be five: $X_{\vb},X_{\vc},X_{\vi},X_{\vr},X_{\vd}$, one for each kind discussed in \sects~\ref{sec:variates_binary}--\ref{sec:variates_censored}. Third, we consider only two known units; therefore $D$ is the conjuction of the statements \prop{$X^{1}\mo x^{1}$} and \prop{$X^{2}\mo x^{2}$}.
+
+In this simplified case, the density $F$ is thus represented by
+\begin{equation}
+  \label{eq:simple_F_repres}
+F \corr (w^{c},\, r^{c},\, q^{c},\,
+  \lambda^{c}, \rho^{c},\,
+  \mu^{c}, \sigma^{c},\,
+  \nu^{c}, \tau^{c}) \ .
+\end{equation}
+
+\begin{multline}
+  \label{eq:posterior_F_explicit}
+  \p(\di F \| D, I) \corr
+  \p(\di w, \di r, \di q,
+  \di \lambda, \di \rho,
+  \di \mu, \di \sigma,
+  \di \nu, \di \tau
+  \| D, I) \propto{}\\
+  \prod_{u}\biggl[
+  \sum_{c^u}
+  w^{c^u}\times{}\\
+  K(x_{\vr}^u\|\mu_{\vr}^{c^u},v_{\vr}^{c^u})\,
+  K(x_{\vd}^u\|\mu_{\vd}^{c^u},v_{\vd}^{c^u})\,
+  K(x_{\vi}^u\|\mu_{\vi}^{c^u},v_{\vi}^{c^u})\,
+  K(x_{\vb}^u\|q_{\vb}^{c^u})\,
+  K(x_{\vc}^u\|q_{\vc}^{c^u})
+  \biggr]
+  \times{}
+  \\
+  test
+\end{multline}
 
 
  
