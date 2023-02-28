@@ -1,7 +1,7 @@
 \pdfoutput=1
 %% Author: PGL  Porta Mana
 %% Created: 2015-05-01T20:53:34+0200
-%% Last-Updated: 2023-02-28T07:55:09+0100
+%% Last-Updated: 2023-02-28T10:21:20+0100
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newif\ifarxiv
 \arxivfalse
@@ -19,8 +19,8 @@ british%
 \newcommand*{\firstdraft}{15 January 2023}
 \newcommand*{\firstpublished}{\firstdraft}
 \newcommand*{\updated}{\ifarxiv***\else\today\ [draft]\fi}
-\newcommand*{\propertitle}{\Large Foundations of inference under symmetry:\\
-{\large A derivation of algorithms for non-parametric density inference}% 
+\newcommand*{\propertitle}{\LARGE Foundations of inference under symmetry:\\
+{\Large An algorithm for non-parametric density inference}% 
 }% title uses LARGE; set Large for smaller
 \newcommand*{\pdftitle}{\propertitle}
 \newcommand*{\headtitle}{}
@@ -410,7 +410,12 @@ Open Science Framework \doi{10.17605/osf.io/#1}%
   \gdef\@chapapp{\appendixname}%
   \gdef\thesection{\@Alph\c@section}%
   \anappendixtrue}\makeatother
+\chapterstyle{section}
 \counterwithout{section}{chapter}
+\renewcommand{\chapnumfont}{\bfseries\sffamily\LARGE}
+\renewcommand{\chaptitlefont}{\chapnumfont}
+\renewcommand{\thechapter}{\Roman{chapter}}
+\renewcommand{\afterchapternum}{\quad}
 \setsecnumformat{\upshape\csname the#1\endcsname\quad}
 \setsecheadstyle{\large\bfseries\sffamily%
 \centering}
@@ -781,7 +786,7 @@ Open Science Framework \doi{10.17605/osf.io/#1}%
 \setlength{\absrightindent}{0pt}
 \setlength{\abstitleskip}{-\absparindent}
 \begin{abstract}\labelsep 0pt%
-  \noindent ***
+  \noindent The first part shows the most general inference procedure about a set of units considered to be exchangeable. The second part discusses a specific mathematical representation of the formulae obtained in the first part. The third part discusses a Markov-chain Monte Carlo algorithm to do the calculations discussed in the first part.
 % \\\noindent\emph{\footnotesize Note: Dear Reader
 %     \amp\ Peer, this manuscript is being peer-reviewed by you. Thank you.}
 % \par%\\[\jot]
@@ -812,6 +817,10 @@ Open Science Framework \doi{10.17605/osf.io/#1}%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% BEGINNING OF MAIN TEXT
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{Derivation of the general inference formulae}
+\label{cha:derivation}
+
 
 \setcounter{section}{-1}
 \section{A warning on notation}
@@ -1123,10 +1132,10 @@ where $D$ is the conjunction of all statements \prop{$Y^{i}\mo y^{i}$}, \prop{$X
 Our next task is to calculate this term.
 
 
-\section{A specific representation of $F$ and its densities}
-\label{sec:repr_density_F}
+\chapter{Specific representation of $F$ and its density}
+\label{cha:repres_F}
 
-\subsection{Mathematical representation of $F$}
+\section{Mathematical representation of $F$}
 \label{sec:repr_F_convexsum}
 
 
@@ -1205,21 +1214,23 @@ A probability density $\p(\di F)$ is finally specified by specifying a density $
 
 These densities can be calculated by a variety of Monte Carlo methods. We discuss the computation in detail in \sect***.
 
-\subsection{Choice of parametric distributions $K$}
+\section{Choice of parametric distributions $K$}
 \label{sec:choice_K}
 
 The choice of parametric distribution $K$ for each variate depends on the mathematical type of variate, on the kind of long-run distribution we expect for it, and on computational convenience. Here are some specific choices. What is said about a variate $x$ and parameters $\xi$ also holds for any variate $y$ and parameters $\upsilon$. In the following, $\Phi$ is the function
-\begin{equation}
+\begin{gather}
   \label{eq:Phi}
   \Phi \colon  \set{-\infty}\cup\RR\cup\set{+\infty}\to\clcl{0,1},
   \qquad
-  \Phi(z) \defd \frac{1}{\sqrt{2\pu}}\, \int_{-\infty}^{z} \exp\Bigl(-\frac{t^{2}}{2}\Bigr)\, \di t \ ,
-\end{equation}
-and $\Phi^{-1}\colon \clcl{0,1}\to\set{-\infty}\cup\RR\cup\set{+\infty}$ its inverse (\enquote{probit} function).
+  \Phi(z) \defd \frac{1}{\sqrt{2\pu}}\, \int_{-\infty}^{z} \exp\biggl(-\frac{t^{2}}{2}\biggr)\, \di t \ ,
+  \\\shortintertext{its derivative is the standard Gaussian density function:}
+  \Phi'(z) =  \frac{1}{\sqrt{2\pu}}\,\exp\biggl(-\frac{z^{2}}{2}\biggr) \ ,
+\end{gather}
+and the inverse $\Phi^{-1}\colon \clcl{0,1}\to\set{-\infty}\cup\RR\cup\set{+\infty}$ is the \enquote{probit} function.
 
 
 
-\subsubsection{Binary variates}
+\subsection{Binary variates}
 \label{sec:variates_binary}
 
 For a binary variate $x \in \set{0,1}$ we choose a Bernoulli distribution with weight parameter $\xi=q$:
@@ -1237,7 +1248,7 @@ For a binary variate $x \in \set{0,1}$ we choose a Bernoulli distribution with w
 
 Obviously any other binary values $\set{a,b}$ can be mapped into $\set{0,1}$.
 
-\subsubsection{Categorical variates}
+\subsection{Categorical variates}
 \label{sec:variates_categorical}
 
 For a categorical variate with $n$ possible values, $x \in \set{a_{1}, \dotsc, a_{n}}$, we choose a categorical distribution with normalized weight parameters $q \defd (q_{1}, \dotsc, q_{n})$:
@@ -1256,7 +1267,7 @@ For a categorical variate with $n$ possible values, $x \in \set{a_{1}, \dotsc, a
 
 Obviously the values $\set{a_{1}, \dotsc, a_{n}}$ can be set in one-one correspondence with $\set{1, \dotsc, n}$.
 
-\subsubsection{Integer or discrete ordinal variates}
+\subsection{Integer or discrete ordinal variates}
 \label{sec:variates_ordinal}
 
 By \enquote{discrete ordinal} variate it is meant a variate $x$ assuming a discrete number $m$ of values which have a natural ordering, for example integers $x \in \set{1,\dotsc, m}$. The fact that they have a natural ordering has implications for smoothness, in a loose sense of this word. That is, we expect the probabilities for two consecutive values not to have excessive jumps. This is the difference between a discrete-ordinal variate and the categorical one discussed above.
@@ -1296,7 +1307,7 @@ which is shown in the lower panel of \fig~\ref{fig:gaussmix} (\textcolor{bluepur
 
 Discrete ordinal variates with other domains can be mapped onto $\set{1,\dotsc,m}$.
 
-\subsubsection{Continuous real variates}
+\subsection{Continuous real variates}
 \label{sec:variates_real}
 
 For a continuous real variate $x \in \RR$ we choose a Gaussian distribution with mean and variance as the parameters $\xi=(\mu, \sigma^{2})$:
@@ -1311,7 +1322,7 @@ For a continuous real variate $x \in \RR$ we choose a Gaussian distribution with
 \end{split}
 \end{equation}
 
-\subsubsection{Continuous variates with boundary singularities or censoring}
+\subsection{Continuous variates with boundary singularities or censoring}
 \label{sec:variates_censored}
 
 By \enquote{variate with boundary singularity} we mean a continuous variate with values in a \emph{closed} or semi-closed bounded set, for example $x \in \clcl{a,b}$ or $x \in \clop{a,+\infty}$. Owing to the topology of its domain, such variate cannot be mapped onto a continuous unbounded one discussed in \sect\,\ref{sec:variates_real}.
@@ -1346,12 +1357,12 @@ For such a variate we can use a Gaussian distribution with mean and variance par
 \end{equation}
 The semi-bounded case $x \in \clop{a,+\infty}$ can be obtained with obvious adjustments. The continuous non-bounded case previously discussed can be seen as a limit case of the present one for $a\to -\infty$, $b\to +\infty$.
 
-\subsubsection{Other continuous variates}
+\subsection{Other continuous variates}
 \label{sec:variates_other}
 
 Other continuous variates with open or semi-open connected domains in the real line can be transformed into the continuous real or censored ones discussed last. For example a variate $z \in \opop{0, +\infty}$ can be transformed into $x=\ln z$, a variate $z \in \opop{a,b}$ into $x=\Phi^{-1}\bigl(\frac{z-a}{b-a}\bigr)$, and a variate $z \in \clop{0, +\infty}$ into $x=\ln(z+q)$ for some $q > 0$ to be treated as a censoring value. These kinds of transformation are often suggested by the nature of the original variate.
 
-\subsection{Density for $F$}
+\section{Density for $F$}
 \label{sec:density_F}
 
 Once the density $F$ is represented by the variables $(w, \upsilon, \xi)$ through \eqn~\eqref{eq:F_repres}, any density $\p(\di w, \di\upsilon, \di\xi \|I)$ for the latter variables also determines (possibly by pull-back) a density $\p(\di F \| I)$ for $F$.
@@ -1382,7 +1393,7 @@ and likewise for $\p(\di\upsilon^{c}_{j} \|I)$.
 
 In the following the specific factor densities are described. The generic parameter $\xi$ is used to include both $\upsilon$ and $\xi$.
 
-\subsubsection{Density for $w$}
+\subsection{Density for $w$}
 \label{sec:params_w}
 
 The density for the weights $w$ is a discrete mixture of Dirichlet distributions with different concentration parameters $\alpha$:
@@ -1401,12 +1412,12 @@ with $\alpha$ running through the values $\set*{2^{-3},2^{-2},2^{-1},1,2^{1},2^{
 This density is a discretized version of a mixture of Dirichlet distributions with a continuous range of concentration parameters \autocites[\eg][\sect\,2.5]{rossi2014}[\sect\,2.1]{rasmussen1999}. The discretized version seems to lead to the same general predictive properties as the continuous one, but is computationally more convenient.
 
 
-\subsubsection{Density for parameters of Gaussian components}
+\subsection{Density for parameters of Gaussian components}
 \label{sec:params_gaussian}
 
 We use a common density for the parameters $(\mu,\sigma^{2})$ of components based on a Gaussian density, discussed in \sects~\ref{sec:variates_ordinal}, \ref{sec:variates_real}, \ref{sec:variates_censored}.
 
-In the following, $\muo$ and $\sigmao$ are location and scale hyperparameters for the variate of interest. Their values are problem-dependent, determined by the nature of the variate. They can approximately -- although slightly inconsistently -- be determined by the data, if the latter are numerous. For instance, $\muo$ can be taken to be the median of the data, and $\sigmao$ one half the interquartile range or the median absolute deviation of the data. In this way the interval $\clcl{-\sigmao, \sigmao}$ is expected to roughly contain 50\% of the data.%, multiplied by $1/\Phi^{-1}(3/4)$ (the ratio between the standard deviation and the median absolute deviation of a Gaussian).
+In the following, $\muo$ and $\sigmao$ are location and scale hyperparameters for the variate of interest. Their values are problem-dependent, determined by the nature of the variate. They can approximately -- although slightly inconsistently -- be determined by the data, if the latter are numerous. For instance, $\muo$ can be taken to be the median of the data, and $\sigmao$ the median absolute deviation or half the interquartile range of the data. In this way the interval $\clcl{-\sigmao, \sigmao}$ is expected to contain roughly 50\% of the data.%, multiplied by $1/\Phi^{-1}(3/4)$ (the ratio between the standard deviation and the median absolute deviation of a Gaussian).
 
 
 The density for the mean $\mu$ is a Gaussian distribution:
@@ -1507,7 +1518,7 @@ The combination of prior densities~\eqref{eq:density_w}, \eqref{eq:density_mu}, 
 \caption{399 samples from the density $\p[\di F \| I]$ for the marginal density $F(\di x)$ of a continuous variate with boundary singularities. The vertical grey lines mark $\pm 2\sigmao$; the boundaries are assumed to be at $\pm 3\sigmao$. The finite probabilities assigned to the boundary values are depicted as small disks; the unit value correspond to the dashed red horizontal line. The thicker green density at the bottom-right corner is the expected marginal density $\E[F\| I](\di x)$.}\label{fig:marginal_real}
 \end{figure}
 
-\subsubsection{Density for the parameter of Bernoulli components}
+\subsection{Density for the parameter of Bernoulli components}
 \label{sec:density_bernoulli}
 
 The component distributions for a binary variate, \sect\,\ref{sec:variates_binary}, is a Bernoulli distribution with weight parameter $q \in\clcl{0,1}$. For the density of this parameter we take a uniform distribution on $\clcl{0,1}$, equivalent to a beta distribution with unit shape parameters:
@@ -1518,7 +1529,7 @@ The component distributions for a binary variate, \sect\,\ref{sec:variates_binar
 This is also the resulting uniform density $\p[F(X \mo 1) \|I]$ for the probability of any one of the binary values.
 
 
-\subsubsection{Density for the parameters of the categorical components}
+\subsection{Density for the parameters of the categorical components}
 \label{sec:density_categorical}
 
 Components with categorical variates have a categorical distribution with normalized weights $q \defd (q_{1},\dotsc,q_{n})$, as discussed in \sect\,\ref{sec:variates_categorical}. The density for these weights is a Dirichlet distribution with unit concentration parameter, or equivalently a constant density on the simplex $\set{q}$:
@@ -1530,6 +1541,11 @@ Components with categorical variates have a categorical distribution with normal
 
 
 \medskip
+
+\section{Conditionally conjugate relationships}
+\label{sec:condition_conj}
+
+
 
 
 
