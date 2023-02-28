@@ -1,7 +1,7 @@
 \pdfoutput=1
 %% Author: PGL  Porta Mana
 %% Created: 2015-05-01T20:53:34+0200
-%% Last-Updated: 2023-02-27T21:45:23+0100
+%% Last-Updated: 2023-02-28T07:55:09+0100
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newif\ifarxiv
 \arxivfalse
@@ -1412,9 +1412,9 @@ In the following, $\muo$ and $\sigmao$ are location and scale hyperparameters fo
 The density for the mean $\mu$ is a Gaussian distribution:
 \begin{equation}
   \label{eq:density_mu}
-  \p(\di \mu\|I) = \Phi'\biggl(\frac{\mu-\muo}{\zeta\,\sigmao}\biggr)\, \di\mu \ ,
+  \p(\di \mu\|I) = \Phi'\biggl(\frac{\mu-\muo}{\sigmao}\biggr)\, \di\mu \ .
 \end{equation}
-where $\zeta \defd 1/\Phi^{-1}(3/4)$ is twice the standard deviation of a Gaussian having unit interquartile range.
+% where $\zeta \defd 1/\Phi^{-1}(3/4)$ is twice the standard deviation of a Gaussian having unit interquartile range.
 
 \medskip
 
@@ -1424,7 +1424,7 @@ The density for the variance $\sigma^{2}$ is a discrete mixture of beta-prime di
   \begin{split}
     \p(\di\sigma^{2}\|I) &=
     \frac{1}{5}\sum_{l=2^{-2}}^{2^{2}}
-    (l\,\zeta\,\sigmao/2)^{-2}\,\biggl[1+\Bigl(\frac{\sigma}{l\,\zeta\,\sigmao/2}\Bigr)^{2}\biggr]^{-2}
+    (l\,\sigmao)^{-2}\,\biggl[1+\Bigl(\frac{\sigma}{l\,\sigmao}\Bigr)^{2}\biggr]^{-2}
     \,\di\sigma^{2}
   \\[2\jot]
   &\equiv
@@ -1434,8 +1434,8 @@ The density for the variance $\sigma^{2}$ is a discrete mixture of beta-prime di
     \frac{\e^{-\frac{1}{\lambda\,\sigma^{2}}}}{
     \lambda\,\sigma^{4}
   }\,
-    \frac{\e^{-\frac{1}{(l\,\zeta\,\sigmao/2)^{2}\,\lambda}}}{
-    (l\,\zeta\,\sigmao/2)^{2}\,\lambda^{2}
+    \frac{\e^{-\frac{1}{(l\,\sigmao)^{2}\,\lambda}}}{
+    (l\,\sigmao)^{2}\,\lambda^{2}
   }\,\di\lambda \ .
 \end{split}
 \end{equation}
@@ -1445,8 +1445,8 @@ The expression in terms of inverse-gammas is useful for conditionally conjugate 
     \p(\di \ln\sigma\|I) =
     \frac{1}{5}\sum_{l=2^{-2}}^{2^{2}}
     2\,\Bigl(
-    \e^{\ln\frac{\sigma}{l\,\zeta\,\sigmao/2}}
-+    \e^{-\ln\frac{\sigma}{l\,\zeta\,\sigmao/2}}
+    \e^{\ln\frac{\sigma}{l\,\sigmao}}
++    \e^{-\ln\frac{\sigma}{l\,\sigmao}}
     \Bigr)^{-2}\, \di\ln\sigma
 \end{equation}
 The mixture of several scale hyperparameters makes it somewhat broader without excessively fattening the tails, as shown in \fig~\ref{fig:betaprime}.

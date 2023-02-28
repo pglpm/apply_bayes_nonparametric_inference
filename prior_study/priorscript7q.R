@@ -49,11 +49,12 @@ nsamples <- 1e6
 nclusters <- 64
 alpha0 <- 2^((-3):3)
 rmean0 <- 0
-rvar0 <- (sdovermad)^2
+zeta <- 1
+rvar0 <- (zeta)^2
 rshapein0 <- 1 # large scales
 rshapeout0 <- 1 # small scales
 hwidth <- 2 # number of powers of 2 to consider in either direction
-rvarscales <- (0.5*sdovermad * 2^((-hwidth):hwidth))^2
+rvarscales <- (zeta * 2^((-hwidth):hwidth))^2
 ##
 xsamples <- rnorm(nsamples,
                   mean=rnorm(nsamples,mean=rmean0,sd=sqrt(rvar0)),
@@ -220,11 +221,11 @@ dev.off()
 nclusters <- 64
 alpha0 <- 2^((-3):3)
 rmean0 <- 0
-rvar0 <- (0+2*sdovermad2)^2
+rvar0 <- (1)^2
 rshapein0 <- 1 # large scales
 rshapeout0 <- 1 # small scales
 hwidth <- 2 # number of powers of 2 to consider in either direction
-rvarscales <- rep(((0+1*sdovermad2) * 2^((-hwidth):hwidth))^2 ,2)
+rvarscales <- (1 * 2^((-hwidth):hwidth))^2
 ##
 nsamples <- 2^24
 xsamples <- rnorm(nsamples,
@@ -237,18 +238,56 @@ xsamples <- rnorm(nsamples,
 
 thismad <- mad(xsamples,constant=1)
 thismad
-xr <- 8
-xgrid <- seq(-xr,xr,length.out=256)
-his <- thist(xsamples[xsamples<xr & xsamples > -xr],n=xgrid)
+xr <- ceiling(max(abs(xsamples)))
+xgrid <- seq(-xr,xr,by=0.1)
+his <- thist(xsamples,n=xgrid)
+his$density <- (his$density + rev(his$density))/2
 pdff('Gaussmix')
-tplot(x=his$mids, y=list(his$density,dnorm(his$mids,sd=sdovermad2*2*thismad),dcauchy(his$mids,scale=thismad),dlogis(his$mids,scale=thismad/qlogis(3/4))),
-      xticks=seq(-xr,xr,by=1)*sdovermad2*2, xlabels=seq(-xr,xr,by=1),
+tplot(x=his$mids, y=list(his$density,dnorm(his$mids,sd=thismad/qnorm(3/4)),dcauchy(his$mids,scale=thismad),dlogis(his$mids,scale=thismad/qlogis(3/4))),
+      xlim=c(-1,1)*6,
+      xticks=seq(-xr,xr,by=1), xlabels=seq(-xr,xr,by=1),
                                         #sapply(seq(-3,3,by=1),function(i)as.expression(bquote(.(i*2)*bar(sigma))))
       xlab=expression(italic(x)/bar(sigma)), ylab='density',
       lwd=c(3,2,2,5),lty=c(1,2,4,3), alpha=c(0,rep(0.25,3)),
       mar=c(NA,5,2,1))
 abline(v=c(-1,1)*thismad,col=alpha2hex(7,0.25),lwd=2)
 dev.off()
+
+
+#### Calculate and save function Q
+nint <- 512
+nsamplesx <- 2^24
+testgr <- c(NULL,
+            tquant(rnorm(nsamplesx,
+                  mean=rnorm(nsamplesx,mean=rmean0,sd=sqrt(rvar0)),
+                  sd=sqrt(
+                      extraDistr::rbetapr(nsamplesx,shape1=rshapein0,shape2=rshapeout0,
+                                          scale=sample(rvarscales,nsamplesx,replace=T))
+                  )
+                  ),
+                  seq(1/nint,(nint-1)/nint,length.out=nint-1)),
+            NULL)
+testgr <- (testgr-rev(testgr))/2
+approxq <- approxfun(x=seq(1/nint,(nint-1)/nint,length.out=nint-1),y=testgr,yleft=-Inf,yright=+Inf)
+saveRDS(approxq,'Qfunction512.rsd')
+
+xss <- foreach(nint=rev(c(5,
+                10,32,100,
+                256)))%do%{
+                (1:(nint-1))/nint}
+
+nint <- 256
+xgrid <- seq(1/nint,(nint-1)/nint,length.out=nint-1)
+pdff('Qfunction2')
+tplot(x=xgrid,y=list(approxq(xgrid),qnorm(xgrid,sd=thismad/qnorm(3/4)),qcauchy(xgrid,scale=thismad),qlogis(xgrid,scale=thismad/qlogis(3/4))),
+      lwd=c(3,2,2,5),lty=c(1,2,4,3), alpha=c(0,rep(0.25,3)),
+      ylim=range(approxq(xgrid)), 
+      ## xticks=c(0,0.25,0.5,0.75,1),xlabels=c(0,expression(italic(m)/4),expression(italic(m)/2),expression(3*italic(m)/4),expression(italic(m))),
+      xlab=expression(italic(x)), ylab=expression(italic(Q)(italic(x))),
+      mar=c(NA,5,2,1))
+dev.off()
+
+
 
 
 #### doubly-censored variate
@@ -260,8 +299,8 @@ pdff('priorsamples_2censored')
 set.seed(123)
 ## tran <- function(x){qnorm(x*(1-2*dd)+dd)}
 ## jac <- function(x){1/dnorm(x*(1-2*dd)+dd)*(1-2*dd)}
-xmin <- -3*sdovermad2
-xmax <- 3*sdovermad2
+xmin <- -2
+xmax <- 2
 ##
 ## hyperparameters
 rowcol <- c(20,20)
@@ -269,11 +308,11 @@ nsamples <- 1e4
 nclusters <- 64
 alpha0 <- 2^((-3):3)
 dmean0 <- 0
-dvar0 <- (0+2*sdovermad2)^2
+dvar0 <- (1)^2
 dshapein0 <- 1 # large scales
 dshapeout0 <- 1 # small scales
 hwidth <- 2 # number of powers of 2 to consider in either direction
-dvarscales <- rep(((0+1*sdovermad2) * 2^((-hwidth):hwidth))^2 ,2)
+dvarscales <- (1 * 2^((-hwidth):hwidth))^2
 ##
 alpha <- sample(rep(alpha0,2),nsamples,replace=T)
 q <- extraDistr::rdirichlet(n=nsamples,alpha=matrix(alpha/nclusters,nsamples,nclusters))
@@ -332,7 +371,7 @@ for(i in 1:nsamples){
     ##     tplot(x=his$mids,y=his$density,type='l',lwd=0.5,add=T,alpha=0.25,col=4)
     ## }
     abline(h=c(0,max(y)),lwd=0.5,col=alpha2hex2(0.5,c(7,7)),lty=c(1,2))
-        abline(v=c(-1,1)*2*sdovermad2,lwd=0.5,col=alpha2hex(7,0.5),lty=1)
+        abline(v=c(-1,1),lwd=0.5,col=alpha2hex(7,0.5),lty=1)
     ## if(i==nsamples){
     ##     abline(v=invtran(c(-1,1)),lwd=0.5,col=alpha2hex(2,0.5),lty=1)
     ##     ## abline(v=c(xmin,xmax),lwd=0.5,col=alpha2hex(0.5,7),lty=2)
@@ -367,11 +406,11 @@ nsamples <- 1e4
 nclusters <- 64
 alpha0 <- 2^((-3):3)
 imean0 <- 0
-ivar0 <- (2*sdovermad2)^2#(7/8)^2
+ivar0 <- (1)^2#(7/8)^2
 ishapein0 <- 1 # large scales
 ishapeout0 <- 1 # small scales
 hwidth <- 2 # number of powers of 2 to consider in either direction
-ivarscales <- ((sdovermad2) * 2^((-hwidth):hwidth))^2
+ivarscales <- (1 * 2^((-hwidth):hwidth))^2
 ##
 alpha <- sample(rep(alpha0,2),nsamples,replace=T)
 q <- extraDistr::rdirichlet(n=nsamples,alpha=matrix(alpha/nclusters,nsamples,nclusters))
@@ -450,11 +489,11 @@ nsamples <- 1e4
 nclusters <- 64
 alpha0 <- 2^((-3):3)
 imean0 <- 0
-ivar0 <- (2*sdovermad2)^2#(7/8)^2
+ivar0 <- (1)^2#(7/8)^2
 ishapein0 <- 1 # large scales
 ishapeout0 <- 1 # small scales
 hwidth <- 2 # number of powers of 2 to consider in either direction
-ivarscales <- ((sdovermad2) * 2^((-hwidth):hwidth))^2
+ivarscales <- (1 * 2^((-hwidth):hwidth))^2
 ##
 alpha <- sample(rep(alpha0,2),nsamples,replace=T)
 q <- extraDistr::rdirichlet(n=nsamples,alpha=matrix(alpha/nclusters,nsamples,nclusters))
@@ -509,37 +548,4 @@ for(i in 1:nsamples){
 }
 dev.off()
 
-
-#### Calculate and save function Q
-nint <- 512
-nsamplesx <- 2^24
-testgr <- c(NULL,
-            tquant(rnorm(nsamplesx,
-                  mean=rnorm(nsamplesx,mean=imean0,sd=sqrt(ivar0)),
-                  sd=sqrt(
-                      extraDistr::rbetapr(nsamplesx,shape1=ishapein0,shape2=ishapeout0,
-                                          scale=sample(ivarscales,nsamplesx,replace=T))
-                  )
-                  ),
-                  seq(1/nint,(nint-1)/nint,length.out=nint-1)),
-            NULL)
-testgr <- (testgr-rev(testgr))/2
-approxq <- approxfun(x=seq(1/nint,(nint-1)/nint,length.out=nint-1),y=testgr,yleft=-Inf,yright=+Inf)
-saveRDS(approxq,'Qfunction512.rsd')
-
-xss <- foreach(nint=rev(c(5,
-                10,32,100,
-                256)))%do%{
-                (1:(nint-1))/nint}
-
-nint <- 256
-xgrid <- seq(1/nint,(nint-1)/nint,length.out=nint-1)
-pdff('Qfunction2')
-tplot(x=xgrid,y=list(approxq(xgrid),qnorm(xgrid,sd=sdovermad2*2*thismad),qcauchy(xgrid,scale=thismad),qlogis(xgrid,scale=thismad/qlogis(3/4))),
-      lwd=c(3,2,2,5),lty=c(1,2,4,3), alpha=c(0,rep(0.25,3)),
-      ylim=range(approxq(xgrid)), 
-      ## xticks=c(0,0.25,0.5,0.75,1),xlabels=c(0,expression(italic(m)/4),expression(italic(m)/2),expression(3*italic(m)/4),expression(italic(m))),
-      xlab=expression(italic(x)), ylab=expression(italic(Q)(italic(x))),
-      mar=c(NA,5,2,1))
-dev.off()
 
