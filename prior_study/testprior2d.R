@@ -338,6 +338,117 @@ dev.off()
 
 
 
+#### continuous variate per cluster
+sdovermad <- 1/qnorm(0.75)
+sdovermad2 <- 0.5/qnorm(0.75)
+## dt <- fread('~/repositories/ledley-jaynes_machine/scripts/ingrid_data_nogds6.csv')
+## varinfo <- data.matrix(read.csv('~/repositories/ledley-jaynes_machine/scripts/varinfo.csv',row.names=1))
+set.seed(123)
+## tran <- function(x){qnorm(x*(1-2*dd)+dd)}
+## jac <- function(x){1/dnorm(x*(1-2*dd)+dd)*(1-2*dd)}
+xlocation <- 0
+xscale <- 1
+xmin <- -5
+xmax <- 5
+##
+rowcol <- c(16,16)
+## hyperparameters
+nclusters <- 64
+alpha0 <- 2^((-3):3)
+rmean0 <- 0
+zeta <- 1
+hwidthmu <- 1 # number of powers of 2 to consider in either direction
+rvar0 <- (zeta * 2^((-hwidthmu):hwidthmu))^2
+rshapein0 <- 1 # large scales
+rshapeout0 <- 1 # small scales
+hwidthsi <- 0 # number of powers of 2 to consider in either direction
+rvarscales <- (zeta * 2^((-hwidthsi):hwidthsi))^2
+##
+##
+nsamples <- 2^15
+maxxsamples <- 2^10
+excl <- 5
+alpha <- sample(rep(alpha0,2),nsamples,replace=T)
+q <- extraDistr::rdirichlet(n=nsamples,alpha=matrix(alpha/nclusters,nsamples,nclusters))
+##
+sd <- sample(rep(sqrt(rvar0),2),nsamples*2,replace=T)
+m <- array(rnorm(nsamples*2*nclusters, mean=rmean0, sd=sd),dim=c(nsamples,2,nclusters))
+##
+shapein <- rshapein0
+shapeout <- rshapeout0
+scalevar <- sample(rep(rvarscales,2),nsamples*2,replace=T)
+commonfactor <- 1
+s <- array(sqrt(nimble::rinvgamma(nsamples*2*nclusters, shape=shapeout,
+                                   rate=nimble::rinvgamma(nsamples*2*commonfactor, shape=shapein, rate=scalevar))),
+            dim=c(nsamples,2,nclusters))
+##
+graphics.off()
+pdff(paste0('priorsamples_real2D_com',commonfactor,'_mu',hwidthmu,'_si',hwidthsi,'_Q',excl), apaper=3)
+pdf1 <- dev.cur()
+pdff(paste0('priorsamples_real1D_com',commonfactor,'_mu',hwidthmu,'_si',hwidthsi,'_Q',excl), apaper=3)
+pdf2 <- dev.cur()
+for(exclu in c(0,excl)){
+    y <- 0
+    dev.set(pdf1)
+    par(mfrow=rowcol,mar = c(0,0,0,0))
+    dev.set(pdf2)
+    par(mfrow=rowcol,mar = c(0,0,0,0))
+    ycol <- xcol <- NA*numeric(nsamples)
+    for(i in 1:nsamples){
+        ##set.seed(321)
+        if(i < prod(rowcol)){nxsamples <- maxxsamples}else{nxsamples <- 2}
+        labs <- sample(1:nclusters, nxsamples, prob=q[i,], replace=T)
+        x <- rnorm(nxsamples, mean=m[i,1,labs], sd=s[i,1,labs])
+        y <- rnorm(nxsamples, mean=m[i,2,labs], sd=s[i,2,labs])
+        xcol[i] <- sample(rep(x,2),1)
+        ycol[i] <- sample(rep(y,2),1)
+        if(i < prod(rowcol) || i == nsamples){
+            if(i == nsamples){
+                x <- xcol[sample(1:length(xcol),maxxsamples,replace=T)]
+                y <- ycol[sample(1:length(ycol),maxxsamples,replace=T)]
+            }
+            dev.set(pdf1)
+            tplot(x=x,y=y,type='p',pch='.',alpha=0.75,
+                  xlim=tquant(x, c(exclu/2,100-exclu/2)/100),
+                  ylim=tquant(y, c(exclu/2,100-exclu/2)/100),
+                  xlabels=NA,ylabels=NA, xlab=NA,ylab=NA,
+                  xticks=NA,yticks=NA,
+                  mar=c(1,1,1,1)*0.5)
+            abline(h=c(-1,0,1),lwd=0.5,col=alpha2hex2(0.25,c(7,2)),lty=c(1,2))
+            abline(v=c(-1,0,1),lwd=0.5,col=alpha2hex2(0.25,c(7,2)),lty=c(1,2))
+            abline(v=par('usr')[1:2],col='black',lwd=0.5)
+            abline(h=par('usr')[3:4],col='black',lwd=0.5)
+            ##
+            ##set.seed(321)
+            boundx <- tquant(x, c(exclu/2,100-exclu/2)/100)
+            xgrid <- seq(boundx[1],boundx[2], length.out=256)
+            if(i < nsamples){
+                ygrid <- rowSums(sapply(1:nclusters,function(acluster){
+                q[i,acluster] * dnorm(xgrid, m[i,1,acluster], s[i,1,acluster])
+                }))
+            }else{
+                ygrid <- foreach(j=1:nsamples, .combine='+')%dopar%{rowSums(sapply(1:nclusters,function(acluster){
+                q[j,acluster] * dnorm(xgrid, m[j,1,acluster], s[j,1,acluster])
+                }))}
+                }
+            ## histx <- thist(x[x >= boundx[1] & x <= boundx[2]], n=128)
+            dev.set(pdf2)
+            tplot(x=xgrid,y=ygrid,alpha=0,lwd=1,
+                  col=(if(i < prod(rowcol)){1}else{3}),
+                  ## xlim=tquant(x, c(exclu/2,100-exclu/2)/100),
+                  ylim=c(0,NA),
+                  xlabels=NA,ylabels=NA, xlab=NA,ylab=NA,
+                  xticks=NA,yticks=NA,
+                  mar=c(1,1,1,1)*0.5)
+            abline(h=c(0),lwd=0.5,col=alpha2hex2(0.25,c(7,2)),lty=c(1,2))
+            abline(v=c(-1,0,1),lwd=0.5,col=alpha2hex2(0.25,c(7,2)),lty=c(1,2))
+            ##abline(v=par('usr')[1:2],col='black',lwd=0.5)
+            ##abline(h=par('usr')[3:4],col='black',lwd=0.5)
+        }
+    }
+}
+dev.off(pdf1)
+dev.off(pdf2)
 
 
 

@@ -549,3 +549,126 @@ for(i in 1:nsamples){
 dev.off()
 
 
+
+
+
+
+
+
+
+#### continuous variate
+sdovermad <- 1/qnorm(0.75)
+sdovermad2 <- 0.5/qnorm(0.75)
+## dt <- fread('~/repositories/ledley-jaynes_machine/scripts/ingrid_data_nogds6.csv')
+## varinfo <- data.matrix(read.csv('~/repositories/ledley-jaynes_machine/scripts/varinfo.csv',row.names=1))
+set.seed(123)
+## tran <- function(x){qnorm(x*(1-2*dd)+dd)}
+## jac <- function(x){1/dnorm(x*(1-2*dd)+dd)*(1-2*dd)}
+xlocation <- 0
+xscale <- 1
+xmin <- -5
+xmax <- 5
+##
+## hyperparameters
+rowcol <- c(20,20)
+nsamples <- 1e6
+nclusters <- 64
+alpha0 <- 2^((-3):3)
+rmean0 <- 0
+zeta <- 1
+rvar0 <- (zeta)^2
+rshapein0 <- 1 # large scales
+hwidth <- 2 # number of powers of 2 to consider in either direction
+rvarscales <- (zeta * 2^((-hwidth):hwidth))^2
+####
+alpha <- sample(rep(alpha0,2),nsamples2,replace=T)
+q <- extraDistr::rdirichlet(n=nsamples2,alpha=matrix(alpha/nclusters,nsamples2,nclusters))
+##
+msh <- 2
+msd <- sqrt(nimble::rinvgamma(nsamples, shape=msh, rate=1))
+mm <- rnorm(nsamples, mean=0, sd=1)
+m <- matrix(rnorm(nsamples*nclusters, mean=mm, sd=msd),nrow=nsamples)
+##
+## shapein <- 1 # sample(rep(rshapein0,2),nsamples*nclusters,replace=T)
+swidth <- 2
+scentre <- 2
+rshapeout0 <- (scentre * 2^((-swidth):swidth)) # small scales
+shapeout <- sample(rep(rshapeout0,2), nsamples, replace=T)
+rshape <- 1
+ratevar <- sqrt(nimble::rinvgamma(nsamples, shape=rshape, rate=1))
+s <- matrix(sqrt(nimble::rinvgamma(nsamples*nclusters,shape=shapeout,rate=ratevar)),nrow=nsamples)
+##
+maxxsamples <- 2^10
+## tplot(x=xgrid,y=dnorm(txgrid)*jac(xgrid))
+graphics.off()
+##pdff(paste0('priorsamples_testgammas_msh',msh,'_sc',scentre,'_rs',rshape))
+pdff(paste0('priorsamples_testgammas'))
+par(mfrow=rowcol,mar = c(0,0,0,0))
+xmax <- 0
+for(i in 1:prod(rowcol)){
+    lab <- sample(1:nclusters, maxxsamples, prob=q[i,], replace=T)
+    xgrid <- max(abs(tquant(rnorm(maxxsamples, mean=m[i,lab], sd=s[i,lab]), c(2.5,97.5)/100)))
+    if(i < prod(rowcol)){
+    xgrid <- seq(-xgrid, xgrid, length.out=256)
+        y <- rowSums(sapply(1:nclusters,function(acluster){
+            q[i,acluster] *
+                dnorm(xgrid, m[i,acluster], s[i,acluster])
+        }))
+    }else{
+        xgrid <- seq(-5,5,length.out=128)
+        y <- sapply(xgrid, function(xx){
+            mean(dnorm(xx, m[,1], s[,1]))
+            })
+        ## y <- foreach(j=1:nsamples, .combine='+', .inorder=F)%dopar%{
+        ##     dnorm(xgrid, m[j,1], s[j,1])
+        ## }/nsamples
+    }
+        tplot(x=xgrid, y=y,
+              xlim=range(c(xgrid,-1,1)),
+          ylim=c(0,NA),
+          xlabels=NA,ylabels=NA, xlab=NA,ylab=NA,
+          xticks=NA,yticks=NA,
+          mar=c(1,1,1,1)*0.5,
+          lwd=0.5,
+          col=(if(i < prod(rowcol)){1}else{3}))
+    ## tplot(x=xgrid[extr2], y=y[extr2],
+    ##       type='p',col=4,cex=0.15,add=T,pch=3)
+    ## if(!is.null(data)){
+    ##     tplot(x=his$mids,y=his$density,type='l',lwd=0.5,add=T,alpha=0.25,col=4)
+    ## }
+    abline(h=c(0),lwd=0.5,col=alpha2hex2(0.25,c(7,2)),lty=c(1,2))
+    abline(v=c(-1,0,1),lwd=0.5,col=alpha2hex2(0.25,c(7,2,7)),lty=c(1,2,1))
+}
+dev.off()
+
+
+pdff('justtest_gamma', apaper=3)
+nsamples <- 2^17
+xlim <- c(-5,5)
+##
+m <- rnorm(nsamples,mean=0,sd=1)
+v <- nimble::rinvgamma(nsamples,1,1)
+x <- rnorm(nsamples,mean=m,sd=sqrt(v))
+y <- rnorm(nsamples,mean=m,sd=sqrt(v))
+tplot(x,y,type='p', pch='.', alpha=0,
+      xlim=range(c(tquant(x,c(2.5,97.5)/100),xlim)),
+      ylim=range(c(tquant(y,c(2.5,97.5)/100),xlim))
+      )
+##
+v <- nimble::rinvgamma(nsamples,1,1)
+x <- rnorm(nsamples,mean=0,sd=sqrt(v))
+y <- rnorm(nsamples,mean=0,sd=sqrt(v))
+tplot(x,y,type='p', pch='.', alpha=0,
+      xlim=range(c(tquant(x,c(2.5,97.5)/100),xlim)),
+      ylim=range(c(tquant(y,c(2.5,97.5)/100),xlim))
+      )
+##
+vx <- nimble::rinvgamma(nsamples,1,1)
+vy <- nimble::rinvgamma(nsamples,1,1)
+x <- rnorm(nsamples,mean=0,sd=sqrt(vx))
+y <- rnorm(nsamples,mean=0,sd=sqrt(vy))
+tplot(x,y,type='p', pch='.', alpha=0,
+      xlim=range(c(tquant(x,c(2.5,97.5)/100),xlim)),
+      ylim=range(c(tquant(y,c(2.5,97.5)/100),xlim))
+      )
+dev.off()
