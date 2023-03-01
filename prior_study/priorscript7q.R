@@ -600,16 +600,18 @@ s <- matrix(sqrt(nimble::rinvgamma(nsamples*nclusters,shape=shapeout,rate=rateva
 ##
 maxxsamples <- 2^10
 ## tplot(x=xgrid,y=dnorm(txgrid)*jac(xgrid))
+xmax <- 0
+exclu <- 2
+nxsamples <- 2^10
 graphics.off()
 ##pdff(paste0('priorsamples_testgammas_msh',msh,'_sc',scentre,'_rs',rshape))
-pdff(paste0('priorsamples_testgammas'))
+pdff(paste0('priorsamples_testgammas'), apaper=3)
 par(mfrow=rowcol,mar = c(0,0,0,0))
-xmax <- 0
 for(i in 1:prod(rowcol)){
     lab <- sample(1:nclusters, maxxsamples, prob=q[i,], replace=T)
-    xgrid <- max(abs(tquant(rnorm(maxxsamples, mean=m[i,lab], sd=s[i,lab]), c(2.5,97.5)/100)))
+    xgrid <- tquant(rnorm(maxxsamples, mean=m[i,lab], sd=s[i,lab]), c(exclu/2,100-exclu/2)/100)
     if(i < prod(rowcol)){
-    xgrid <- seq(-xgrid, xgrid, length.out=256)
+    xgrid <- seq(min(-1,xgrid[1]), max(1,xgrid[2]), length.out=256)
         y <- rowSums(sapply(1:nclusters,function(acluster){
             q[i,acluster] *
                 dnorm(xgrid, m[i,acluster], s[i,acluster])
@@ -638,6 +640,21 @@ for(i in 1:prod(rowcol)){
     ## }
     abline(h=c(0),lwd=0.5,col=alpha2hex2(0.25,c(7,2)),lty=c(1,2))
     abline(v=c(-1,0,1),lwd=0.5,col=alpha2hex2(0.25,c(7,2,7)),lty=c(1,2,1))
+}
+for(i in 1:prod(rowcol)){
+    labs <- sample(1:nclusters, nxsamples, prob=q[i,], replace=T)
+    x <- rnorm(nxsamples, mean=m[i,labs], sd=s[i,labs])
+    y <- rnorm(nxsamples, mean=m[i+round(nsamples/2),labs], sd=s[i+round(nsamples/2),labs])
+            tplot(x=x,y=y,type='p',pch='.',alpha=0.75,
+                  xlim=range(tquant(x, c(exclu/2,100-exclu/2)/100),-1,1),
+                  ylim=range(tquant(y, c(exclu/2,100-exclu/2)/100),-1,1),
+                  xlabels=NA,ylabels=NA, xlab=NA,ylab=NA,
+                  xticks=NA,yticks=NA,
+                  mar=c(1,1,1,1)*0.5)
+            abline(h=c(-1,0,1),lwd=0.5,col=alpha2hex2(0.25,c(7,2)),lty=c(1,2))
+            abline(v=c(-1,0,1),lwd=0.5,col=alpha2hex2(0.25,c(7,2)),lty=c(1,2))
+            abline(v=par('usr')[1:2],col='black',lwd=0.5)
+            abline(h=par('usr')[3:4],col='black',lwd=0.5)
 }
 dev.off()
 
