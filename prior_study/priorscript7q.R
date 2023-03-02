@@ -658,7 +658,302 @@ for(i in 1:prod(rowcol)){
 }
 dev.off()
 
-#### continuous variate
+#### continuous variate - betaprime, no hyperpriors
+sdovermad <- 1/qnorm(0.75)
+sdovermad2 <- 0.5/qnorm(0.75)
+## dt <- fread('~/repositories/ledley-jaynes_machine/scripts/ingrid_data_nogds6.csv')
+## varinfo <- data.matrix(read.csv('~/repositories/ledley-jaynes_machine/scripts/varinfo.csv',row.names=1))
+set.seed(123)
+## tran <- function(x){qnorm(x*(1-2*dd)+dd)}
+## jac <- function(x){1/dnorm(x*(1-2*dd)+dd)*(1-2*dd)}
+xlocation <- 0
+xscale <- 1
+xmin <- -5
+xmax <- 5
+##
+## hyperparameters
+rowcol <- c(20,20)
+nsamples <- 1e6
+nclusters <- 64
+rmean0 <- 0
+zeta <- 1
+rvar0 <- (zeta)^2
+rshapein0 <- 1 # large scales
+hwidth <- 2 # number of powers of 2 to consider in either direction
+rvarscales <- (zeta * 2^((-hwidth):hwidth))^2
+#### Weights
+alphas <- sample(rep(2^((-3):3), 2), nsamples, replace=T)
+q <- extraDistr::rdirichlet(n=nsamples,alpha=matrix(alphas/nclusters,nsamples,nclusters))
+#### Means
+meansHshShape <- 2
+## meansHsd <- sample(rep((1 * 2^((-2):2)), 2), nsamples, replace=T)
+meansHsd <- 1 # sqrt(nimble::rinvgamma(nsamples, shape=meansHshShape, rate=nimble::rinvgamma(nsamples, shape=meansHshShape, rate=1)))
+meansHmean <- 0 # rnorm(nsamples, mean=0, sd=1)
+means <- matrix(rnorm(nsamples*nclusters, mean=meansHmean, sd=meansHsd), nrow=nsamples)
+#### Sds
+sdsHshapes <- 1 # sample(rep((1 * 2^((-2):2)), 2), nsamples, replace=T)
+sdsHrates <- 1 # sample(rep((1 * 2^((-2):2)), 2), nsamples, replace=T)
+sds <- matrix(sqrt(nimble::rinvgamma(nsamples*nclusters, shape=sdsHshapes, rate=nimble::rinvgamma(nsamples*nclusters, shape=sdsHshapes, rate=sdsHrates))), nrow=nsamples)
+##
+maxxsamples <- 2^10
+## tplot(x=xgrid,y=dnorm(txgrid)*jac(xgrid))
+xmax <- 0
+exclu <- 2
+nxsamples <- 2^10
+graphics.off()
+##pdff(paste0('priorsamples_testgammas_msh',msh,'_sc',scentre,'_rs',rshape))
+pdff(paste0('priorsamples_testbetaprimes_nohyper'), apaper=3)
+par(mfrow=rowcol,mar = c(0,0,0,0))
+for(i in 1:prod(rowcol)){
+    lab <- sample(1:nclusters, maxxsamples, prob=q[i,], replace=T)
+    xgrid <- tquant(rnorm(maxxsamples, mean=means[i,lab], sd=sds[i,lab]), c(exclu/2,100-exclu/2)/100)
+    if(i < prod(rowcol)){
+    xgrid <- seq(min(-1,xgrid[1]), max(1,xgrid[2]), length.out=256)
+        y <- rowSums(sapply(1:nclusters,function(acluster){
+            q[i,acluster] *
+                dnorm(xgrid, means[i,acluster], sds[i,acluster])
+        }))
+    }else{
+        xgrid <- seq(-5,5,length.out=128)
+        y <- sapply(xgrid, function(xx){
+            mean(dnorm(xx, means[,1], sds[,1]))
+            })
+        ## y <- foreach(j=1:nsamples, .combine='+', .inorder=F)%dopar%{
+        ##     dnorm(xgrid, means[j,1], sds[j,1])
+        ## }/nsamples
+    }
+        tplot(x=xgrid, y=y,
+              xlim=range(c(xgrid,-1,1)),
+          ylim=c(0,NA),
+          xlabels=NA,ylabels=NA, xlab=NA,ylab=NA,
+          xticks=NA,yticks=NA,
+          mar=c(1,1,1,1)*0.5,
+          lwd=0.5,
+          col=(if(i < prod(rowcol)){1}else{3}))
+    ## tplot(x=xgrid[extr2], y=y[extr2],
+    ##       type='p',col=4,cex=0.15,add=T,pch=3)
+    ## if(!is.null(data)){
+    ##     tplot(x=his$mids,y=his$density,type='l',lwd=0.5,add=T,alpha=0.25,col=4)
+    ## }
+    abline(h=c(0),lwd=0.5,col=alpha2hex2(0.25,c(7,2)),lty=c(1,2))
+    abline(v=c(-1,0,1),lwd=0.5,col=alpha2hex2(0.25,c(7,2,7)),lty=c(1,2,1))
+}
+for(i in 1:prod(rowcol)){
+    labs <- sample(1:nclusters, nxsamples, prob=q[i,], replace=T)
+    x <- rnorm(nxsamples, mean=means[i,labs], sd=sds[i,labs])
+    y <- rnorm(nxsamples, mean=means[i+round(nsamples/2),labs], sd=sds[i+round(nsamples/2),labs])
+            tplot(x=x,y=y,type='p',pch='.',alpha=0.75,
+                  xlim=range(tquant(x, c(exclu/2,100-exclu/2)/100),-1,1),
+                  ylim=range(tquant(y, c(exclu/2,100-exclu/2)/100),-1,1),
+                  xlabels=NA,ylabels=NA, xlab=NA,ylab=NA,
+                  xticks=NA,yticks=NA,
+                  mar=c(1,1,1,1)*0.5)
+            abline(h=c(-1,0,1),lwd=0.5,col=alpha2hex2(0.25,c(7,2)),lty=c(1,2))
+            abline(v=c(-1,0,1),lwd=0.5,col=alpha2hex2(0.25,c(7,2)),lty=c(1,2))
+            abline(v=par('usr')[1:2],col='black',lwd=0.5)
+            abline(h=par('usr')[3:4],col='black',lwd=0.5)
+}
+dev.off()
+
+#### continuous variate - betaprime, discrete scale hyperpriors
+sdovermad <- 1/qnorm(0.75)
+sdovermad2 <- 0.5/qnorm(0.75)
+## dt <- fread('~/repositories/ledley-jaynes_machine/scripts/ingrid_data_nogds6.csv')
+## varinfo <- data.matrix(read.csv('~/repositories/ledley-jaynes_machine/scripts/varinfo.csv',row.names=1))
+set.seed(123)
+## tran <- function(x){qnorm(x*(1-2*dd)+dd)}
+## jac <- function(x){1/dnorm(x*(1-2*dd)+dd)*(1-2*dd)}
+xlocation <- 0
+xscale <- 1
+xmin <- -5
+xmax <- 5
+##
+## hyperparameters
+rowcol <- c(20,20)
+nsamples <- 1e6
+nclusters <- 64
+rmean0 <- 0
+zeta <- 1
+rvar0 <- (zeta)^2
+rshapein0 <- 1 # large scales
+hwidth <- 2 # number of powers of 2 to consider in either direction
+rvarscales <- (zeta * 2^((-hwidth):hwidth))^2
+#### Weights
+alphas <- sample(rep(2^((-3):3), 2), nsamples, replace=T)
+q <- extraDistr::rdirichlet(n=nsamples,alpha=matrix(alphas/nclusters,nsamples,nclusters))
+#### Means
+meansHshShape <- 2
+meansHsd <- sample(rep((1 * 2^((-2):2)), 2), nsamples, replace=T) # sqrt(nimble::rinvgamma(nsamples, shape=meansHshShape, rate=nimble::rinvgamma(nsamples, shape=meansHshShape, rate=1)))
+meansHmean <- 0 # rnorm(nsamples, mean=0, sd=1)
+means <- matrix(rnorm(nsamples*nclusters, mean=meansHmean, sd=meansHsd),
+                nrow=nsamples)
+#### Sds
+sdsHshapes <- 1 # sample(rep((1 * 2^((-2):2)), 2), nsamples, replace=T)
+sdsHrates <- sample(rep((1 * 2^((-2):2))^2, 2), nsamples, replace=T)
+sds <- matrix(sqrt(nimble::rinvgamma(nsamples*nclusters, shape=sdsHshapes,
+                                     rate=nimble::rinvgamma(nsamples*nclusters, shape=sdsHshapes, rate=sdsHrates))),
+              nrow=nsamples)
+##
+maxxsamples <- 2^10
+## tplot(x=xgrid,y=dnorm(txgrid)*jac(xgrid))
+xmax <- 0
+exclu <- 2
+nxsamples <- 2^10
+graphics.off()
+##pdff(paste0('priorsamples_testgammas_msh',msh,'_sc',scentre,'_rs',rshape))
+pdff(paste0('priorsamples_testbetaprimes_discrscalehyper'), apaper=3)
+par(mfrow=rowcol,mar = c(0,0,0,0))
+for(i in 1:prod(rowcol)){
+    lab <- sample(1:nclusters, maxxsamples, prob=q[i,], replace=T)
+    xgrid <- tquant(rnorm(maxxsamples, mean=means[i,lab], sd=sds[i,lab]), c(exclu/2,100-exclu/2)/100)
+    if(i < prod(rowcol)){
+    xgrid <- seq(min(-1,xgrid[1]), max(1,xgrid[2]), length.out=256)
+        y <- rowSums(sapply(1:nclusters,function(acluster){
+            q[i,acluster] *
+                dnorm(xgrid, means[i,acluster], sds[i,acluster])
+        }))
+    }else{
+        xgrid <- seq(-5,5,length.out=128)
+        y <- sapply(xgrid, function(xx){
+            mean(dnorm(xx, means[,1], sds[,1]))
+            })
+        ## y <- foreach(j=1:nsamples, .combine='+', .inorder=F)%dopar%{
+        ##     dnorm(xgrid, means[j,1], sds[j,1])
+        ## }/nsamples
+    }
+        tplot(x=xgrid, y=y,
+              xlim=range(c(xgrid,-1,1)),
+          ylim=c(0,NA),
+          xlabels=NA,ylabels=NA, xlab=NA,ylab=NA,
+          xticks=NA,yticks=NA,
+          mar=c(1,1,1,1)*0.5,
+          lwd=0.5,
+          col=(if(i < prod(rowcol)){1}else{3}))
+    ## tplot(x=xgrid[extr2], y=y[extr2],
+    ##       type='p',col=4,cex=0.15,add=T,pch=3)
+    ## if(!is.null(data)){
+    ##     tplot(x=his$mids,y=his$density,type='l',lwd=0.5,add=T,alpha=0.25,col=4)
+    ## }
+    abline(h=c(0),lwd=0.5,col=alpha2hex2(0.25,c(7,2)),lty=c(1,2))
+    abline(v=c(-1,0,1),lwd=0.5,col=alpha2hex2(0.25,c(7,2,7)),lty=c(1,2,1))
+}
+for(i in 1:prod(rowcol)){
+    labs <- sample(1:nclusters, nxsamples, prob=q[i,], replace=T)
+    x <- rnorm(nxsamples, mean=means[i,labs], sd=sds[i,labs])
+    y <- rnorm(nxsamples, mean=means[i+round(nsamples/2),labs], sd=sds[i+round(nsamples/2),labs])
+            tplot(x=x,y=y,type='p',pch='.',alpha=0.75,
+                  xlim=range(tquant(x, c(exclu/2,100-exclu/2)/100),-1,1),
+                  ylim=range(tquant(y, c(exclu/2,100-exclu/2)/100),-1,1),
+                  xlabels=NA,ylabels=NA, xlab=NA,ylab=NA,
+                  xticks=NA,yticks=NA,
+                  mar=c(1,1,1,1)*0.5)
+            abline(h=c(-1,0,1),lwd=0.5,col=alpha2hex2(0.25,c(7,2)),lty=c(1,2))
+            abline(v=c(-1,0,1),lwd=0.5,col=alpha2hex2(0.25,c(7,2)),lty=c(1,2))
+            abline(v=par('usr')[1:2],col='black',lwd=0.5)
+            abline(h=par('usr')[3:4],col='black',lwd=0.5)
+}
+dev.off()
+
+#### continuous variate - betaprime, discrete shape hyperpriors
+sdovermad <- 1/qnorm(0.75)
+sdovermad2 <- 0.5/qnorm(0.75)
+## dt <- fread('~/repositories/ledley-jaynes_machine/scripts/ingrid_data_nogds6.csv')
+## varinfo <- data.matrix(read.csv('~/repositories/ledley-jaynes_machine/scripts/varinfo.csv',row.names=1))
+set.seed(123)
+## tran <- function(x){qnorm(x*(1-2*dd)+dd)}
+## jac <- function(x){1/dnorm(x*(1-2*dd)+dd)*(1-2*dd)}
+xlocation <- 0
+xscale <- 1
+xmin <- -5
+xmax <- 5
+##
+## hyperparameters
+rowcol <- c(20,20)
+nsamples <- 1e6
+nclusters <- 64
+rmean0 <- 0
+zeta <- 1
+rvar0 <- (zeta)^2
+rshapein0 <- 1 # large scales
+hwidth <- 2 # number of powers of 2 to consider in either direction
+rvarscales <- (zeta * 2^((-hwidth):hwidth))^2
+#### Weights
+alphas <- sample(rep(2^((-3):3), 2), nsamples, replace=T)
+q <- extraDistr::rdirichlet(n=nsamples,alpha=matrix(alphas/nclusters,nsamples,nclusters))
+#### Means
+meansHshShape <- 2
+meansHsd <- sample(rep((1 * 2^((-2):2)), 2), nsamples, replace=T) # sqrt(nimble::rinvgamma(nsamples, shape=meansHshShape, rate=nimble::rinvgamma(nsamples, shape=meansHshShape, rate=1)))
+meansHmean <- 0 # rnorm(nsamples, mean=0, sd=1)
+means <- matrix(rnorm(nsamples*nclusters, mean=meansHmean, sd=meansHsd),
+                nrow=nsamples)
+#### Sds
+sdsHshapes <- sample(rep((1 * 2^((-2):2)), 2), nsamples, replace=T)
+sdsHrates <- 1 # sample(rep((1 * 2^((-2):2))^2, 2), nsamples, replace=T)
+sds <- matrix(sqrt(nimble::rinvgamma(nsamples*nclusters, shape=sdsHshapes,
+                                     rate=nimble::rinvgamma(nsamples*nclusters, shape=sdsHshapes, rate=sdsHrates))),
+              nrow=nsamples)
+##
+maxxsamples <- 2^10
+## tplot(x=xgrid,y=dnorm(txgrid)*jac(xgrid))
+xmax <- 0
+exclu <- 2
+nxsamples <- 2^10
+graphics.off()
+##pdff(paste0('priorsamples_testgammas_msh',msh,'_sc',scentre,'_rs',rshape))
+pdff(paste0('priorsamples_testbetaprimes_discrshapehyper'), apaper=3)
+par(mfrow=rowcol,mar = c(0,0,0,0))
+for(i in 1:prod(rowcol)){
+    lab <- sample(1:nclusters, maxxsamples, prob=q[i,], replace=T)
+    xgrid <- tquant(rnorm(maxxsamples, mean=means[i,lab], sd=sds[i,lab]), c(exclu/2,100-exclu/2)/100)
+    if(i < prod(rowcol)){
+    xgrid <- seq(min(-1,xgrid[1]), max(1,xgrid[2]), length.out=256)
+        y <- rowSums(sapply(1:nclusters,function(acluster){
+            q[i,acluster] *
+                dnorm(xgrid, means[i,acluster], sds[i,acluster])
+        }))
+    }else{
+        xgrid <- seq(-5,5,length.out=128)
+        y <- sapply(xgrid, function(xx){
+            mean(dnorm(xx, means[,1], sds[,1]))
+            })
+        ## y <- foreach(j=1:nsamples, .combine='+', .inorder=F)%dopar%{
+        ##     dnorm(xgrid, means[j,1], sds[j,1])
+        ## }/nsamples
+    }
+        tplot(x=xgrid, y=y,
+              xlim=range(c(xgrid,-1,1)),
+          ylim=c(0,NA),
+          xlabels=NA,ylabels=NA, xlab=NA,ylab=NA,
+          xticks=NA,yticks=NA,
+          mar=c(1,1,1,1)*0.5,
+          lwd=0.5,
+          col=(if(i < prod(rowcol)){1}else{3}))
+    ## tplot(x=xgrid[extr2], y=y[extr2],
+    ##       type='p',col=4,cex=0.15,add=T,pch=3)
+    ## if(!is.null(data)){
+    ##     tplot(x=his$mids,y=his$density,type='l',lwd=0.5,add=T,alpha=0.25,col=4)
+    ## }
+    abline(h=c(0),lwd=0.5,col=alpha2hex2(0.25,c(7,2)),lty=c(1,2))
+    abline(v=c(-1,0,1),lwd=0.5,col=alpha2hex2(0.25,c(7,2,7)),lty=c(1,2,1))
+}
+for(i in 1:prod(rowcol)){
+    labs <- sample(1:nclusters, nxsamples, prob=q[i,], replace=T)
+    x <- rnorm(nxsamples, mean=means[i,labs], sd=sds[i,labs])
+    y <- rnorm(nxsamples, mean=means[i+round(nsamples/2),labs], sd=sds[i+round(nsamples/2),labs])
+            tplot(x=x,y=y,type='p',pch='.',alpha=0.75,
+                  xlim=range(tquant(x, c(exclu/2,100-exclu/2)/100),-1,1),
+                  ylim=range(tquant(y, c(exclu/2,100-exclu/2)/100),-1,1),
+                  xlabels=NA,ylabels=NA, xlab=NA,ylab=NA,
+                  xticks=NA,yticks=NA,
+                  mar=c(1,1,1,1)*0.5)
+            abline(h=c(-1,0,1),lwd=0.5,col=alpha2hex2(0.25,c(7,2)),lty=c(1,2))
+            abline(v=c(-1,0,1),lwd=0.5,col=alpha2hex2(0.25,c(7,2)),lty=c(1,2))
+            abline(v=par('usr')[1:2],col='black',lwd=0.5)
+            abline(h=par('usr')[3:4],col='black',lwd=0.5)
+}
+dev.off()
+
+#### continuous variate - betaprime
 sdovermad <- 1/qnorm(0.75)
 sdovermad2 <- 0.5/qnorm(0.75)
 ## dt <- fread('~/repositories/ledley-jaynes_machine/scripts/ingrid_data_nogds6.csv')
