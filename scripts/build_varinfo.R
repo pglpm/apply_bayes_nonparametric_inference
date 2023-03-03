@@ -50,7 +50,8 @@ buildvarinfo <- function(dt){
             ix <- x[!(x %in% range(x))] # exclude boundary values
             repindex <- mean(table(ix)) # check for repeated values
             contindex <- length(unique(diff(sort(unique(ix)))))/length(ix) # check for repeated values
-            if(contindex > 0.9){ # consider it as continuous
+            contflag <- (!is.integer(xx) | diff(range(xx)) > 64)
+            if(contflag){ # consider it as continuous
                 ## temporary values
                 vtype <- 'R'
                 vn <- Inf
@@ -73,27 +74,47 @@ buildvarinfo <- function(dt){
                 }
             }else{# integer variate
                 vtype <- 'I'
-                vn <- 
-            
+                vmin <- min(1,xx)
+                vmax <- max(xx)
+                vn <- vmax - vmin + 1
         }# end numeric case
             
         }
     }
 }
 
+
+
+dt <- fread('ingrid_data_nogds6.csv')
+
+
 dtx <- dt
 dtx$extra <- rnorm(nrow(dtx))
-dtx <- dtx[sample(1:nrow(dtx), 15)]
+dtx <- dtx[sample(1:nrow(dtx), 150)]
 t(sapply(dtx, function(xx){
     xx <- xx[!is.na(xx)]
     if(length(unique(xx)) > 2){ix <- xx[!(xx %in% range(xx))]}else{ix <- xx}
+    dd0 <- diff(sort(xx))
     dd <- diff(sort(unique(xx)))
+    q1 <- tquant(ix,0.25)
+    q3 <- tquant(ix,0.75)
     c(
-      sum(xx==min(xx)),
-      sum(xx==max(xx)),
-      length(unique(dd))/length(dd),
-      length(unique(dd))/length(xx),
-      mean(table(ix))
+      minc=sum(xx==min(xx)),
+      maxc=sum(xx==max(xx)),
+      diffratio=length(unique(dd))/length(dd),
+      diffratio0=length(unique(dd0))/length(dd0),
+      diffindex=length(unique(dd))/length(xx),
+      diffindex0=length(unique(dd0))/length(xx),
+      meanrep=mean(table(ix)),
+      meanrepiqr=mean(table(ix[ix >= q1 & ix <=q3])),
+      iqrrange=IQR(ix)/diff(range(xx)),
+      min=min(xx),
+      max=max(xx),
+      int=is.integer(xx),
+      unique=length(unique(xx)),
+      uniqueratio=length(unique(xx))/length(xx),
+      rg=diff(range(xx)),
+      NULL
       )
 }))
 rm(dtx)
