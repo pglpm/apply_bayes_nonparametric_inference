@@ -35,6 +35,7 @@ buildvarinfo <- function(dt){
         if(length(unique(x)) == 2){# seems binary variate
             vtype <- 'B'
             vn <- 2
+            vd <- NA
             vmin <- 0
             vmax <- 1
             tmin <- NA
@@ -48,6 +49,7 @@ buildvarinfo <- function(dt){
         }else if(!is.numeric(x)){# categorical variate
             vtype <- 'C'
             vn <- length(unique(x))
+            vd <- NA
             vmin <- 1 # Nimble index categorical from 1
             vmax <- vn
             tmin <- NA
@@ -58,26 +60,30 @@ buildvarinfo <- function(dt){
             scale <- 1
             plotmin <- vmin
             plotmax <- vmax
-        }else{# integer, continuous, or boundary-singular variate
+        }else{# discrete, continuous, or boundary-singular variate
             ix <- x[!(x %in% range(x))] # exclude boundary values
             repindex <- mean(table(ix)) # check for repeated values
             ## contindex <- length(unique(diff(sort(unique(ix)))))/length(ix) # check for repeated values
-            contflag <- (!is.integer(x) | diff(range(x)) > 64)
+            ud <- unique(signif(diff(sort(unique(ix))),6))
+            multi <- 10^(-min(floor(log10(ud))))
+            dd <- round(gcd(ud*multi))/multi
+            ##
             Q1 <- quantile(x, probs=0.25, type=6)
             Q2 <- quantile(x, probs=0.5, type=6)
             Q3 <- quantile(x, probs=0.75, type=6)
-            if(contflag){ # consider it as continuous
+            if(dd == 0){ # consider it as continuous
                 ## temporary values
                 vtype <- 'R'
                 vn <- Inf
+                vd <- 0
                 vmin <- -Inf
                 vmax <- +Inf
                 tmin <- -Inf
                 tmax <- +Inf
-                location <- median(x)
-                scale <- mad(x, constant=1)
-                plotmin <- min(x) - IQR(x)/2
-                plotmax <- max(x) + IQR(x)/2
+                location <- Q2
+                scale <- (Q3-Q1)/2
+                plotmin <- min(x) - scale
+                plotmax <- max(x) + scale
                 ##
                 if(sum(x == min(x)) > repindex){ # seems to be left-singular
                     vtype <- 'D'
@@ -92,26 +98,48 @@ buildvarinfo <- function(dt){
                 if(all(x > 0)){ # seems to be strictly positive
                     transf <- 'log'
                     vmin <- 0
-                    location <- median(log(x))
-                    scale <- mad(log(x), constant=1)
+                    location <- log(Q2)
+                    scale <- (log(Q3) - log(Q1))/2
                     plotmin <- max(vmin, plotmin)
                 }
             }else{# integer variate
                 vtype <- 'I'
-                vmin <- min(1, x)
-                vmax <- max(x)
-                vn <- vmax - vmin + 1
-                tmin <- NA
-                tmax <- NA
-                location <- (vn*vmin-vmax)/(vn-1)
-                scale <- (vmax-vmin)/(vn-1)
-                plotmin <- max(vmin, min(x) - IQR(x)/2)
-                plotmax <- max(x)
+                if(dd >= 1){ # seems originally integer
+                    transf <- 'Q'
+                    vmin <- min(1, x)
+                    vmax <- max(x)
+                    vn <- vmax - vmin + 1
+                    vd <- 0.5
+                    tmin <- NA
+                    tmax <- NA
+                    location <- (vn*vmin-vmax)/(vn-1)
+                    scale <- (vmax-vmin)/(vn-1)
+                    plotmin <- max(vmin, min(x) - IQR(x)/2)
+                    plotmax <- max(x)
+                }else{ # seems a rounded continuous variate
+                    vn <- Inf
+                    vd <- dd/2
+                    vmin <- -Inf
+                    vmax <- +Inf
+                    tmin <- -Inf
+                    tmax <- +Inf
+                    location <- Q2
+                    scale <- (Q3-Q1)/2
+                    plotmin <- min(x) - scale
+                    plotmax <- max(x) + scale
+                    if(all(x > 0)){ # seems to be strictly positive
+                        transf <- 'log'
+                        vmin <- 0
+                        location <- log(Q2)
+                        scale <- (log(Q3) - log(Q1))/2
+                        plotmin <- max(vmin, plotmin)
+                    }
+                }# end rounded
             }# end integer
         }# end numeric
         ##
         varinfo <- rbind(varinfo,
-                         list(type=vtype, transf=transf, n=vn, min=vmin, max=vmax, tmin=tmin, tmax=tmax, location=location, scale=scale, plotmin=plotmin, plotmax=plotmax, Q1=Q1, Q2=Q2, Q3=Q3)
+                         list(type=vtype, transf=transf, n=vn, d=vd, min=vmin, max=vmax, tmin=tmin, tmax=tmax, location=location, scale=scale, plotmin=plotmin, plotmax=plotmax, Q1=Q1, Q2=Q2, Q3=Q3)
                          )
     }
     varinfo <- cbind(name=names(dt), varinfo)
@@ -119,9 +147,14 @@ buildvarinfo <- function(dt){
 }
 
 
-gcd <- function(vect){Reduce(function(x,y) ifelse(y, Recall(y, x %% y), x), as.list(vect))}
-gcdm <- function(...){Reduce(function(x,y) ifelse(y, Recall(y, x %% y), x), list(...))}
+## gcd <- function(vect){Reduce(function(x,y) ifelse(y, Recall(y, x %% y), x), as.list(vect))}
+## gcdm <- function(...){Reduce(function(x,y) ifelse(y, Recall(y, x %% y), x), list(...))}
 
+
+gcd2 <- function(a, b) {
+  if (b == 0) a else Recall(b, a %% b)
+}
+gcd <- function(...) Reduce(gcd2, c(...))
 
 dt <- fread('ingrid_data_nogds6.csv')
 data(iris)
@@ -129,13 +162,14 @@ iris <- as.data.table(iris)
 iris2 <- iris
 iris2$Species <- as.integer(iris2$Species)
 
-dtx <- iris2
+dtx <- dt
 dtx$extra <- rnorm(nrow(dtx))
 dtx <- dtx[sample(1:nrow(dtx), min(10,nrow(dtx)))]
 t(sapply(dtx, function(xx){
     xx <- xx[!is.na(xx)]
-    testd <- sort(unique(signif(diff(sort(unique(xx))),6)))
-    gcd(testd*1e6)/1e6
+    testd <- unique(signif(diff(sort(unique(xx))),6))
+    multi <- 10^(-min(floor(log10(testd))))
+    round(gcd(testd*multi))/multi
 }))
 
 
