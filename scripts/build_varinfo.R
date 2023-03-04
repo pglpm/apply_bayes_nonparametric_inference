@@ -119,12 +119,26 @@ buildvarinfo <- function(dt){
 }
 
 
+gcd <- function(vect){Reduce(function(x,y) ifelse(y, Recall(y, x %% y), x), as.list(vect))}
+gcdm <- function(...){Reduce(function(x,y) ifelse(y, Recall(y, x %% y), x), list(...))}
+
 
 dt <- fread('ingrid_data_nogds6.csv')
 data(iris)
 iris <- as.data.table(iris)
 iris2 <- iris
 iris2$Species <- as.integer(iris2$Species)
+
+dtx <- iris2
+dtx$extra <- rnorm(nrow(dtx))
+dtx <- dtx[sample(1:nrow(dtx), min(10,nrow(dtx)))]
+t(sapply(dtx, function(xx){
+    xx <- xx[!is.na(xx)]
+    testd <- sort(unique(signif(diff(sort(unique(xx))),6)))
+    gcd(testd*1e6)/1e6
+}))
+
+
 
 
 
