@@ -1,7 +1,7 @@
 \pdfoutput=1
 %% Author: PGL  Porta Mana
 %% Created: 2015-05-01T20:53:34+0200
-%% Last-Updated: 2023-02-28T14:19:42+0100
+%% Last-Updated: 2023-03-05T18:15:36+0100
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newif\ifarxiv
 \arxivfalse
@@ -965,6 +965,7 @@ If the number of units is large enough, de~Finetti's theorem\ibid\ proves that s
 \ \p(\di F \|I)
 \end{multline}
 the integral being over all normalized, positive weight distributions $F(y,x)$ over the variables $y,x$. The term $\p(\di F \|I)$ is a positive measure over such distributions.
+
 
 This mathematical representation has an intuitive interpretation. The weight distribution $F(y,x)$ can be interpreted as the frequency distribution of the values $y,x$ among all units. If we knew this frequency distribution, then by symmetry we would assign the probability $F(y,x)$ to measuring $y,x$ on an unsystematically chosen unit, exactly as in sampling from an urn \autocites[\chap~3]{jaynes1994_r2003}. Observations on further units would have probabilities according to \enquote{sampling without replacement}; however, if the total number of units is large and the observed units are few, these probabilities would approximately equal those for \enquote{sampling with replacement} \autocites{heathetal1976}[for error bounds see][]{diaconisetal1980}. These probabilities correspond to the term $F(y^{1},x^{1})\, F(y^{2},x^{2})\,\dotsm$ in the integral. If the frequency distribution $F$ is unknown and we assign a probability density $\p(\di F\|I)$ to it, then the resulting probability for the observations is a convex mixture of the sampling-with-replacement probabilities, weighted by this probability density. This last step follows from the law of total probability, a consequence of the rules~\eqref{eq:Prules}. The integral above corresponds to this convex mixture.
 
