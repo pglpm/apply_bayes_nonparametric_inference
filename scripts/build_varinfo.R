@@ -23,6 +23,9 @@ if(ncores>1){
 }
     
 buildvarinfo <- function(dt){
+    gcd2 <- function(a, b){ if (b == 0) a else Recall(b, a %% b) }
+    gcd <- function(...) Reduce(gcd2, c(...))
+    ##
     dt <- as.data.table(dt)
     maxval <- 0
     varinfo <- data.table()
@@ -41,9 +44,10 @@ buildvarinfo <- function(dt){
             tmin <- NA
             tmax <- NA
             vval <- as.character(unique(x))
+            names(vval) <- paste0('v',1:2)
             maxval <- max(maxval, vn)
-            location <- 0
-            scale <- 1
+            ## location <- 0
+            ## scale <- 1
             plotmin <- vmin
             plotmax <- vmax
         }else if(!is.numeric(x)){# categorical variate
@@ -55,18 +59,16 @@ buildvarinfo <- function(dt){
             tmin <- NA
             tmax <- NA
             vval <- as.character(unique(x))
+            names(vval) <- paste0('v',1:vn)
             maxval <- max(maxval, vn)
-            location <- 0
-            scale <- 1
+            ## location <- 0
+            ## scale <- 1
             plotmin <- vmin
             plotmax <- vmax
         }else{# discrete, continuous, or boundary-singular variate
-            ix <- x[!(x %in% range(x))] # exclude boundary values
-            repindex <- mean(table(ix)) # check for repeated values
-            ## contindex <- length(unique(diff(sort(unique(ix)))))/length(ix) # check for repeated values
-            ud <- unique(signif(diff(sort(unique(ix))),6))
+            ud <- unique(signif(diff(sort(unique(x))),6)) # differences
             multi <- 10^(-min(floor(log10(ud))))
-            dd <- round(gcd(ud*multi))/multi
+            dd <- round(gcd(ud*multi))/multi # greatest common difference
             ##
             Q1 <- quantile(x, probs=0.25, type=6)
             Q2 <- quantile(x, probs=0.5, type=6)
@@ -80,11 +82,14 @@ buildvarinfo <- function(dt){
                 vmax <- +Inf
                 tmin <- -Inf
                 tmax <- +Inf
-                location <- Q2
-                scale <- (Q3-Q1)/2
-                plotmin <- min(x) - scale
-                plotmax <- max(x) + scale
+                ## location <- Q2
+                ## scale <- (Q3-Q1)/2
+                plotmin <- min(x) - (Q3-Q1)/2
+                plotmax <- max(x) + (Q3-Q1)/2
                 ##
+                ix <- x[!(x %in% range(x))] # exclude boundary values
+                repindex <- mean(table(ix)) # average of repeated inner values
+                ## contindex <- length(unique(diff(sort(unique(ix)))))/length(ix) # check for repeated values
                 if(sum(x == min(x)) > repindex){ # seems to be left-singular
                     vtype <- 'D'
                     tmin <- min(x)
@@ -98,8 +103,8 @@ buildvarinfo <- function(dt){
                 if(all(x > 0)){ # seems to be strictly positive
                     transf <- 'log'
                     vmin <- 0
-                    location <- log(Q2)
-                    scale <- (log(Q3) - log(Q1))/2
+                    ## location <- log(Q2)
+                    ## scale <- (log(Q3) - log(Q1))/2
                     plotmin <- max(vmin, plotmin)
                 }
             }else{# integer variate
@@ -112,8 +117,8 @@ buildvarinfo <- function(dt){
                     vd <- 0.5
                     tmin <- NA
                     tmax <- NA
-                    location <- (vn*vmin-vmax)/(vn-1)
-                    scale <- (vmax-vmin)/(vn-1)
+                    ## location <- (vn*vmin-vmax)/(vn-1)
+                    ## scale <- (vmax-vmin)/(vn-1)
                     plotmin <- max(vmin, min(x) - IQR(x)/2)
                     plotmax <- max(x)
                 }else{ # seems a rounded continuous variate
@@ -123,24 +128,27 @@ buildvarinfo <- function(dt){
                     vmax <- +Inf
                     tmin <- -Inf
                     tmax <- +Inf
-                    location <- Q2
-                    scale <- (Q3-Q1)/2
-                    plotmin <- min(x) - scale
-                    plotmax <- max(x) + scale
+                    ## location <- Q2
+                    ## scale <- (Q3-Q1)/2
+                    plotmin <- min(x) - (Q3-Q1)/2
+                    plotmax <- max(x) + (Q3-Q1)/2
                     if(all(x > 0)){ # seems to be strictly positive
                         transf <- 'log'
                         vmin <- 0
-                        location <- log(Q2)
-                        scale <- (log(Q3) - log(Q1))/2
+                        ## location <- log(Q2)
+                        ## scale <- (log(Q3) - log(Q1))/2
                         plotmin <- max(vmin, plotmin)
                     }
                 }# end rounded
             }# end integer
+            vval <- NULL
         }# end numeric
         ##
+        print(vval)
         varinfo <- rbind(varinfo,
-                         list(type=vtype, transf=transf, n=vn, d=vd, min=vmin, max=vmax, tmin=tmin, tmax=tmax, location=location, scale=scale, plotmin=plotmin, plotmax=plotmax, Q1=Q1, Q2=Q2, Q3=Q3)
-                         )
+                         c(list(type=vtype, transf=transf, n=vn, d=vd, min=vmin, max=vmax, tmin=tmin, tmax=tmax, plotmin=plotmin, plotmax=plotmax, Q1=Q1, Q2=Q2, Q3=Q3),
+                           as.list(vval)
+                         ), fill=TRUE)
     }
     varinfo <- cbind(name=names(dt), varinfo)
     varinfo
