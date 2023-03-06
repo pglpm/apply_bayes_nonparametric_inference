@@ -22,14 +22,14 @@ if(ncores>1){
     plan(sequential)
 }
     
-buildvarinfo <- function(dt){
+buildvarinfo <- function(data, file=NULL){
     gcd2 <- function(a, b){ if (b == 0) a else Recall(b, a %% b) }
     gcd <- function(...) Reduce(gcd2, c(...))
     ##
-    dt <- as.data.table(dt)
-    maxval <- 0
+    if(is.character(data) && file.exists(data)){data <- fread(data)}
+    data <- as.data.table(data)
     varinfo <- data.table()
-    for(x in dt){
+    for(x in data){
         x <- x[!is.na(x)]
         transf <- 'identity' # temporary
         Q1 <- NA
@@ -39,34 +39,32 @@ buildvarinfo <- function(dt){
             vtype <- 'B'
             vn <- 2
             vd <- NA
-            vmin <- 0
-            vmax <- 1
+            vmin <- NA
+            vmax <- NA
             tmin <- NA
             tmax <- NA
             vval <- as.character(unique(x))
-            names(vval) <- paste0('v',1:2)
-            maxval <- max(maxval, vn)
-            ## location <- 0
-            ## scale <- 1
-            plotmin <- vmin
-            plotmax <- vmax
-        }else if(!is.numeric(x)){# categorical variate
-            vtype <- 'C'
+            names(vval) <- paste0('V',1:2)
+            location <- NA
+            scale <- NA
+            plotmin <- NA
+            plotmax <- NA
+        }else if(!is.numeric(x)){# nominal variate
+            vtype <- 'N'
             vn <- length(unique(x))
             vd <- NA
-            vmin <- 1 # Nimble index categorical from 1
-            vmax <- vn
+            vmin <- NA # Nimble index categorical from 1
+            vmax <- NA
             tmin <- NA
             tmax <- NA
             vval <- as.character(unique(x))
-            names(vval) <- paste0('v',1:vn)
-            maxval <- max(maxval, vn)
-            ## location <- 0
-            ## scale <- 1
-            plotmin <- vmin
-            plotmax <- vmax
+            names(vval) <- paste0('V',1:vn)
+            location <- NA
+            scale <- NA
+            plotmin <- NA
+            plotmax <- NA
         }else{# discrete, continuous, or boundary-singular variate
-            ud <- unique(signif(diff(sort(unique(x))),6)) # differences
+            ud <- unique(signif(diff(sort(unique(x))),3)) # differences
             multi <- 10^(-min(floor(log10(ud))))
             dd <- round(gcd(ud*multi))/multi # greatest common difference
             ##
@@ -80,10 +78,10 @@ buildvarinfo <- function(dt){
                 vd <- 0
                 vmin <- -Inf
                 vmax <- +Inf
-                tmin <- -Inf
-                tmax <- +Inf
-                ## location <- Q2
-                ## scale <- (Q3-Q1)/2
+                tmin <- NA
+                tmax <- NA
+                location <- Q2
+                scale <- (Q3-Q1)/2
                 plotmin <- min(x) - (Q3-Q1)/2
                 plotmax <- max(x) + (Q3-Q1)/2
                 ##
@@ -91,12 +89,12 @@ buildvarinfo <- function(dt){
                 repindex <- mean(table(ix)) # average of repeated inner values
                 ## contindex <- length(unique(diff(sort(unique(ix)))))/length(ix) # check for repeated values
                 if(sum(x == min(x)) > repindex){ # seems to be left-singular
-                    vtype <- 'D'
+                    vtype <- 'S'
                     tmin <- min(x)
                     plotmin <- tmin
                 }
                 if(sum(x == max(x)) > repindex){ # seems to be right-singular
-                    vtype <- 'D'
+                    vtype <- 'S'
                     tmax <- max(x)
                     plotmax <- tmax
                 }
@@ -107,29 +105,30 @@ buildvarinfo <- function(dt){
                     ## scale <- (log(Q3) - log(Q1))/2
                     plotmin <- max(vmin, plotmin)
                 }
-            }else{# integer variate
-                vtype <- 'I'
+            }else{# ordinal
+                vtype <- 'O'
                 if(dd >= 1){ # seems originally integer
                     transf <- 'Q'
                     vmin <- min(1, x)
                     vmax <- max(x)
                     vn <- vmax - vmin + 1
-                    vd <- 0.5
+                    vd <- 1
                     tmin <- NA
                     tmax <- NA
-                    ## location <- (vn*vmin-vmax)/(vn-1)
-                    ## scale <- (vmax-vmin)/(vn-1)
+                    location <- NA # (vn*vmin-vmax)/(vn-1)
+                    scale <- NA # (vmax-vmin)/(vn-1)
                     plotmin <- max(vmin, min(x) - IQR(x)/2)
                     plotmax <- max(x)
                 }else{ # seems a rounded continuous variate
+                    vtype <- 'R'
                     vn <- Inf
-                    vd <- dd/2
+                    vd <- dd
                     vmin <- -Inf
                     vmax <- +Inf
-                    tmin <- -Inf
-                    tmax <- +Inf
-                    ## location <- Q2
-                    ## scale <- (Q3-Q1)/2
+                    tmin <- NA
+                    tmax <- NA
+                    location <- Q2
+                    scale <- (Q3-Q1)/2
                     plotmin <- min(x) - (Q3-Q1)/2
                     plotmax <- max(x) + (Q3-Q1)/2
                     if(all(x > 0)){ # seems to be strictly positive
@@ -144,14 +143,173 @@ buildvarinfo <- function(dt){
             vval <- NULL
         }# end numeric
         ##
-        print(vval)
         varinfo <- rbind(varinfo,
-                         c(list(type=vtype, transf=transf, n=vn, d=vd, min=vmin, max=vmax, tmin=tmin, tmax=tmax, plotmin=plotmin, plotmax=plotmax, Q1=Q1, Q2=Q2, Q3=Q3),
+                         c(list(type=vtype, Nvalues=vn, step=vd, domainmin=vmin, domainmax=vmax, truncmin=tmin, truncmax=tmax, location=location, scale=scale, plotmin=plotmin, plotmax=plotmax),
                            as.list(vval)
                          ), fill=TRUE)
     }
-    varinfo <- cbind(name=names(dt), varinfo)
-    varinfo
+    varinfo <- cbind(name=names(data), varinfo)
+    if(!is.null(file)){
+        cat(paste0('Saved proposal variate-info file to ',file,'\n'))
+        fwrite(varinfo, file)
+    }else{
+        varinfo
+    }
+}
+
+testf <- function(a){
+    if(a==1){
+        stop('abort')
+    }else{
+        print('continuing')
+    }
+    34
+}
+
+
+buildvarinfoaux <- function(data, varinfo){
+    if(is.character(data) && file.exists(data)){data <- fread(data)}
+    data <- as.data.table(data)
+    if(is.character(varinfo) && file.exists(varinfo)){varinfo <- fread(varinfo)}
+    varinfo <- as.data.table(varinfo)
+    ## consistency checks
+    if(!identical(varinfo$name, colnames(data))){
+        stop('ERROR: mismatch in variate names or order')
+    }
+    ##
+    varinfoaux <- data.table()
+    for(xn in colnames(data)){
+        x <- data[[xn]]
+        x <- x[!is.na(x)]
+        xinfo <- as.list(varinfo[name == xn])
+        transf <- 'identity' # temporary
+        Q1 <- NA
+        Q2 <- NA
+        Q3 <- NA
+        if(varinfo$type == 'B'){# seems binary variate
+            if(length(unique(x)) != 2){
+                cat(paste0('Warning: inconsistencies with variate ',xn,'\n'))
+            }
+            vtype <- 'B'
+            vn <- xinfo$Nvalues
+            vd <- xinfo$step/2
+            vmin <- 0
+            vmax <- 1
+            tmin <- -Inf
+            tmax <- +Inf
+            vval <- as.vector(xinfo[paste0('V',1:vn)], mode='character')
+            location <- 0
+            scale <- 1
+            plotmin <- 0
+            plotmax <- 1
+        }else if(varinfo$type == 'N'){# nominal variate
+            if(!is.numeric(x)){
+                cat(paste0('Warning: inconsistencies with variate ',xn,'\n'))
+            }
+            vtype <- 'C'
+            vn <- xinfo$Nvalues
+            vd <- 0.5
+            vmin <- 1 # Nimble index categorical from 1
+            vmax <- vn
+            tmin <- -Inf
+            tmax <- +Inf
+            vval <- as.vector(xinfo[paste0('V',1:vn)], mode='character')
+            location <- 0
+            scale <- 1
+            plotmin <- 1
+            plotmax <- vn
+        }else{# discrete, continuous, or boundary-singular variate
+            ud <- unique(signif(diff(sort(unique(x))),3)) # differences
+            multi <- 10^(-min(floor(log10(ud))))
+            dd <- round(gcd(ud*multi))/multi # greatest common difference
+            ##
+            Q1 <- quantile(x, probs=0.25, type=6)
+            Q2 <- quantile(x, probs=0.5, type=6)
+            Q3 <- quantile(x, probs=0.75, type=6)
+            if(dd == 0){ # consider it as continuous
+                ## temporary values
+                vtype <- 'R'
+                vn <- Inf
+                vd <- 0
+                vmin <- -Inf
+                vmax <- +Inf
+                tmin <- NA
+                tmax <- NA
+                location <- Q2
+                scale <- (Q3-Q1)/2
+                plotmin <- min(x) - (Q3-Q1)/2
+                plotmax <- max(x) + (Q3-Q1)/2
+                ##
+                ix <- x[!(x %in% range(x))] # exclude boundary values
+                repindex <- mean(table(ix)) # average of repeated inner values
+                ## contindex <- length(unique(diff(sort(unique(ix)))))/length(ix) # check for repeated values
+                if(sum(x == min(x)) > repindex){ # seems to be left-singular
+                    vtype <- 'S'
+                    tmin <- min(x)
+                    plotmin <- tmin
+                }
+                if(sum(x == max(x)) > repindex){ # seems to be right-singular
+                    vtype <- 'S'
+                    tmax <- max(x)
+                    plotmax <- tmax
+                }
+                if(all(x > 0)){ # seems to be strictly positive
+                    transf <- 'log'
+                    vmin <- 0
+                    ## location <- log(Q2)
+                    ## scale <- (log(Q3) - log(Q1))/2
+                    plotmin <- max(vmin, plotmin)
+                }
+            }else{# ordinal
+                vtype <- 'O'
+                if(dd >= 1){ # seems originally integer
+                    transf <- 'Q'
+                    vmin <- min(1, x)
+                    vmax <- max(x)
+                    vn <- vmax - vmin + 1
+                    vd <- 1
+                    tmin <- NA
+                    tmax <- NA
+                    location <- NA # (vn*vmin-vmax)/(vn-1)
+                    scale <- NA # (vmax-vmin)/(vn-1)
+                    plotmin <- max(vmin, min(x) - IQR(x)/2)
+                    plotmax <- max(x)
+                }else{ # seems a rounded continuous variate
+                    vtype <- 'R'
+                    vn <- Inf
+                    vd <- dd
+                    vmin <- -Inf
+                    vmax <- +Inf
+                    tmin <- NA
+                    tmax <- NA
+                    location <- Q2
+                    scale <- (Q3-Q1)/2
+                    plotmin <- min(x) - (Q3-Q1)/2
+                    plotmax <- max(x) + (Q3-Q1)/2
+                    if(all(x > 0)){ # seems to be strictly positive
+                        transf <- 'log'
+                        vmin <- 0
+                        ## location <- log(Q2)
+                        ## scale <- (log(Q3) - log(Q1))/2
+                        plotmin <- max(vmin, plotmin)
+                    }
+                }# end rounded
+            }# end integer
+            vval <- NULL
+        }# end numeric
+        ##
+        varinfo <- rbind(varinfo,
+                         c(list(type=vtype, Nvalues=vn, step=vd, domainmin=vmin, domainmax=vmax, truncmin=tmin, truncmax=tmax, location=location, scale=scale, plotmin=plotmin, plotmax=plotmax),
+                           as.list(vval)
+                         ), fill=TRUE)
+    }
+    varinfo <- cbind(name=names(data), varinfo)
+    if(!is.null(file)){
+        cat(paste0('Saved proposal variate-info file to ',file,'\n'))
+        fwrite(varinfo, file)
+    }else{
+        varinfo
+    }
 }
 
 
