@@ -1,6 +1,6 @@
 ## Author: PGL  Porta Mana
 ## Created: 2022-09-08T17:03:24+0200
-## Last-Updated: 2023-03-02T11:57:21+0100
+## Last-Updated: 2023-03-06T11:14:44+0100
 #########################################
 ## Inference of exchangeable variates (nonparametric density regression)
 ## using effectively-infinite mixture of product kernels
@@ -180,7 +180,7 @@ for(obj in c('constants', 'datapoints', 'inits', 'finitemix', 'finitemixnimble',
 gc()
 
 ## data
-datapoints = c(
+datapoints <- c(
     ## real
     if(len$R > 0){list( Rdata = transf(data0[,variate$R,with=F], varinfo) )},
     ## ## one-censored

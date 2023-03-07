@@ -256,6 +256,7 @@ dev.off()
 
 #### Calculate and save function Q
 nint <- 512
+seqnint <- (1:(nint-1))/nint # seq(1/nint,(nint-1)/nint,length.out=nint-1)
 nsamplesx <- 2^24
 testgr <- c(NULL,
             tquant(rnorm(nsamplesx,
@@ -265,10 +266,11 @@ testgr <- c(NULL,
                                           scale=sample(rvarscales,nsamplesx,replace=T))
                   )
                   ),
-                  seq(1/nint,(nint-1)/nint,length.out=nint-1)),
+                  seqnint
+                  ),
             NULL)
 testgr <- (testgr-rev(testgr))/2
-approxq <- approxfun(x=seq(1/nint,(nint-1)/nint,length.out=nint-1),y=testgr,yleft=-Inf,yright=+Inf)
+approxq <- approxfun(x=seqnint, y=testgr, yleft=-Inf, yright=+Inf)
 saveRDS(approxq,'Qfunction512.rsd')
 
 xss <- foreach(nint=rev(c(5,

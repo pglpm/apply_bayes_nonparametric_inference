@@ -89,12 +89,10 @@ buildvarinfo <- function(data, file=NULL){
                 repindex <- mean(table(ix)) # average of repeated inner values
                 ## contindex <- length(unique(diff(sort(unique(ix)))))/length(ix) # check for repeated values
                 if(sum(x == min(x)) > repindex){ # seems to be left-singular
-                    vtype <- 'S'
                     tmin <- min(x)
                     plotmin <- tmin
                 }
                 if(sum(x == max(x)) > repindex){ # seems to be right-singular
-                    vtype <- 'S'
                     tmax <- max(x)
                     plotmax <- tmax
                 }
@@ -177,6 +175,8 @@ buildvarinfoaux <- function(data, varinfo){
         stop('ERROR: mismatch in variate names or order')
     }
     ##
+    Q <- readRDS('Qfunction512.rds')
+    ##
     varinfoaux <- data.table()
     for(xn in colnames(data)){
         x <- data[[xn]]
@@ -219,9 +219,9 @@ buildvarinfoaux <- function(data, varinfo){
             plotmin <- 1
             plotmax <- vn
         }else{# discrete, continuous, or boundary-singular variate
-            ud <- unique(signif(diff(sort(unique(x))),3)) # differences
-            multi <- 10^(-min(floor(log10(ud))))
-            dd <- round(gcd(ud*multi))/multi # greatest common difference
+            ## ud <- unique(signif(diff(sort(unique(x))),3)) # differences
+            ## multi <- 10^(-min(floor(log10(ud))))
+            dd <- xinfo$step/2 # greatest common difference
             ##
             Q1 <- quantile(x, probs=0.25, type=6)
             Q2 <- quantile(x, probs=0.5, type=6)
@@ -233,35 +233,42 @@ buildvarinfoaux <- function(data, varinfo){
                 vd <- 0
                 vmin <- -Inf
                 vmax <- +Inf
-                tmin <- NA
-                tmax <- NA
-                location <- Q2
-                scale <- (Q3-Q1)/2
-                plotmin <- min(x) - (Q3-Q1)/2
-                plotmax <- max(x) + (Q3-Q1)/2
+                tmin <- xinfo$truncmin
+                tmax <- xinfo$truncmax
+                location <- xinfo$location
+                scale <- xinfo$scale
+                plotmin <- xinfo$plotmin
+                plotmax <- xinfo$plotmax
                 ##
                 ix <- x[!(x %in% range(x))] # exclude boundary values
                 repindex <- mean(table(ix)) # average of repeated inner values
                 ## contindex <- length(unique(diff(sort(unique(ix)))))/length(ix) # check for repeated values
-                if(sum(x == min(x)) > repindex){ # seems to be left-singular
-                    vtype <- 'S'
-                    tmin <- min(x)
-                    plotmin <- tmin
-                }
-                if(sum(x == max(x)) > repindex){ # seems to be right-singular
-                    vtype <- 'S'
-                    tmax <- max(x)
-                    plotmax <- tmax
-                }
-                if(all(x > 0)){ # seems to be strictly positive
+                if(is.finite(xinfo$domainmin) && !is.finite(xinfo$domainmax)){ # seems to be strictly positive
                     transf <- 'log'
-                    vmin <- 0
-                    ## location <- log(Q2)
-                    ## scale <- (log(Q3) - log(Q1))/2
-                    plotmin <- max(vmin, plotmin)
+                    vmin <- xinfo$domainmin
+                    location <- log(xinfo$location - xinfo$domainmin)
+                    ## scale <- (log(xinfo$location + xinfo$scale - xinfo$domainmin) - log(xinfo$location - xinfo$scale + xinfo$domainmin))/2
+                    scale <- xinfo$scale/(xinfo$location - xinfo$domainmin)
+                    tmin <- log(tmin)
+                    tmax <- log(tmax)
                 }
-            }else{# ordinal
-                vtype <- 'O'
+                if(is.finite(xinfo$domainmin) && is.finite(xinfo$domainmax)){ # seems to be doubly bounded
+                    transf <- 'Q'
+                    vmin <- xinfo$domainmin
+                    vmax <- xinfo$domainmax
+                    location <- Q((xinfo$location - xinfo$domainmin)/(xinfo$domainmax - xinfo$domainmin))
+                    scale <- (Q((xinfo$location + xinfo$scale - xinfo$domainmin)/(xinfo$domainmax - xinfo$domainmin)) - Q((xinfo$location - xinfo$scale - xinfo$domainmin)/(xinfo$domainmax - xinfo$domainmin)))/2
+                    tmin <- Q((tmin - xinfo$domainmin)/(xinfo$domainmax - xinfo$domainmin))
+                    tmax <- Q((tmax - xinfo$domainmin)/(xinfo$domainmax - xinfo$domainmin))
+                }
+                if(is.finite(tmin) || is.finite(tmax)){ # seems to be singular at boundary 
+                    vtype <- 'D'
+                }
+
+            }else if(xinfo$type == 'O'){# ordinal
+                vtype <- 'I'
+                v
+                
                 if(dd >= 1){ # seems originally integer
                     transf <- 'Q'
                     vmin <- min(1, x)
