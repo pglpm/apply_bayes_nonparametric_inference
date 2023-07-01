@@ -31,7 +31,7 @@ family <- 'Palatino'
 
 #### Packages and setup ####
 ## load customized plot functions
-if(!exists('tplot')){source('~/work/pglpm_plotfunctions.R')}
+if(!exists('tplot')){source('~/work/tplotfunctions.R')}
 ##
 ## Read MCMC seed from command line
 mcmcseed = as.integer(commandArgs(trailingOnly=TRUE))[1]

@@ -17,7 +17,7 @@ plotmeans <- TRUE
 
 source('~/.Rprofile')
 ## load customized plot functions
-if(!exists('tplot')){source('~/work/pglpm_plotfunctions.R')}
+if(!exists('tplot')){source('~/work/tplotfunctions.R')}
 #### Packages and setup ####
 library('data.table')
 library('png')
