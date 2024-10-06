@@ -6,7 +6,7 @@ library('inferno')
 parallel <- 4
 
 ## Name of directory where the "learning" has been saved
-learntdir <- 'output_learn_nad-1'
+learntdir <- 'output_learn_MDS_PBMC_NAD'
 
 ## Consider several variate domains
 agevalues <- 31:60 # as an example
@@ -14,10 +14,98 @@ treatvalues <- c('NR', 'Placebo')
 sexvalues <- c('Female', 'Male')
 smellvalues <- c('No', 'Yes')
 remvalues <- c('No', 'Yes')
-nad1values <- seq(0.1, 0.7, by = 0.01)
-nad2values <- seq(0.1, 0.7, by = 0.01)
+mdsvalues <- 15:80
+mdsdiffvalues <- (-20):20
+nadvalues <- seq(0.1, 0.7, by = 0.01)
+nadratiovalues <- seq(0.1, 2.5, by = 0.1)
+pbmcvalues <- seq(0.01, 2.5, by = 0.01)
+pbmcratiovalues <- seq(0.1, 11, by = 0.05)
 
-## Check difference in NAD distribution between visits, for various subgroups
+## Check difference in PBMC distribution between visits, for various subgroups
+
+##########################################################################
+#### Examine NAD ratio between visits
+##########################################################################
+
+## Treatment & Sex, create all combinations
+X <- expand.grid(TreatmentGroup = treatvalues, Sex = sexvalues,
+    stringsAsFactors = FALSE)
+##
+probsTSPBMC <- Pr(
+    Y = data.frame(PBMCs.Me.Nam.ratio21 = pbmcratiovalues),
+    X = X,
+    learnt = learntdir,
+    parallel = parallel
+)
+
+tailprobsTSPBMC <- tailPr(
+    Y = data.frame(PBMCs.Me.Nam.ratio21 = 1),
+    X = X,
+    nsamples = 'all',
+    lower.tail = FALSE,
+    learnt = learntdir,
+    parallel = parallel
+)
+
+cbind(X, data.frame(pr=c(tailprobsTSPBMC$values),
+    uncl = c(tailprobsTSPBMC$quantiles[, , 1]),
+    unch = c(tailprobsTSPBMC$quantiles[, , 4])
+    ))
+##   TreatmentGroup    Sex       pr     uncl     unch
+## 1             NR Female 0.803520 0.651432 0.921040
+## 2        Placebo Female 0.673499 0.495248 0.830257
+## 3             NR   Male 0.787842 0.655015 0.898149
+## 4        Placebo   Male 0.657306 0.490693 0.802246
+myhist(tailprobsTSPBMC$samples[,
+    X$Sex == 'Male' & X$TreatmentGroup == 'NR', ], col = 3, plot=T, border=3)
+myhist(tailprobsTSPBMC$samples[,
+    X$Sex == 'Male' & X$TreatmentGroup == 'Placebo', ], plot=T, add = T, col=2, border=2)
+
+
+
+
+
+
+
+
+##########################################################################
+##########################################################################
+##########################################################################
+##########################################################################
+#### OLD STUFF
+
+
+## Plot
+## find max value to plot
+ymax <- max(probsTSPBMC$quantiles[, X$Sex == 'Male', ])
+mypdf('PBMCratio_comparisons_male', portrait = FALSE)
+par(mgp = c(1, 0, 0),
+    oma = c(0.5, 0.5, 0.5, 0.5),
+    mar = c(2, 2, 0, 0)) # space for one row of text at ticks and to separate plots
+## Plot distributions for Male, NR
+plotquantiles(x = pbmcratiovalues,
+    y = probsTSPBMC$quantiles[, X$Sex == 'Male' & X$TreatmentGroup == 'NR',
+        c(1, 4)],
+    col = 2, ylim = c(0, ymax),
+    xlab = 'NAD ratio visit2/visit1', ylab = 'probability')
+plotquantiles(x = pbmcratiovalues,
+    y = probsTSPBMC$quantiles[, X$Sex == 'Male' & X$TreatmentGroup == 'Placebo',
+        c(1, 4)],
+    col = 3,
+    add = TRUE)
+flexiplot(x = pbmcratiovalues,
+    y = probsTSPBMC$values[, X$Sex == 'Male' & X$TreatmentGroup == 'NR'],
+    col = 2, lty = 1, lwd = 3,
+    add = TRUE)
+flexiplot(x = pbmcratiovalues,
+    y = probsTSPBMC$values[, X$Sex == 'Male' & X$TreatmentGroup == 'Placebo'],
+    col = 3, lty = 2, lwd = 3,
+    add = TRUE)
+legend('topright', bty = 'n',
+    col = c(2, 3), lty = 1:2, lwd = 3,
+    legend = c('NR, Male', 'Placebo, Male'))
+dev.off()
+
 
 ## Treatment & Sex, create all combinations
 
