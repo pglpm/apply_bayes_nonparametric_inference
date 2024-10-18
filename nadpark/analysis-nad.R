@@ -36,6 +36,7 @@ probsNADr <- Pr(
     Y = data.frame(NAD.ATP.ratio21 = nadratiovalues),
     X = Xall,
     learnt = learntdir,
+    nsamples = 'all',
     parallel = parallel
 )
 ##
@@ -46,6 +47,7 @@ probsNADrfemale <- Pr(
     Y = data.frame(NAD.ATP.ratio21 = nadratiovalues),
     X = Xfemale,
     learnt = learntdir,
+    nsamples = 'all',
     parallel = parallel
 )
 ##
@@ -56,9 +58,10 @@ probsNADrmale <- Pr(
     Y = data.frame(NAD.ATP.ratio21 = nadratiovalues),
     X = Xmale,
     learnt = learntdir,
+    nsamples = 'all',
     parallel = parallel
 )
-##
+
 ## Plot
 ## find max value to plot
 ymax <- max(probsNADr$quantiles, probsNADrfemale$quantiles, probsNADrmale$quantiles)
@@ -82,6 +85,7 @@ probsPBMCr <- Pr(
     Y = data.frame(PBMCs.Me.Nam.ratio21 = pbmcratiovalues),
     X = Xall,
     learnt = learntdir,
+    nsamples = 'all',
     parallel = parallel
 )
 ##
@@ -92,6 +96,7 @@ probsPBMCrfemale <- Pr(
     Y = data.frame(PBMCs.Me.Nam.ratio21 = pbmcratiovalues),
     X = Xfemale,
     learnt = learntdir,
+    nsamples = 'all',
     parallel = parallel
 )
 ##
@@ -102,9 +107,10 @@ probsPBMCrmale <- Pr(
     Y = data.frame(PBMCs.Me.Nam.ratio21 = pbmcratiovalues),
     X = Xmale,
     learnt = learntdir,
+    nsamples = 'all',
     parallel = parallel
 )
-##
+
 ## Plot
 ## find max value to plot
 ymax <- max(probsPBMCr$quantiles, probsPBMCrfemale$quantiles, probsPBMCrmale$quantiles)
@@ -115,6 +121,139 @@ plot(probsPBMCrmale, ylim = c(0, ymax))
 dev.off()
 
 
+######
+#### Some checks about the probabilty of getting out of quantiles
+######
+
+with(probsNADr,
+    {
+        outf <- sapply(seq_len(dim(samples)[3]),
+            function(i){
+                sum(samples[, 1, i] > quantiles[, 1, 4] |
+                        samples[, 1, i] < quantiles[, 1, 1]) /
+                    dim(samples)[1]
+            })
+        print(summary(outf))
+        mean(outf)
+    })
+##
+with(probsNADr,
+    {
+        outf <- sapply(seq_len(dim(samples)[3]),
+            function(i){
+                sum(samples[, 2, i] > quantiles[, 2, 4] |
+                        samples[, 2, i] < quantiles[, 2, 1]) /
+                    dim(samples)[1]
+            })
+        print(summary(outf))
+        mean(outf)
+    })
+##
+with(probsPBMCr,
+    {
+        outf <- sapply(seq_len(dim(samples)[3]),
+            function(i){
+                sum(samples[, 1, i] > quantiles[, 1, 4] |
+                        samples[, 1, i] < quantiles[, 1, 1]) /
+                    dim(samples)[1]
+            })
+        print(summary(outf))
+        mean(outf)
+    })
+##
+with(probsPBMCr,
+    {
+        outf <- sapply(seq_len(dim(samples)[3]),
+            function(i){
+                sum(samples[, 2, i] > quantiles[, 2, 4] |
+                        samples[, 2, i] < quantiles[, 2, 1]) /
+                    dim(samples)[1]
+            })
+        print(summary(outf))
+        mean(outf)
+    })
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##  0.0000  0.0204  0.0816  0.1100  0.1633  0.7959 
+## [1] 0.11
+## >  Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##  0.0000  0.0204  0.0816  0.1100  0.1633  0.7755 
+## [1] 0.11
+## >  Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##  0.0000  0.0000  0.0377  0.1100  0.1572  0.9245 
+## [1] 0.11
+## >  Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##  0.0000  0.0000  0.0314  0.1100  0.1384  0.9182 
+## [1] 0.11
+
+
+with(probsNADr,
+    {
+        outf <- sapply(seq_len(dim(samples)[3]),
+            function(i){
+                sum(samples[, 1, i] > quantiles[, 1, 3] |
+                        samples[, 1, i] < quantiles[, 1, 2]) /
+                    dim(samples)[1]
+            })
+        print(summary(outf))
+        mean(outf)
+    })
+##
+with(probsNADr,
+    {
+        outf <- sapply(seq_len(dim(samples)[3]),
+            function(i){
+                sum(samples[, 2, i] > quantiles[, 2, 3] |
+                        samples[, 2, i] < quantiles[, 2, 2]) /
+                    dim(samples)[1]
+            })
+        print(summary(outf))
+        mean(outf)
+    })
+##
+with(probsPBMCr,
+    {
+        outf <- sapply(seq_len(dim(samples)[3]),
+            function(i){
+                sum(samples[, 1, i] > quantiles[, 1, 3] |
+                        samples[, 1, i] < quantiles[, 1, 2]) /
+                    dim(samples)[1]
+            })
+        print(summary(outf))
+        mean(outf)
+    })
+##
+with(probsPBMCr,
+    {
+        outf <- sapply(seq_len(dim(samples)[3]),
+            function(i){
+                sum(samples[, 2, i] > quantiles[, 2, 3] |
+                        samples[, 2, i] < quantiles[, 2, 2]) /
+                    dim(samples)[1]
+            })
+        print(summary(outf))
+        mean(outf)
+    })
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##   0.000   0.388   0.510   0.500   0.633   0.959 
+## [1] 0.5
+## >  Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##  0.0204  0.3673  0.5102  0.5000  0.6327  0.9388 
+## [1] 0.5
+## >  Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##   0.000   0.296   0.528   0.500   0.704   0.987 
+## [1] 0.5
+## >  Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##   0.000   0.270   0.509   0.500   0.736   0.981 
+## [1] 0.5
+
+
+
+
+##########################################################################
+##########################################################################
+##########################################################################
+##########################################################################
+#### OLD STUFF
 
 
 
@@ -199,13 +338,6 @@ myhist(tailprobsTSPBMC$samples[,
 
 
 
-
-
-##########################################################################
-##########################################################################
-##########################################################################
-##########################################################################
-#### OLD STUFF
 
 
 ## Plot
