@@ -17,15 +17,146 @@ remvalues <- c('No', 'Yes')
 mdsvalues <- 15:80
 mdsdiffvalues <- (-20):20
 nadvalues <- seq(0.1, 0.7, by = 0.01)
-nadratiovalues <- seq(0.1, 2.5, by = 0.1)
+nadratiovalues <- seq(0.1, 2.5, by = 0.05)
 pbmcvalues <- seq(0.01, 2.5, by = 0.01)
-pbmcratiovalues <- seq(0.1, 11, by = 0.05)
+pbmcratiovalues <- seq(0.1, 8, by = 0.05)
 
 ## Check difference in PBMC distribution between visits, for various subgroups
 
 ##########################################################################
-#### Examine NAD ratio between visits
+#### Examine NAD ratio between visits, only TreatmentGroup
 ##########################################################################
+
+
+## Treatment & Sex, create all combinations
+Xall <- expand.grid(TreatmentGroup = treatvalues,
+    stringsAsFactors = FALSE)
+##
+probsNADr <- Pr(
+    Y = data.frame(NAD.ATP.ratio21 = nadratiovalues),
+    X = Xall,
+    learnt = learntdir,
+    parallel = parallel
+)
+##
+Xfemale <- expand.grid(TreatmentGroup = treatvalues, Sex = 'Female',
+    stringsAsFactors = FALSE)
+##
+probsNADrfemale <- Pr(
+    Y = data.frame(NAD.ATP.ratio21 = nadratiovalues),
+    X = Xfemale,
+    learnt = learntdir,
+    parallel = parallel
+)
+##
+Xmale <- expand.grid(TreatmentGroup = treatvalues, Sex = 'Male',
+    stringsAsFactors = FALSE)
+##
+probsNADrmale <- Pr(
+    Y = data.frame(NAD.ATP.ratio21 = nadratiovalues),
+    X = Xmale,
+    learnt = learntdir,
+    parallel = parallel
+)
+##
+## Plot
+## find max value to plot
+ymax <- max(probsNADr$quantiles, probsNADrfemale$quantiles, probsNADrmale$quantiles)
+mypdf('NADratio_comparisons', portrait = FALSE)
+plot(probsNADr, ylim = c(0, ymax))
+plot(probsNADrfemale, ylim = c(0, ymax))
+plot(probsNADrmale, ylim = c(0, ymax))
+dev.off()
+
+
+##########################################################################
+#### Examine NAD ratio between visits, only TreatmentGroup
+##########################################################################
+
+
+## Treatment & Sex, create all combinations
+Xall <- expand.grid(TreatmentGroup = treatvalues,
+    stringsAsFactors = FALSE)
+##
+probsPBMCr <- Pr(
+    Y = data.frame(PBMCs.Me.Nam.ratio21 = pbmcratiovalues),
+    X = Xall,
+    learnt = learntdir,
+    parallel = parallel
+)
+##
+Xfemale <- expand.grid(TreatmentGroup = treatvalues, Sex = 'Female',
+    stringsAsFactors = FALSE)
+##
+probsPBMCrfemale <- Pr(
+    Y = data.frame(PBMCs.Me.Nam.ratio21 = pbmcratiovalues),
+    X = Xfemale,
+    learnt = learntdir,
+    parallel = parallel
+)
+##
+Xmale <- expand.grid(TreatmentGroup = treatvalues, Sex = 'Male',
+    stringsAsFactors = FALSE)
+##
+probsPBMCrmale <- Pr(
+    Y = data.frame(PBMCs.Me.Nam.ratio21 = pbmcratiovalues),
+    X = Xmale,
+    learnt = learntdir,
+    parallel = parallel
+)
+##
+## Plot
+## find max value to plot
+ymax <- max(probsPBMCr$quantiles, probsPBMCrfemale$quantiles, probsPBMCrmale$quantiles)
+mypdf('PBMCratio_comparisons', portrait = FALSE)
+plot(probsPBMCr, ylim = c(0, ymax))
+plot(probsPBMCrfemale, ylim = c(0, ymax))
+plot(probsPBMCrmale, ylim = c(0, ymax))
+dev.off()
+
+
+
+
+
+
+
+
+probsNADr <- tailPr(
+    Y = data.frame(NAD.ATP.ratio21 = 1),
+    X = X,
+    nsamples = 'all',
+    lower.tail = TRUE,
+    learnt = learntdir,
+    parallel = parallel
+)
+
+
+tailprobsTSPBMC <- tailPr(
+    Y = data.frame(PBMCs.Me.Nam.ratio21 = 1),
+    X = X,
+    nsamples = 'all',
+    lower.tail = FALSE,
+    learnt = learntdir,
+    parallel = parallel
+)
+
+cbind(X, data.frame(pr=c(tailprobsTSPBMC$values),
+    uncl = c(tailprobsTSPBMC$quantiles[, , 1]),
+    unch = c(tailprobsTSPBMC$quantiles[, , 4])
+    ))
+##   TreatmentGroup    Sex       pr     uncl     unch
+## 1             NR Female 0.803520 0.651432 0.921040
+## 2        Placebo Female 0.673499 0.495248 0.830257
+## 3             NR   Male 0.787842 0.655015 0.898149
+## 4        Placebo   Male 0.657306 0.490693 0.802246
+myhist(tailprobsTSPBMC$samples[,
+    X$Sex == 'Male' & X$TreatmentGroup == 'NR', ], col = 3, plot=T, border=3)
+myhist(tailprobsTSPBMC$samples[,
+    X$Sex == 'Male' & X$TreatmentGroup == 'Placebo', ], plot=T, add = T, col=2, border=2)
+
+ls()
+
+
 
 ## Treatment & Sex, create all combinations
 X <- expand.grid(TreatmentGroup = treatvalues, Sex = sexvalues,
