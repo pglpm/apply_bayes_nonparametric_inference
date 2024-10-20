@@ -18,7 +18,7 @@ git-truncate.sh
 .Rhistory
 .RData
 *~
-__*
+_*
 _region_.*
 prv_*
 _data*/
