@@ -6,7 +6,7 @@ library('inferno')
 parallel <- 4
 
 ## Name of directory where the "learning" has been saved
-learntdir <- 'output_learn_AD_MCI_1a'
+learntdir <- 'output_learn_AD_MCI_2'
 
 metadata <- read.csv(file.path(learntdir, 'metadata.csv'), na.strings = '')
 dat <- read.csv('ingrid_dataupd_nogds6.csv', na.strings = '')
@@ -21,3 +21,5 @@ Y <- data.frame(RAVLT_im = ravltimRange)
 X <- data.frame(Subgroup = c('sMCI', 'cAD'))
 ##
 ravltimProb <- Pr(Y = Y, X = X, learnt = learntdir)
+
+plot(ravltimProb)
