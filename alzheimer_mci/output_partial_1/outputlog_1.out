@@ -1,0 +1,22 @@
+
+Registered doParallelSNOW with 2 workers
+
+Using 1 datapoints
+Calculating auxiliary metadata
+
+ ************************** 
+ Saving output in directory
+ output_partial_1 
+ ************************** 
+Starting Monte Carlo sampling of 3600 samples by 60 chains
+in a space of 1727 (effectively 2817) dimensions.
+Using 2 cores: 60 samples per chain, 30 chains per core.
+Core logs are being saved in individual files.
+
+C-compiling samplers appropriate to the variates (package Nimble)
+this can take tens of minutes with many data or variates.
+Please wait...Error in { : task 1 failed - "dim(X) must have a positive length"
+Calls: learn ... %dochains% -> do.call -> <Anonymous> -> <Anonymous>
+
+Closing connections to cores.
+Execution halted
