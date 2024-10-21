@@ -5,7 +5,7 @@ library('inferno')
 seed <- 16
 
 ## How many parallel CPUs to use for the computation?
-parallel <- FALSE
+parallel <- 2
 
 ## Name of directory where to save what has been "learned"
 ## a timestamp may be appended to this string

@@ -9,7 +9,7 @@ parallel <- 2
 
 ## Name of directory where to save what has been "learned"
 ## a timestamp may be appended to this string
-savedir <- 'output_partial_3alpha3'
+savedir <- 'output_partial_3a3'
 
 ## Call the main function for "learning"
 ## it will save everything in the directory outputdir
@@ -19,14 +19,14 @@ outputdir <- learn(
     ## nsamples = 360,
     ## nchains = 2,
     ## maxhours = 0,
-    cleanup = FALSE,
+    ## cleanup = FALSE,
     metadata = 'meta_AD_MCI.csv',
     outputdir = savedir,
     appendtimestamp = FALSE,
     appendinfo = FALSE,
     output = 'directory',
     parallel = parallel,
- hyperparams = list(
+    hyperparams = list(
         ncomponents = 64,
         minalpha = -3,
         maxalpha = 3,
