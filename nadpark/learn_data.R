@@ -9,7 +9,7 @@ parallel <- 12
 
 ## Name of directory where to save what has been "learned"
 ## a timestamp may be appended to this string
-savedir <- 'output_learn_MDS_PBMC_NAD'
+savedir <- 'output_learn_MDS_PBMC_NAD_mad125'
 
 ## Call the main function for "learning"
 ## it will save everything in the directory outputdir
