@@ -5,11 +5,11 @@ library('inferno')
 seed <- 16
 
 ## How many parallel CPUs to use for the computation?
-parallel <- 2
+parallel <- 4
 
 ## Name of directory where to save what has been "learned"
 ## a timestamp may be appended to this string
-savedir <- 'output_partial_3a3'
+savedir <- '___output_partial_3a3'
 
 ## Call the main function for "learning"
 ## it will save everything in the directory outputdir

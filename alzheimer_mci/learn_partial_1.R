@@ -9,7 +9,7 @@ parallel <- 2
 
 ## Name of directory where to save what has been "learned"
 ## a timestamp may be appended to this string
-savedir <- '__test'
+savedir <- '__testb'
 
 ## Call the main function for "learning"
 ## it will save everything in the directory outputdir
