@@ -1,40 +1,0 @@
-
-Registered doParallelSNOW with 2 workers
-
-Using 10 datapoints
-Calculating auxiliary metadata
-
- ************************** 
- Saving output in directory
- output_partial_10 
- ************************** 
-Starting Monte Carlo sampling of 3600 samples by 60 chains
-in a space of 1727 (effectively 7425) dimensions.
-Using 2 cores: 60 samples per chain, 30 chains per core.
-Core logs are being saved in individual files.
-
-C-compiling samplers appropriate to the variates (package Nimble)
-this can take tens of minutes with many data or variates.
-Please wait...Compiled core 1. Number of samplers: 2076.
-Estimating remaining time, please be patient...Sampling. Core 1 estimated remaining time: 480 secs                      Sampling. Core 2 estimated remaining time: 470 secs                      Sampling. Core 2 estimated remaining time: 440 secs                      Sampling. Core 1 estimated remaining time: 450 secs                      Sampling. Core 2 estimated remaining time: 420 secs                      Sampling. Core 1 estimated remaining time: 420 secs                      Sampling. Core 2 estimated remaining time: 390 secs                      Sampling. Core 1 estimated remaining time: 400 secs                      Sampling. Core 2 estimated remaining time: 6.2 mins                      Sampling. Core 1 estimated remaining time: 6.3 mins                      Sampling. Core 2 estimated remaining time: 6 mins                      Sampling. Core 1 estimated remaining time: 6.1 mins                      Sampling. Core 2 estimated remaining time: 5.7 mins                      Sampling. Core 1 estimated remaining time: 5.8 mins                      Sampling. Core 2 estimated remaining time: 5.5 mins                      Sampling. Core 1 estimated remaining time: 5.6 mins                      Sampling. Core 1 estimated remaining time: 5.3 mins                      Sampling. Core 2 estimated remaining time: 5.3 mins                      Sampling. Core 1 estimated remaining time: 5.1 mins                      Sampling. Core 2 estimated remaining time: 5.1 mins                      Sampling. Core 2 estimated remaining time: 4.8 mins                      Sampling. Core 1 estimated remaining time: 4.8 mins                      Sampling. Core 2 estimated remaining time: 4.6 mins                      Sampling. Core 1 estimated remaining time: 4.6 mins                      Sampling. Core 2 estimated remaining time: 4.3 mins                      Sampling. Core 1 estimated remaining time: 4.4 mins                      Sampling. Core 2 estimated remaining time: 4.1 mins                      Sampling. Core 1 estimated remaining time: 4.1 mins                      Sampling. Core 2 estimated remaining time: 3.8 mins                      Sampling. Core 1 estimated remaining time: 3.9 mins                      Sampling. Core 2 estimated remaining time: 3.6 mins                      Sampling. Core 1 estimated remaining time: 3.6 mins                      Sampling. Core 2 estimated remaining time: 3.3 mins                      Sampling. Core 1 estimated remaining time: 3.4 mins                      Sampling. Core 2 estimated remaining time: 3.1 mins                      Sampling. Core 1 estimated remaining time: 3.1 mins                      Sampling. Core 2 estimated remaining time: 2.9 mins                      Sampling. Core 1 estimated remaining time: 2.9 mins                      Sampling. Core 2 estimated remaining time: 2.6 mins                      Sampling. Core 1 estimated remaining time: 2.6 mins                      Sampling. Core 2 estimated remaining time: 2.4 mins                      Sampling. Core 1 estimated remaining time: 2.4 mins                      Sampling. Core 2 estimated remaining time: 2.1 mins                      Sampling. Core 1 estimated remaining time: 2.2 mins                      Sampling. Core 2 estimated remaining time: 1.9 mins                      Sampling. Core 1 estimated remaining time: 1.9 mins                      Sampling. Core 2 estimated remaining time: 1.7 mins                      Sampling. Core 1 estimated remaining time: 1.7 mins                      Sampling. Core 2 estimated remaining time: 1.4 mins                      Sampling. Core 1 estimated remaining time: 1.4 mins                      Sampling. Core 2 estimated remaining time: 1.2 mins                      Sampling. Core 1 estimated remaining time: 1.2 mins                      Sampling. Core 2 estimated remaining time: 0.94 mins                      Sampling. Core 1 estimated remaining time: 0.95 mins                      Sampling. Core 2 estimated remaining time: 0.7 mins                      Sampling. Core 1 estimated remaining time: 0.72 mins                      Sampling. Core 2 estimated remaining time: 0.47 mins                      Sampling. Core 1 estimated remaining time: 0.48 mins                      Sampling. Core 2 estimated remaining time: 0.23 mins                      Sampling. Core 1 estimated remaining time: 0.24 mins                      Finished Monte Carlo sampling.                                 
-
-Max number of Monte Carlo iterations across chains: 3600 
-Max number of used mixture components: 10 
-
-Checking test data
-( #1 #2 #3 #4 #5 #6 #7 #8 #9 #10 )
-
-rel. MC standard error: min: 0.016  max: 0.022  mean: 0.018 
-eff. sample size: min: 2100  max: 4100  mean: 3300 
-needed thinning: min: 2  max: 3  mean: 2.1 
-
-Plotting final Monte Carlo traces and marginal samples...
-
-Total computation time: 8.3 mins 
-Average total time per chain: 0.14 mins 
-
-Removing temporary output files.
-Finished.
-
-
-Closing connections to cores.

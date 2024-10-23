@@ -6,7 +6,7 @@ library('inferno')
 parallel <- 4
 
 ## Name of directory where the "learning" has been saved
-learntdir <- 'output_learn_AD_MCI_2'
+learntdir <- 'output_partial_mad125_704'
 
 metadata <- read.csv(file.path(learntdir, 'metadata.csv'), na.strings = '')
 dat <- read.csv('ingrid_dataupd_nogds6.csv', na.strings = '')
