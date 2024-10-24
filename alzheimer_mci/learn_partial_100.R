@@ -9,7 +9,7 @@ parallel <- 3
 
 ## Name of directory where to save what has been "learned"
 ## a timestamp may be appended to this string
-savedir <- 'output_partial_mad125_100'
+savedir <- 'output_partial_iqr2_100'
 
 ## Call the main function for "learning"
 ## it will save everything in the directory outputdir
